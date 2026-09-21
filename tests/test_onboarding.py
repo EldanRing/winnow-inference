@@ -108,7 +108,7 @@ class Onboarding(unittest.TestCase):
                 "--dry-run",
             ]
             result = json.loads(subprocess.check_output(base, text=True))
-            self.assertIn(str(projector), result["command"])
+            self.assertIn(str(projector.resolve()), result["command"])
             self.assertEqual(result["environment"]["WINNOW_MEMORY"], "exclusive")
             override = json.loads(
                 subprocess.check_output(

@@ -5,6 +5,9 @@ loaded model. `/v1/systemone` evaluates `noul`, `choice`, and `score` questions
 against a shared state. `/v1/chat/completions` retains llama-server's chat, vision,
 and streaming interfaces.
 
+Native **NVIDIA CUDA** and **Apple Silicon Metal + Accelerate** backends expose
+the same decision, chat and vision APIs.
+
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the
 GPU. Winnow-12B is a fine-tune of Gemma 4 12B; the same loaded model serves typed
 decisions and regular chat.
