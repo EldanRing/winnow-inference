@@ -26,6 +26,11 @@ def main():
         help="CPU is for compilation/CI checks, not a supported serving profile",
     )
     p.add_argument("--build-dir", type=Path, default=ROOT / ".build")
+    p.add_argument(
+        "--static-openssl",
+        action="store_true",
+        help="Link OpenSSL statically for portable native archives",
+    )
     a = p.parse_args()
     if a.jobs < 1:
         p.error("jobs must be positive")
@@ -88,6 +93,8 @@ def main():
     ]
     if backend == "cuda":
         args.append(f"-DCMAKE_CUDA_ARCHITECTURES={a.cuda_arch}")
+    if a.static_openssl:
+        args.append("-DOPENSSL_USE_STATIC_LIBS=TRUE")
     run(*args)
     run(
         "cmake",

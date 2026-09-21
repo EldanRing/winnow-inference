@@ -1,0 +1,32 @@
+name: Build Apple Silicon native archive
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  metal:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Prerequisites
+        run: |
+          brew list cmake >/dev/null 2>&1 || brew install cmake
+          brew list openssl@3 >/dev/null 2>&1 || brew install openssl@3
+          echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl@3)" >> "$GITHUB_ENV"
+      - name: Source checks and Metal build
+        run: |
+          python3 -m unittest discover -s tests -p 'test_*.py' -v
+          python3 scripts/build.py --backend metal --static-openssl --jobs 3
+          .build/bin/winnow-server --version
+      - name: Verify portability and package
+        run: python3 scripts/package_macos.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: winnow-macos-arm64
+          path: |
+            dist/winnow-macos-arm64.tar.gz
+            dist/winnow-macos-arm64.tar.gz.sha256
+          if-no-files-found: error

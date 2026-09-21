@@ -23,66 +23,105 @@ Merged BF16 weights, Q8 GGUF, and the matching vision projector are separate
 downloads. The training dataset is private. Exact release checksums are in
 [the model manifest](manifests/models.json).
 
-## Build
+## Quickstart
 
-Linux needs a C++17 compiler, CMake 3.24+, Git, Python 3.10+, OpenSSL development
-headers, and a CUDA toolkit supporting your GPU (Blackwell requires a suitable
-recent toolkit). Apple Silicon needs Xcode command-line tools, CMake, Git and
-Python 3.10+; Metal and Accelerate are used automatically. No Python packages
-are needed for serving or the included API checks.
+Supported: **Linux + NVIDIA GPU** (the measured profile uses a 16 GB RTX 5070 Ti)
+or **Apple Silicon Mac** (24 GB or more unified memory for the documented profile).
+Use a terminal to start the local API server.
+
+### 1. Get the code and prerequisites
 
 ```sh
 git clone https://github.com/EldanRing/winnow-inference.git
 cd winnow-inference
-python3 scripts/build.py --jobs 8
 ```
 
-The script fetches the pinned llama.cpp commit, verifies and applies the patches,
-builds `.build/bin/winnow-server`, and runs the native unit checks. It refuses an
-unexpected runtime revision or modified patched source. To build a Linux image
-for the RTX 5070 Ti without a GPU present, use `--cuda-arch 120`.
-
-## Run
+**Apple Silicon Mac — native Metal + Accelerate:**
 
 ```sh
-python3 scripts/serve.py \
-  --model models/gguf/Winnow-12B-Q8_0.gguf \
-  --mmproj models/gguf/mmproj-F16.gguf \
-  --context 65536 --cache q8_0 --decision-parallel 4 \
-  --chat-parallel 1 --memory exclusive
+xcode-select --install
+brew install python cmake openssl@3
 ```
 
-Omit `--mmproj` for text only. The launcher uses full GPU offload, disables context
-shifting and automatic weight fitting, and listens on `127.0.0.1:8091`.
-This is the measured 5070 Ti profile. The default KV format is Q8 on CUDA and
-F16 on Metal; see installation instructions for the Apple Silicon profile.
+Wait for Xcode command-line tools to finish installing. The `brew` command assumes
+[Homebrew](https://brew.sh) is installed. Setup locates its OpenSSL automatically.
 
-64K means the context capacity, including prompt formatting, image positions,
-questions, and any generated reply. It is not a 64K text allowance plus unlimited
-images or output. Longer contexts are configurable up to the model's trained
-limit, subject to hardware capacity; see the measured profiles in the validation
-report. No fixed decision/chat memory split is imposed.
+**Linux/NVIDIA — native CUDA:**
 
-Chat and decisions have independent KV contexts and share the model and projector.
-When both contexts fit, chat advances between decision prefill chunks. Otherwise,
-requests queue and idle contexts are released and recreated without reloading the
-weights. This evicts that context's KV cache and is reported in diagnostics.
-`--memory exclusive` selects this behavior immediately. `--decision-parallel`
-controls question branches per wave; the API accepts up to 256 questions and
-runs as many waves as needed. `--chat-parallel` divides llama-server's total chat
-context among slots, so increasing it reduces each chat slot's capacity.
+```sh
+sudo apt-get install build-essential cmake git python3 libssl-dev
+```
+
+Install a compatible NVIDIA driver and the [CUDA toolkit](https://developer.nvidia.com/cuda-downloads).
+A driver alone is not enough; Blackwell needs CUDA 12.8 or newer. The setup script
+checks that your toolkit supports your GPU before it downloads anything.
+
+### 2. Set up Winnow
+
+```sh
+python3 scripts/setup.py
+```
+
+This checks prerequisites **before downloading**, selects your platform profile,
+downloads the pinned Q8 model and vision projector (about **12.85 GB**), verifies
+both checksums, and builds the server. No Hugging Face CLI, Python packages,
+API key, or paid service is required. Interrupted downloads resume when you rerun
+the command. Initial setup time depends on your internet connection and CPU;
+subsequent launches reuse the files. It does not install system packages for you.
+
+### 3. Start the server
+
+```sh
+python3 scripts/serve.py
+```
+
+Defaults use the downloaded files with vision and the platform profile:
+`5070ti-64k` on Linux, `apple-silicon` on macOS. The server listens on
+**http://127.0.0.1:8091**. Leave this terminal running; Ctrl+C stops the server.
+
+### 4. Get your first response
+
+In a **second terminal**, change to the same repository folder and run:
+
+```sh
+python3 examples/client.py
+```
+
+The example prints both typed decisions and a regular chat response. For a single
+decision request:
 
 ```sh
 curl http://127.0.0.1:8091/v1/systemone \
   -H 'Content-Type: application/json' --data-binary @examples/decisions.json
-python3 examples/client.py
-node examples/client.mjs
 ```
 
-See [the API contract](docs/API.md) for probabilities, image inputs, diagnostics,
-and compatibility boundaries. Native llama-server flags can follow the wrapper
-arguments; `python3 scripts/serve.py --help` shows wrapper settings. Explicit
-native overrides can change the tested profile.
+Existing model files: `python3 scripts/setup.py --model-dir /path/to/models`,
+then `python3 scripts/serve.py --model-dir /path/to/models`. Keep the `gguf/`
+subdirectory. Custom files can still use `--model` and `--mmproj` directly.
+Text-only users can add `--text-only` to both setup and launch.
+
+### Profiles and adjustments
+
+| Profile | Context | Vision | Decision branches | KV cache |
+|---|---:|---|---:|---|
+| `5070ti-64k` | 65,536 | Yes | 4 | Q8 |
+| `apple-silicon` | 65,536 | Yes | 1 | F16 |
+
+```sh
+python3 scripts/serve.py --profile apple-silicon  # Mac
+python3 scripts/serve.py --profile 5070ti-64k     # NVIDIA
+# Explicit settings override your platform profile:
+python3 scripts/serve.py --context 32768
+```
+
+Both profiles use exclusive context scheduling: chat and decisions share the
+loaded weights, queue when necessary, and release the idle API's KV cache when
+switching. Context includes formatting, image positions, questions and replies.
+The Mac capacity measurement used an earlier checkpoint; see the
+[validation report](docs/VALIDATION.md). Other GPUs may need different settings.
+
+[Full installation and troubleshooting](docs/INSTALL.md) ·
+[API, vision and concurrency](docs/API.md) · `python3 scripts/serve.py --help`
 
 ## Verify your setup
 

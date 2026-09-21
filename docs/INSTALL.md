@@ -12,7 +12,65 @@ git clone https://github.com/EldanRing/winnow-inference.git
 cd winnow-inference
 ```
 
-## Build prerequisites
+## Recommended: guided native setup
+
+**Apple Silicon:** install the Xcode command-line tools and Homebrew prerequisites:
+
+```sh
+xcode-select --install
+brew install python cmake openssl@3
+python3 scripts/setup.py --profile apple-silicon
+python3 scripts/serve.py --profile apple-silicon
+```
+
+Wait for the Xcode tools installation to finish before setup. The script finds
+Homebrew OpenSSL automatically. The native build uses Metal, embedded Metal
+shaders and Accelerate; no CUDA or Docker is involved. The 64K profile uses F16
+KV, one decision branch, one chat slot and exclusive context scheduling. Its
+capacity was checked on a 24 GB M4 Pro with an earlier Winnow checkpoint.
+
+**Linux/NVIDIA:** install the build prerequisites and a compatible CUDA toolkit:
+
+```sh
+sudo apt-get install build-essential cmake git python3 libssl-dev
+python3 scripts/setup.py --profile 5070ti-64k
+python3 scripts/serve.py --profile 5070ti-64k
+```
+
+The [CUDA toolkit](https://developer.nvidia.com/cuda-downloads) must be installed
+separately. Blackwell requires CUDA 12.8 or newer. Setup checks the driver,
+compiler and supported GPU architecture before downloading weights. The 64K
+profile uses Q8 KV, four decision branches, one chat slot and exclusive scheduling.
+
+Both paths download about 12.85 GB to `models/gguf/`, verify the release manifest,
+and compile the pinned runtime. You do not need `hf`, pip packages or an API key.
+The script never installs system packages automatically. Reserve additional disk
+space for source/build files (20 GB free is a useful starting allowance).
+
+Once the server is ready, run `python3 examples/client.py` in a second terminal
+from the repository directory. This prints a decision response and a chat reply.
+Leave the server terminal open; stop it with Ctrl+C.
+
+Useful setup options:
+
+| Command/option | Purpose |
+|---|---|
+| `python3 scripts/setup.py --check-only` | Check prerequisites without downloading or building |
+| `python3 scripts/download.py` | Download/verify only; no compiler or GPU required |
+| `--model-dir /path/to/models` | Reuse another directory containing `gguf/`; use on setup and serve |
+| `--text-only` | Skip the projector; use on setup and serve |
+| `--skip-build` | Verify/download files using an already built server |
+| `--jobs 2` | Reduce CPU/RAM use while building |
+
+Interrupted downloads keep a `.part` file and resume on the next run. Existing
+complete files are checksum-verified and reused. A checksum mismatch stops setup
+without overwriting an existing model; remove only the corrupt file identified
+in the error and retry. Explicit launcher options override profile settings, e.g.
+`python3 scripts/serve.py --context 32768`. Use `--dry-run` to inspect resolved
+settings without loading the model. Both platform presets select `memory=exclusive`;
+advanced users can explicitly choose `--memory auto`.
+
+## Manual build prerequisites
 
 Linux: Python 3.10+, Git, CMake 3.24+, a C++17 compiler, OpenSSL headers, and the
 NVIDIA CUDA toolkit. The container pins CUDA 13.0.2. The RTX 5070 Ti build target
@@ -46,12 +104,10 @@ contains merged BF16 safetensors, Q8 GGUF and the matching F16 vision projector.
 This server loads the Q8 GGUF; the BF16 safetensors are available for other
 compatible runtimes. The projector is required only for vision.
 
-Download the two GGUF files with the Hugging Face CLI (a download-only dependency):
+Download the two GGUF files with the included dependency-free downloader:
 
 ```sh
-hf download EldanRing/Winnow-12B gguf/Winnow-12B-Q8_0.gguf \
-  gguf/mmproj-F16.gguf \
-  --revision b2b14213dfa252e6d6b543c8b334762e51772d29 --local-dir models
+python3 scripts/download.py
 python3 scripts/verify_model.py \
   --model models/gguf/Winnow-12B-Q8_0.gguf --mmproj models/gguf/mmproj-F16.gguf
 ```
@@ -83,7 +139,7 @@ Apple Silicon uses Metal and F16 KV by default:
 ```sh
 python3 scripts/serve.py --model models/gguf/Winnow-12B-Q8_0.gguf \
   --mmproj models/gguf/mmproj-F16.gguf --context 65536 --cache f16 \
-  --decision-parallel 1 --chat-parallel 1
+  --decision-parallel 1 --chat-parallel 1 --memory exclusive
 ```
 
 An earlier Winnow checkpoint passed this 64K + vision profile on an M4 Pro with
@@ -124,6 +180,8 @@ Use a fresh output directory for each artifact or configuration.
 
 ## Common setup errors
 
+- Server connection refused: leave `scripts/serve.py` running in another terminal and wait for model loading to finish.
+- Missing model/projector: run `python3 scripts/download.py`, or pass your download directory with `--model-dir`.
 - `nvcc` or CUDA architecture not found: check the toolkit path and target support.
 - Patch/revision mismatch: retain your changed runtime separately and use a fresh
   `.runtime/llama.cpp` checkout for the pinned build. Do not force-apply patches.

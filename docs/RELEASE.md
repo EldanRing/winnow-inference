@@ -47,3 +47,22 @@ The Docker context is independently allowlisted. Verify its actual source stage:
 docker build --target source --output type=local,dest=dist/docker-context .
 python3 scripts/check_package.py --directory dist/docker-context/source
 ```
+
+## Prebuilt distributions
+
+`Build prebuilt CUDA container` is a manually dispatched workflow. It builds
+Ampere/Ada/consumer Blackwell kernels (`86;89;120`), runs source/native checks,
+and checks the packaged executable for unresolved libraries. Publishing is opt-in
+and restricted to main; it creates a commit-specific GHCR tag and `cuda` alias.
+CI has no GPU or weights, so perform the existing short GPU smoke against the
+actual image before recommending a new image. Never include model downloads or
+credentials in a container layer.
+
+`Build Apple Silicon native archive` produces a macOS 15+ arm64 tarball with Metal
+shaders embedded, Accelerate enabled, and static OpenSSL. Packaging rejects any
+remaining non-system dynamic library, includes checksums and third-party licenses,
+and retains the matching public source. CI verifies build/unit checks and binary
+startup; it does not establish GPU inference quality. The archive is unsigned
+and not notarized. Download the workflow artifact, review its checksums and
+validation status, then attach the tarball/checksum to a runtime release. Users
+run `python3 scripts/setup.py --skip-build` and `python3 scripts/serve.py`.
