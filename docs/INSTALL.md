@@ -1,8 +1,9 @@
 # Install and run
 
 The supported serving paths are Linux/NVIDIA CUDA and macOS/Apple Silicon Metal.
-The decision engine accepts merged Gemma 4 GGUF models. CUDA and Metal builds are
-source builds; no Python inference framework or Python packages are required.
+The decision engine accepts merged Gemma 4 GGUF models. Native CUDA and Metal
+builds use the guided source setup; a Dockerfile is also provided for Linux/NVIDIA.
+No Python inference framework or Python packages are required.
 Windows, CPU-only serving, and multi-GPU sharding are not validated release profiles.
 
 Clone the inference source before following the commands below:
@@ -70,6 +71,54 @@ in the error and retry. Explicit launcher options override profile settings, e.g
 settings without loading the model. Both platform presets select `memory=exclusive`;
 advanced users can explicitly choose `--memory auto`.
 
+## NVIDIA container
+
+Build the image locally from the repository. The commands below target Linux
+with a Blackwell SM120 GPU, including RTX 50-series and RTX PRO 5000 Blackwell.
+Apple Silicon uses the native Metal setup above.
+Install Docker Engine and the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html),
+with a host driver compatible with CUDA 13.0. Docker downloads the build tools
+and compiles the server; no host compiler, CUDA toolkit, Python or Hugging Face
+CLI is needed. The first build can take several minutes and uses more disk space
+than the finished runtime image. Building alone does not require GPU access.
+
+```sh
+docker build --build-arg CUDA_ARCH=120 -t winnow-inference .
+```
+
+Download the pinned weights into a directory you own:
+
+```sh
+mkdir -p models
+docker run --rm --user "$(id -u):$(id -g)" \
+  -v "$PWD/models:/models" --entrypoint python3 \
+  winnow-inference \
+  scripts/download.py --model-dir /models
+```
+
+Start the server with the 64K + vision profile:
+
+```sh
+docker run --rm --gpus 'device=0' -p 127.0.0.1:8091:8091 \
+  -v "$PWD/models:/models:ro" winnow-inference
+```
+
+Wait for the server to load. In another terminal, try a decision:
+
+```sh
+curl http://127.0.0.1:8091/v1/systemone \
+  -H 'Content-Type: application/json' \
+  -d '{"state":"The light is on.","questions":{"on":{"type":"noul","instructions":"Is the light on?"}}}'
+```
+
+Keep the first terminal open. Ctrl+C stops the container, while weights remain in
+`models/`. Existing downloads are verified and reused. For other NVIDIA
+architectures, use the native setup or build the Dockerfile for your CUDA target;
+the measured 64K profile remains the 5070 Ti.
+The image has no model weights and runs as an unprivileged user. A CUDA driver
+compatibility error means the host driver needs updating; the native build is
+also available with a toolkit appropriate to your driver.
+
 ## Manual build prerequisites
 
 Linux: Python 3.10+, Git, CMake 3.24+, a C++17 compiler, OpenSSL headers, and the
@@ -94,8 +143,8 @@ OPENSSL_ROOT_DIR="$(brew --prefix openssl@3)" python3 scripts/build.py --jobs 4
 
 The build fetches the exact runtime commit, verifies patch hashes and patched
 source hashes, compiles the server and runs native unit tests. Use a separate
-`--build-dir` when checking a different backend. `--backend cpu` exists for CI
-compilation without CUDA or weights; the serving launcher still targets GPU use.
+`--build-dir` when checking a different backend. `--backend cpu` exists for local
+compilation checks without CUDA or weights; the serving launcher still targets GPU use.
 
 ## Obtain and verify weights
 

@@ -155,25 +155,30 @@ mode is a reference implementation; normal chat always retains its full head.
 All scripts save requests and responses locally. These focused probes validate
 runtime behavior and timings, not general model quality or calibrated confidence.
 
-## Container
+## NVIDIA container
 
-GPU execution requires a Linux Docker engine configured with the
-[NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html).
-Building the image alone does not require GPU access.
+Build the container locally on Linux. GPU execution requires Docker Engine with
+the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+and a CUDA 13.0-compatible driver. Apple Silicon uses native Metal above.
+
+For RTX 50-series / SM120, after downloading weights with setup:
 
 ```sh
 docker build --build-arg CUDA_ARCH=120 -t winnow-inference .
 docker run --rm --gpus 'device=0' -p 127.0.0.1:8091:8091 \
-  -v /path/to/models:/models:ro winnow-inference \
-  --model /models/gguf/Winnow-12B-Q8_0.gguf --mmproj /models/gguf/mmproj-F16.gguf \
-  --context 65536 --cache q8_0 --decision-parallel 4 \
-  --chat-parallel 1 --memory exclusive
+  -v "$PWD/models:/models:ro" winnow-inference
 ```
 
-The Docker build context includes public source files only. The container uses a
-pinned CUDA image and runs as an unprivileged user. It does not download weights
-or embed credentials. Local native builds are the validated serving path; the
-container's separate build status is recorded in the report.
+The default is the 5070 Ti 64K + vision profile. For a complete container-only
+setup, including downloading weights without host Python, follow
+[the container quickstart](docs/INSTALL.md#nvidia-container).
+Other NVIDIA architectures can build the Dockerfile with their own `CUDA_ARCH`.
+
+The runtime image is about **1.7 GB** uncompressed, excludes model weights and
+build tools, and runs as an unprivileged user. Its exact server binary passed
+local GPU API/chat/vision/parity checks. GPU execution inside Docker could not
+be exercised on our Docker Desktop host because NVIDIA container support is not
+configured; this validation limit is separate from the tested native path.
 
 ## Source layout
 

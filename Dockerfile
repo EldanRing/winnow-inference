@@ -29,6 +29,7 @@ COPY --from=build /app/.build/bin/winnow-server /app/.build/bin/winnow-server
 COPY --from=source /source/scripts /app/scripts
 COPY --from=source /source/manifests /app/manifests
 COPY --from=source /source/examples /app/examples
+COPY --from=source /source/docs /app/docs
 COPY --from=source /source/tests /app/tests
 COPY --from=source /source/third_party /app/third_party
 COPY --from=build /app/.runtime/llama.cpp/vendor /app/third_party/llama.cpp-vendor

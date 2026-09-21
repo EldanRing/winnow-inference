@@ -72,6 +72,11 @@ additional options. See [maintainer checks](RELEASE.md).
 Source-package tests verify private-file/history exclusions, refusal of dirty
 or unapproved trees, and model-corruption detection. The pinned runtime has
 built and passed native unit checks on CUDA, Linux CPU and Apple Silicon Metal.
-The CUDA Docker image has also built and passed its unit checks; its binary and
-unprivileged user were checked. GPU inference inside Docker was not exercised
-on the local host because its NVIDIA container runtime was not configured.
+The Blackwell CUDA runtime image is approximately 1.71 GB uncompressed and
+excludes weights and build tools. Its exact server binary also passed the local
+64K-configured short smoke: 15 functional checks, 23 HTTP checks and 15-question
+selected/full-head parity. This does not add a new populated-context benchmark.
+The image contents, unprivileged user, launcher and downloader were checked.
+GPU inference inside Docker was not exercised because the local Docker Desktop
+engine has no NVIDIA container runtime. The binary smoke ran directly on the
+host GPU; it is not represented as a Docker GPU pass.
