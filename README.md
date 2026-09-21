@@ -123,7 +123,9 @@ Building the image alone does not require GPU access.
 docker build --build-arg CUDA_ARCH=120 -t winnow-inference .
 docker run --rm --gpus 'device=0' -p 127.0.0.1:8091:8091 \
   -v /path/to/models:/models:ro winnow-inference \
-  --model /models/Winnow-12B-Q8_0.gguf --mmproj /models/mmproj-F16.gguf
+  --model /models/gguf/Winnow-12B-Q8_0.gguf --mmproj /models/gguf/mmproj-F16.gguf \
+  --context 65536 --cache q8_0 --decision-parallel 4 \
+  --chat-parallel 1 --memory exclusive
 ```
 
 The Docker build context includes public source files only. The container uses a
