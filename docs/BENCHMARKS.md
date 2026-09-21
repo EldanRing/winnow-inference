@@ -51,6 +51,8 @@ Winnow Q8 uses 14.36 GiB peak inference VRAM versus 21.87 GiB for the tested Kev
 
 ## Pod latency and throughput
 
+![Single-decision latency and batched throughput on the RTX PRO 5000](assets/04-inference-speed.png)
+
 B1/B8/B16/B32/B64 mean that many questions in one shared-state HTTP request, not separate concurrent clients. Each fixture uses ten consecutive warm samples after priming and then ten distinct-state cold samples. Values below are medians. Hosted Jev response time includes networking and is not pooled into these localhost tables.
 
 ### Short common state — warm latency (ms)
