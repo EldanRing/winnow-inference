@@ -12,10 +12,10 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 scripts/build.py
 ```
 
-The build verifies runtime/patch hashes and runs native tests. GitHub CI compiles
-on Linux without CUDA or weights and on macOS with Metal. It never downloads
-models or invokes a paid API. `--backend cpu` is a compilation check, not a
-validated serving profile.
+The build verifies runtime/patch hashes and runs native tests locally.
+GitHub Actions and hosted CI are disabled by project-owner instruction; do not
+add or run hosted workflows. Run validation on the local machine.
+`--backend cpu` is a compilation check, not a validated serving profile.
 
 ## Model checks
 
@@ -50,19 +50,18 @@ python3 scripts/check_package.py --directory dist/docker-context/source
 
 ## Prebuilt distributions
 
-`Build prebuilt CUDA container` is a manually dispatched workflow. It builds
-Ampere/Ada/consumer Blackwell kernels (`86;89;120`), runs source/native checks,
-and checks the packaged executable for unresolved libraries. Publishing is opt-in
-and restricted to main; it creates a commit-specific GHCR tag and `cuda` alias.
-CI has no GPU or weights, so perform the existing short GPU smoke against the
-actual image before recommending a new image. Never include model downloads or
-credentials in a container layer.
+Build and validate containers locally with Docker before publishing a runtime image.
+Run the short GPU smoke against that exact image. Keep model files outside image
+layers and mount them read-only when serving.
 
-`Build Apple Silicon native archive` produces a macOS 15+ arm64 tarball with Metal
-shaders embedded, Accelerate enabled, and static OpenSSL. Packaging rejects any
-remaining non-system dynamic library, includes checksums and third-party licenses,
-and retains the matching public source. CI verifies build/unit checks and binary
-startup; it does not establish GPU inference quality. The archive is unsigned
-and not notarized. Download the workflow artifact, review its checksums and
-validation status, then attach the tarball/checksum to a runtime release. Users
-run `python3 scripts/setup.py --skip-build` and `python3 scripts/serve.py`.
+On an Apple Silicon Mac, a portable archive can be built locally:
+
+```sh
+OPENSSL_ROOT_DIR="$(brew --prefix openssl@3)" python3 scripts/build.py --backend metal --static-openssl --jobs 3
+python3 scripts/package_macos.py
+```
+
+Packaging checks non-system dynamic dependencies and includes the public source,
+checksums, runtime binary and third-party licenses. Validate the archive locally
+before publishing. This command-line archive is unsigned and not notarized.
+It needs no CUDA or Docker; Metal and Accelerate remain enabled.
