@@ -1,0 +1,9 @@
+{
+  "model": "Winnow-12B",
+  "state": {"ticket": "I was charged twice. Please refund the duplicate payment."},
+  "questions": {
+    "department": {"type": "choice", "instructions": "Which department handles this ticket?", "criteria": {"billing": "Payments and refunds", "technical": "Software defects"}},
+    "refund": {"type": "noul", "instructions": "Does the customer request a refund?"},
+    "urgency": {"type": "score", "instructions": "How urgent is the ticket?", "criteria": ["Routine request", "Time-sensitive problem", "Immediate emergency"]}
+  }
+}

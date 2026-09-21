@@ -1,0 +1,268 @@
+diff --git a/common/common.cpp b/common/common.cpp
+index d8319cd..a402ef3 100644
+--- a/common/common.cpp
++++ b/common/common.cpp
+@@ -1416,6 +1416,23 @@ llama_context * common_init_result::context() {
+     return pimpl->context.get();
+ }
+ 
++void common_init_result::winnow_release_context() {
++    if (pimpl->context) llama_synchronize(pimpl->context.get());
++    pimpl->context.reset();
++}
++
++bool common_init_result::winnow_restore_context(const common_params & params) {
++    if (pimpl->context) return true;
++    auto cp = common_context_params_to_llama(params);
++    if (params.sampling.backend_sampling) {
++        cp.samplers = pimpl->samplers_seq_config.data();
++        cp.n_samplers = pimpl->samplers_seq_config.size();
++    }
++    pimpl->context.reset(llama_init_from_model(pimpl->model.get(), cp));
++    if (pimpl->context) pimpl->threadpools.attach(pimpl->context.get());
++    return bool(pimpl->context);
++}
++
+ common_sampler * common_init_result::sampler(llama_seq_id seq_id) {
+     if (seq_id < 0 || seq_id >= (int) pimpl->samplers.size()) {
+         return nullptr;
+@@ -1782,6 +1799,10 @@ common_threadpools::~common_threadpools() {
+     free_fn(threadpool_batch);
+ }
+ 
++void common_threadpools::attach(llama_context * ctx) {
++    if (threadpool) llama_attach_threadpool(ctx, threadpool, threadpool_batch);
++}
++
+ void common_threadpools::init(llama_context * ctx, const common_params & params) {
+     GGML_ASSERT(!threadpool);
+     GGML_ASSERT(!threadpool_batch);
+diff --git a/common/common.h b/common/common.h
+index 63d0bad..967b69c 100644
+--- a/common/common.h
++++ b/common/common.h
+@@ -932,6 +932,8 @@ struct common_init_result {
+ 
+     llama_model * model();
+     llama_context * context();
++    void winnow_release_context();
++    bool winnow_restore_context(const common_params & params);
+ 
+     common_sampler * sampler(llama_seq_id seq_id);
+     void reset_samplers();
+@@ -973,6 +975,7 @@ struct common_threadpools {
+     common_threadpools & operator=(const common_threadpools &) = delete;
+ 
+     void init(llama_context * ctx, const common_params & params);
++    void attach(llama_context * ctx);
+ 
+ private:
+     ggml_threadpool * threadpool       = nullptr;
+diff --git a/tools/server/server-context.cpp b/tools/server/server-context.cpp
+index b6835e4..0dbbb8d 100644
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -880,6 +880,7 @@ private:
+ 
+     // note: keep these alive - they determine the lifetime of the model, context, etc.
+     common_init_result_ptr llama_init;
++    std::unique_ptr<winnow::Service> winnow_service;
+ 
+     llama_context * ctx_tgt = nullptr;
+ 
+@@ -936,6 +937,7 @@ private:
+     int64_t t_last_load_progress_ms = 0;
+ 
+     void destroy() {
++        winnow_service.reset();
+         spec.reset();
+         spec_init.reset();
+ 
+@@ -1386,6 +1388,19 @@ private:
+         // propagate new defaults back to caller
+         params = params_base;
+ 
++        if (params_base.lora_adapters.empty() && !spec) {
++            winnow::Hooks hooks;
++            hooks.chat_active = [this]{ return winnow_chat_active(); };
++            hooks.suspend_chat = [this]{ winnow_suspend_chat(); };
++            hooks.cooperate = [this]{
++                if (queue_tasks.winnow_poll()) throw std::runtime_error("Server shutting down");
++                if (ctx_tgt) update_slots();
++            };
++            winnow_service = std::make_unique<winnow::Service>(model_tgt, mctx, n_ctx,
++                params_base.n_batch, params_base.n_ubatch, params_base.cpuparams.n_threads,
++                model_name, std::move(hooks));
++        }
++
+         if (!is_resume) {
+             return init();
+         }
+@@ -1409,7 +1424,15 @@ private:
+             return process_single_task(std::move(task), is_yielding);
+         });
+         queue_tasks.on_update_slots([this]() {
+-            update_slots();
++            if (winnow_service && winnow_service->pending()) {
++                winnow_service->tick();
++                queue_tasks.pop_deferred_task(-1);
++                if (winnow_service->pending()) {
++                    server_task wake(SERVER_TASK_TYPE_NEXT_RESPONSE);
++                    wake.id = queue_tasks.get_new_id(); queue_tasks.post(std::move(wake));
++                }
++            }
++            if (ctx_tgt) update_slots();
+         });
+         queue_tasks.on_sleeping_state([this](bool sleeping) {
+             handle_sleeping_state(sleeping);
+@@ -1417,6 +1440,7 @@ private:
+ 
+         metrics.init();
+ 
++
+         if (params_base.cache_idle_slots) {
+             if (params_base.cache_ram_mib == 0) {
+                 SRV_WRN("%s", "--cache-idle-slots requires --cache-ram, disabling\n");
+@@ -2371,6 +2395,31 @@ private:
+                 cur.pos_max, cur.n_tokens, (float) cur.size() / 1024 / 1024);
+     }
+ 
++    bool winnow_chat_active() const {
++        for (const auto & slot : slots) if (slot.is_processing()) return true;
++        return false;
++    }
++    void winnow_suspend_chat() {
++        if (!ctx_tgt) return;
++        if (winnow_chat_active() || spec) throw std::runtime_error("Chat context is busy or speculative");
++        metrics_flush_idle();
++        for (auto & slot : slots) {
++            slot.reset(); slot.prompt.clear(); slot.task_prev.reset();
++            slot.ctx_tgt = nullptr;
++        }
++        llama_init->winnow_release_context();
++        ctx_tgt = nullptr;
++        SRV_INF("%s", "Winnow released idle chat context; model weights retained\n");
++    }
++    void winnow_restore_chat() {
++        if (ctx_tgt) return;
++        if (winnow_service) winnow_service->release_idle();
++        if (!llama_init->winnow_restore_context(params_base)) throw std::runtime_error("Could not restore chat context");
++        ctx_tgt = llama_init->context();
++        for (auto & slot : slots) { slot.ctx_tgt = ctx_tgt; slot.mem.init(ctx_tgt, ctx_dft); }
++        SRV_INF("%s", "Winnow restored chat context; model weights reused\n");
++    }
++
+     // returns false to decline the task, it is offered again after the decode is done
+     bool process_single_task(server_task && task, bool is_yielding) {
+         // while yielding, an encode / decode is running and only reading the server state is safe
+@@ -2379,7 +2428,18 @@ private:
+             return false;
+         }
+ 
++        if (!ctx_tgt && task.type != SERVER_TASK_TYPE_WINNOW && task.type != SERVER_TASK_TYPE_NEXT_RESPONSE &&
++                task.type != SERVER_TASK_TYPE_METRICS && task.type != SERVER_TASK_TYPE_SLOT_GET &&
++                task.type != SERVER_TASK_TYPE_CANCEL) {
++            if (winnow_service && winnow_service->busy()) { queue_tasks.defer(std::move(task)); return true; }
++            try { winnow_restore_chat(); }
++            catch (const std::exception & e) { send_error(task, e.what(), ERROR_TYPE_SERVER); return true; }
++        }
+         switch (task.type) {
++            case SERVER_TASK_TYPE_WINNOW:
++                if (winnow_service) winnow_service->enqueue(std::move(task.winnow_request));
++                else { task.winnow_request->status = 503; task.winnow_request->done.set_value("{\"error\":{\"message\":\"Decision runtime unavailable\"}}"); }
++                break;
+             case SERVER_TASK_TYPE_COMPLETION:
+             case SERVER_TASK_TYPE_INFILL:
+             case SERVER_TASK_TYPE_EMBEDDING:
+@@ -4648,6 +4708,25 @@ json server_routes::get_model_info() const {
+ }
+ 
+ void server_routes::init_routes() {
++    this->post_systemone = [this](const server_http_req & req) -> server_http_res_ptr {
++        auto res = create_response();
++        if (req.body.size() > 32 * 1024 * 1024) {
++            res->status = 413; res->data = "{\"error\":{\"message\":\"Request exceeds 32 MiB\"}}"; return res;
++        }
++        auto job = std::make_shared<winnow::Request>();
++        job->body = req.body;
++        job->inspect = req.path.find("inspect") != std::string::npos;
++        auto result = job->done.get_future();
++        server_task task(SERVER_TASK_TYPE_WINNOW);
++        task.id = queue_tasks.get_new_id(); task.winnow_request = job;
++        queue_tasks.post(std::move(task));
++        while (result.wait_for(std::chrono::milliseconds(25)) != std::future_status::ready) {
++            if (req.should_stop()) { job->cancelled = true; res->status = 499; res->data = "{}"; return res; }
++        }
++        res->data = result.get(); res->status = job->status;
++        return res;
++    };
++
+     // IMPORTANT: all lambda functions must start with create_response()
+     // this is to ensure that the server_res_generator can handle sleeping case correctly
+ 
+diff --git a/tools/server/server-context.h b/tools/server/server-context.h
+index 0acbbff..6b65e79 100644
+--- a/tools/server/server-context.h
++++ b/tools/server/server-context.h
+@@ -129,6 +129,7 @@ struct server_routes {
+     // handlers using lambda function, so that they can capture `this` without `std::bind`
+     // they won't be called until ctx_http.is_ready is set to true
+     server_http_context::handler_t get_health;
++    server_http_context::handler_t post_systemone;
+     server_http_context::handler_t get_metrics;
+     server_http_context::handler_t get_slots;
+     server_http_context::handler_t post_slots;
+diff --git a/tools/server/server-queue.h b/tools/server/server-queue.h
+index e17733a..2aebc58 100644
+--- a/tools/server/server-queue.h
++++ b/tools/server/server-queue.h
+@@ -93,6 +93,7 @@ public:
+      * - Exit sleeping state
+      */
+     void start_loop(int64_t idle_sleep_ms = -1);
++    bool winnow_poll() { return process_new_tasks(false); }
+ 
+     // while waiting for work() to finish, run process_new_tasks on the worker thread
+     // returns once work() is done (may throw exceptions)
+diff --git a/tools/server/server-task.h b/tools/server/server-task.h
+index 9c99143..2c9d150 100644
+--- a/tools/server/server-task.h
++++ b/tools/server/server-task.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include "common.h"
++#include "bridge.h"
+ #include "llama.h"
+ 
+ #include <string>
+@@ -13,6 +14,7 @@
+ 
+ 
+ enum server_task_type {
++    SERVER_TASK_TYPE_WINNOW,
+     SERVER_TASK_TYPE_COMPLETION,
+     SERVER_TASK_TYPE_EMBEDDING,
+     SERVER_TASK_TYPE_RERANK,
+@@ -134,6 +136,7 @@ struct task_result_state {
+ };
+ 
+ struct server_task {
++    std::shared_ptr<winnow::Request> winnow_request;
+     int id = -1; // to be filled by server_queue
+ 
+     // TODO @ngxson : remove this field and implement a mapping task_id -> idx in the response_reader
+diff --git a/tools/server/server.cpp b/tools/server/server.cpp
+index 22378b3..cab2c88 100644
+--- a/tools/server/server.cpp
++++ b/tools/server/server.cpp
+@@ -243,6 +243,9 @@ int llama_server(common_params & params, int argc, char ** argv) {
+         ctx_http.del ("/models",               ex_wrapper(models_routes->del_router_models));
+     }
+ 
++    ctx_http.post("/v1/systemone", ex_wrapper(routes.post_systemone));
++    ctx_http.post("/v1/winnow/inspect", ex_wrapper(routes.post_systemone));
++
+     ctx_http.get ("/health",                   ex_wrapper(routes.get_health)); // public endpoint (no API key check)
+     ctx_http.get ("/v1/health",                ex_wrapper(routes.get_health)); // public endpoint (no API key check)
+     ctx_http.get ("/metrics",                  ex_wrapper(routes.get_metrics));

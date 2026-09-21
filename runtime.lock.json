@@ -1,0 +1,38 @@
+{
+  "repository": "https://github.com/ggml-org/llama.cpp.git",
+  "commit": "911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+  "patches": [
+    {
+      "file": "patches/llama-bounded-swa-fork.patch",
+      "sha256": "79f095b43ea7e072aaf51ab5f3a3edd290d2c598fadd8450f0ab508306715561"
+    },
+    {
+      "file": "patches/llama-classifier-head.patch",
+      "sha256": "0c381d753cdf5705cd55e8b72d07904241ae45e3d6005010545031774594237d"
+    },
+    {
+      "file": "patches/llama-gemma4-tied-embedding.patch",
+      "sha256": "caeaa51bec0c2dc5c8e48ccea2f5fce227333f60013e749f92152b87f8250b32"
+    },
+    {
+      "file": "patches/llama-winnow-server.patch",
+      "sha256": "608c8642d164a5676cb817ae5d7e851148dd6bd008459cc2b3080a1652b39423"
+    }
+  ],
+  "source_sha256": {
+    "common/common.cpp": "4b371aaf855969f756b8b2b1e5f4a73775ebb292537da966d803146105cb7018",
+    "common/common.h": "c4e582a00048f799fc83844f85c7e2f7abe78b29095b7575844915220ce6fe64",
+    "include/llama.h": "223237a9a974a5e920e7f5ea73731aca3170fdbed0570447eccf7f282b0cbfec",
+    "src/llama-context.cpp": "34432e76023a9ce37bc6399ac81c085d10253facbc0007cad39922e0f251aa2d",
+    "src/llama-cparams.h": "028d3a6e703d16cbece4711982f451649fa5d490f2e88b0a06b598b8ec5d8f46",
+    "src/llama-kv-cache-iswa.cpp": "8c23b37835568b532198f3a48832bacc0af91987da6bcd4d670d675553448ab6",
+    "src/llama-kv-cache-iswa.h": "cb0919cce0603a301eaa5af2ede1560e2857320f710004ddaed4adf5725a2925",
+    "src/llama-model.cpp": "1cc729d55ae47088698035c561af4286fee8c5a0be6a7261d6591042809369cb",
+    "src/models/gemma4.cpp": "07a2043ea44e4519571b7b834a99b3ee8b0b20770fab81eec660045ea804c02b",
+    "tools/server/server-context.cpp": "d97a0704ff4826b5ef811497a51806cdfcd57574d3fb14d8e0c09cb6f55c6018",
+    "tools/server/server-context.h": "d38e35c35bdd49ea68297df14ea45d76248c53391a9197cf71b851fec21a4da0",
+    "tools/server/server-queue.h": "e81f797badec67f1791de42d9d44a7f4e6bcc79c1eaf46a9477238fd0bc709f9",
+    "tools/server/server-task.h": "18696e08937ef0346f3608c8dad5f955aa35a6d1814dbc5e94119b220528697b",
+    "tools/server/server.cpp": "28f393fe924ae24fa7d32818ed767fabe5bd231cef814b5a71c10698bf66da7e"
+  }
+}

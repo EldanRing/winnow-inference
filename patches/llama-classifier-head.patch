@@ -1,0 +1,123 @@
+--- a/include/llama.h
++++ b/include/llama.h
+@@ -396,6 +396,7 @@
+         void *              abort_callback_data;
+ 
+         // Keep the booleans together and at the end of the struct to avoid misalignment during copy-by-value.
++        bool classifier_only; // Gemma: only requested final hidden states; no vocabulary logits/sampling
+         bool embeddings;  // if true, extract embeddings (together with logits)
+         bool offload_kqv; // offload the KQV ops (including the KV cache) to GPU
+         bool no_perf;     // measure performance timings
+@@ -1062,6 +1063,12 @@
+     // shape: [n_embd] (1-dimensional)
+     // returns NULL for invalid ids.
+     LLAMA_API float * llama_get_embeddings_ith(struct llama_context * ctx, int32_t i);
++
++    // Winnow extension: dequantize selected output rows once at startup.
++    // Returns embedding width, or zero for unsupported/scaled output tensors.
++    // dst must hold count * llama_model_n_embd(model) floats. No model mutation.
++    LLAMA_API int32_t llama_model_classifier_rows(const struct llama_model * model,
++            const llama_token * ids, int32_t count, float * dst, size_t dst_count, float * softcap);
+ 
+     // Get the embeddings for a sequence id
+     // Returns NULL if pooling_type is LLAMA_POOLING_TYPE_NONE
+--- a/src/llama-cparams.h
++++ b/src/llama-cparams.h
+@@ -32,6 +32,7 @@
+     float yarn_beta_fast;
+     float yarn_beta_slow;
+ 
++    bool classifier_only;
+     bool embeddings;
+     bool embeddings_nextn;        // also extract the hidden state before the final output norm
+     bool embeddings_nextn_masked; // extract for only rows where batch.logits != 0
+--- a/src/llama-context.cpp
++++ b/src/llama-context.cpp
+@@ -114,7 +114,12 @@
+     cparams.yarn_attn_factor        = params.yarn_attn_factor >= 0.0f ? params.yarn_attn_factor : hparams.yarn_attn_factor;
+     cparams.yarn_beta_fast          = params.yarn_beta_fast   >= 0.0f ? params.yarn_beta_fast   : hparams.yarn_beta_fast;
+     cparams.yarn_beta_slow          = params.yarn_beta_slow   >= 0.0f ? params.yarn_beta_slow   : hparams.yarn_beta_slow;
+-    cparams.embeddings              = params.embeddings;
++    if (params.classifier_only && (model.arch != LLM_ARCH_GEMMA4 || params.n_samplers != 0 ||
++            params.pooling_type != LLAMA_POOLING_TYPE_NONE)) {
++        throw std::runtime_error("classifier_only requires Gemma 4, no sampler, and unpooled outputs");
++    }
++    cparams.classifier_only         = params.classifier_only;
++    cparams.embeddings              = params.embeddings || params.classifier_only;
+     cparams.embeddings_nextn        = false;
+     cparams.embeddings_nextn_masked = false;
+     cparams.offload_kqv             = params.offload_kqv;
+@@ -1678,7 +1683,7 @@
+     const int64_t n_embd  = mtp_embd ? hparams.n_embd_out() : dflash_embd ? hparams.n_embd_inp_enc() : hparams.n_embd_inp();
+ 
+     // when computing embeddings, all tokens are output
+-    const bool output_all   = cparams.embeddings;
++    const bool output_all   = cparams.embeddings && !cparams.classifier_only;
+     const bool has_samplers = !sampling.samplers.empty();
+ 
+     const uint32_t n_seq_max = cparams.kv_unified ? LLAMA_MAX_SEQ : cparams.n_seq_max;
+@@ -2063,7 +2068,7 @@
+     const auto n_embd     = hparams.n_embd;
+     const auto n_embd_out = hparams.n_embd_out();
+ 
+-    bool has_logits     = true;
++    bool has_logits     = !cparams.classifier_only;
+     bool has_embd       = cparams.embeddings;
+     bool has_embd_nextn = cparams.embeddings_nextn;
+ 
+@@ -3673,6 +3678,7 @@
+         /*.type_v                      =*/ GGML_TYPE_F16,
+         /*.abort_callback              =*/ nullptr,
+         /*.abort_callback_data         =*/ nullptr,
++        /*.classifier_only             =*/ false,
+         /*.embeddings                  =*/ false,
+         /*.offload_kqv                 =*/ true,
+         /*.no_perf                     =*/ true,
+--- a/src/llama-model.cpp
++++ b/src/llama-model.cpp
+@@ -3348,3 +3348,30 @@
+ 
+     return (uint32_t) nelements;
+ }
++
++// Winnow's small classifier head is copied once. The tied input table remains resident.
++int32_t llama_model_classifier_rows(const llama_model * model, const llama_token * ids,
++        int32_t count, float * dst, size_t dst_count, float * softcap) {
++    if (!model || !ids || !dst || !softcap || count < 2 || count > 64 ||
++            model->arch != LLM_ARCH_GEMMA4 || !model->output || model->output_s) return 0;
++    const auto * tensor = model->output;
++    const auto width = tensor->ne[0];
++    if (width != model->hparams.n_embd || dst_count != size_t(count) * size_t(width) ||
++            !ggml_is_contiguous(tensor)) return 0;
++    const auto * traits = ggml_get_type_traits(tensor->type);
++    if (tensor->type != GGML_TYPE_F32 && !traits->to_float) return 0;
++    for (int i = 0; i < count; ++i) if (ids[i] < 0 || ids[i] >= tensor->ne[1]) return 0;
++    try {
++        const size_t bytes = ggml_row_size(tensor->type, width);
++        std::vector<uint8_t> row(bytes);
++        for (int i = 0; i < count; ++i) {
++            ggml_backend_tensor_get(tensor, row.data(), size_t(ids[i]) * tensor->nb[1], bytes);
++            if (tensor->type == GGML_TYPE_F32) std::memcpy(dst + size_t(i) * width, row.data(), bytes);
++            else traits->to_float(row.data(), dst + size_t(i) * width, width);
++        }
++        *softcap = model->hparams.f_final_logit_softcapping;
++        return int32_t(width);
++    } catch (...) {
++        return 0;
++    }
++}
+--- a/src/models/gemma4.cpp
++++ b/src/models/gemma4.cpp
+@@ -420,6 +420,12 @@
+     cb(cur, "result_norm", -1);
+     res->t_embd = cur;
+ 
++    // Classifier reads the same post-norm hidden state, without projecting the vocabulary.
++    if (cparams.classifier_only) {
++        ggml_build_forward_expand(gf, cur);
++        return;
++    }
++
+     // lm_head
+     cur = build_lora_mm(model.output, cur, model.output_s);
+ 

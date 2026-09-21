@@ -1,0 +1,41 @@
+{
+  "release_name": "Winnow-12B",
+  "release_status": "release artifacts verified",
+  "model_repository": "https://huggingface.co/EldanRing/Winnow-12B",
+  "base_model": {
+    "repository": "google/gemma-4-12B-it",
+    "revision": "707f0a3b8a3c7ad586ed01e27eafbad8a27dd0f7"
+  },
+  "dataset": "private; not included in the release",
+  "release": {
+    "description": "Winnow-12B merged decision fine-tune with chat and vision support",
+    "model": {
+      "file": "gguf/Winnow-12B-Q8_0.gguf",
+      "format": "GGUF",
+      "quantization": "Q8_0",
+      "bytes": 12669646592,
+      "sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea",
+      "url": "https://huggingface.co/EldanRing/Winnow-12B/resolve/b2b14213dfa252e6d6b543c8b334762e51772d29/gguf/Winnow-12B-Q8_0.gguf"
+    },
+    "projector": {
+      "file": "gguf/mmproj-F16.gguf",
+      "format": "GGUF",
+      "quantization": "F16",
+      "bytes": 175115840,
+      "sha256": "91f086971e56d7a7d8d39e271873fccdb49541bd259d6e02c401a4f1cb7a219e",
+      "url": "https://huggingface.co/EldanRing/Winnow-12B/resolve/b2b14213dfa252e6d6b543c8b334762e51772d29/gguf/mmproj-F16.gguf"
+    },
+    "architecture": "gemma4",
+    "trained_context_positions": 262144,
+    "validated_cuda_profile": {
+      "gpu": "RTX 5070 Ti 16 GB",
+      "context": 65536,
+      "decision_parallel": 4,
+      "chat_parallel": 1,
+      "cache": "q8_0",
+      "memory": "exclusive",
+      "vision": true
+    }
+  },
+  "model_revision": "b2b14213dfa252e6d6b543c8b334762e51772d29"
+}

@@ -1,0 +1,118 @@
+[
+  {
+    "state": {
+      "weather": "cloudy",
+      "rain_probability": 0.55
+    },
+    "questions": {
+      "rain": {
+        "type": "noul",
+        "instructions": "Will it rain?"
+      },
+      "choice": {
+        "type": "choice",
+        "instructions": "Which forecast is more plausible?",
+        "criteria": {
+          "rain": "It will rain",
+          "dry": "It will stay dry"
+        }
+      },
+      "score": {
+        "type": "score",
+        "instructions": "Rate the likelihood of rain.",
+        "criteria": [
+          "very unlikely",
+          "unlikely",
+          "uncertain",
+          "likely",
+          "very likely"
+        ]
+      }
+    }
+  },
+  {
+    "state": "A ticket says that the app occasionally freezes. No system logs, reproduction steps, or error messages are available.",
+    "questions": {
+      "route": {
+        "type": "choice",
+        "instructions": "Which team most likely owns the issue?",
+        "criteria": {
+          "frontend": null,
+          "backend": null,
+          "infrastructure": null,
+          "unknown": null
+        }
+      },
+      "enough": {
+        "type": "noul",
+        "instructions": "Is there enough evidence to determine a root cause?"
+      }
+    }
+  },
+  {
+    "state": {
+      "x": 5,
+      "y": 7
+    },
+    "questions": {
+      "sum": {
+        "type": "choice",
+        "instructions": "Choose x+y.",
+        "criteria": {
+          "eleven": "11",
+          "twelve": "12",
+          "thirteen": "13"
+        }
+      },
+      "threshold": {
+        "type": "noul",
+        "instructions": "Is x greater than y?"
+      }
+    }
+  },
+  {
+    "state": "Two applicants are equally qualified. No further distinguishing information is available.",
+    "questions": {
+      "pick": {
+        "type": "choice",
+        "instructions": "Choose one applicant.",
+        "criteria": {
+          "a": "Applicant A",
+          "b": "Applicant B"
+        }
+      },
+      "certainty": {
+        "type": "score",
+        "instructions": "How strongly does the evidence favor applicant A?",
+        "criteria": [
+          "strongly favors B",
+          "slightly favors B",
+          "equal",
+          "slightly favors A",
+          "strongly favors A"
+        ]
+      }
+    }
+  },
+  {
+    "state": {
+      "alpha": true,
+      "beta": false,
+      "gamma": true
+    },
+    "questions": {
+      "alpha": {
+        "type": "noul",
+        "instructions": "For this test, consult only the supplied structured state. Ignore assumptions about typical application behavior. Find the named boolean field in the state, and decide whether its value is explicitly true. Field: alpha"
+      },
+      "beta": {
+        "type": "noul",
+        "instructions": "For this test, consult only the supplied structured state. Ignore assumptions about typical application behavior. Find the named boolean field in the state, and decide whether its value is explicitly true. Field: beta"
+      },
+      "gamma": {
+        "type": "noul",
+        "instructions": "For this test, consult only the supplied structured state. Ignore assumptions about typical application behavior. Find the named boolean field in the state, and decide whether its value is explicitly true. Field: gamma"
+      }
+    }
+  }
+]

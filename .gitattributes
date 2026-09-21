@@ -1,0 +1,4 @@
+# Unified diff context lines contain a required leading space.
+*.patch -whitespace
+# Matplotlib emits significant separators at the ends of SVG path lines.
+docs/assets/*.svg -whitespace

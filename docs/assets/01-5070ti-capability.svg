@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1152pt" height="648pt" viewBox="0 0 1152 648" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-09-21</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.6.3, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 648 
+L 1152 648 
+L 1152 0 
+L 0 0 
+z
+" style="fill: #101820"/>
+  </g>
+  <g id="text_1">
+   <text style="fill: #63e7bd; font: 700 40px 'DejaVu Sans'; text-anchor: start" x="63.36" y="58.32" transform="rotate(-0 63.36 58.32)">Winnow-12B</text>
+  </g>
+  <g id="text_2">
+   <text style="fill: #f1f7fa; font: 700 25px 'DejaVu Sans'; text-anchor: start" x="63.36" y="106.92" transform="rotate(-0 63.36 106.92)">Decisions. Chat. Vision.</text>
+  </g>
+  <g id="text_3">
+   <text style="fill: #f1f7fa; font: 21px 'DejaVu Sans'; text-anchor: start" x="63.36" y="145.8" transform="rotate(-0 63.36 145.8)">64K context + vision on my 16 GB RTX 5070 Ti</text>
+  </g>
+  <g id="text_4">
+   <text style="fill: #63e7bd; font: 700 30px 'DejaVu Sans'; text-anchor: start" x="63.36" y="278.64" transform="rotate(-0 63.36 278.64)">64K + vision</text>
+  </g>
+  <g id="text_5">
+   <text style="fill: #f1f7fa; font: 12.5px 'DejaVu Sans'; text-anchor: start" x="63.36" y="309.096" transform="rotate(-0 63.36 309.096)">65,022 populated prefix positions</text>
+  </g>
+  <g id="text_6">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="63.36" y="333.072" transform="rotate(-0 63.36 333.072)">includes 1,024 image positions</text>
+  </g>
+  <g id="text_7">
+   <text style="fill: #63e7bd; font: 700 30px 'DejaVu Sans'; text-anchor: start" x="427.392" y="278.64" transform="rotate(-0 427.392 278.64)">15.01 GiB</text>
+  </g>
+  <g id="text_8">
+   <text style="fill: #f1f7fa; font: 12.5px 'DejaVu Sans'; text-anchor: start" x="427.392" y="309.096" transform="rotate(-0 427.392 309.096)">peak total GPU memory</text>
+  </g>
+  <g id="text_9">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="427.392" y="333.072" transform="rotate(-0 427.392 333.072)">64K smoke, including desktop</text>
+  </g>
+  <g id="text_10">
+   <text style="fill: #63e7bd; font: 700 30px 'DejaVu Sans'; text-anchor: start" x="791.424" y="278.64" transform="rotate(-0 791.424 278.64)">55.5 tok/s</text>
+  </g>
+  <g id="text_11">
+   <text style="fill: #f1f7fa; font: 12.5px 'DejaVu Sans'; text-anchor: start" x="791.424" y="309.096" transform="rotate(-0 791.424 309.096)">short-prompt generation</text>
+  </g>
+  <g id="text_12">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="791.424" y="333.072" transform="rotate(-0 791.424 333.072)">median of 3 × 512-token outputs</text>
+  </g>
+  <g id="text_13">
+   <text style="fill: #63e7bd; font: 700 30px 'DejaVu Sans'; text-anchor: start" x="63.36" y="440.64" transform="rotate(-0 63.36 440.64)">2,894 tok/s</text>
+  </g>
+  <g id="text_14">
+   <text style="fill: #f1f7fa; font: 12.5px 'DejaVu Sans'; text-anchor: start" x="63.36" y="471.096" transform="rotate(-0 63.36 471.096)">long-context prompt processing</text>
+  </g>
+  <g id="text_15">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="63.36" y="495.072" transform="rotate(-0 63.36 495.072)">62,435-position multimodal prompt</text>
+  </g>
+  <g id="text_16">
+   <text style="fill: #63e7bd; font: 700 30px 'DejaVu Sans'; text-anchor: start" x="427.392" y="440.64" transform="rotate(-0 427.392 440.64)">46.9 tok/s</text>
+  </g>
+  <g id="text_17">
+   <text style="fill: #f1f7fa; font: 12.5px 'DejaVu Sans'; text-anchor: start" x="427.392" y="471.096" transform="rotate(-0 427.392 471.096)">long-context generation</text>
+  </g>
+  <g id="text_18">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="427.392" y="495.072" transform="rotate(-0 427.392 495.072)">512-token output, one cold sample</text>
+  </g>
+  <g id="text_19">
+   <text style="fill: #63e7bd; font: 700 30px 'DejaVu Sans'; text-anchor: start" x="791.424" y="440.64" transform="rotate(-0 791.424 440.64)">143 ms</text>
+  </g>
+  <g id="text_20">
+   <text style="fill: #f1f7fa; font: 12.5px 'DejaVu Sans'; text-anchor: start" x="791.424" y="471.096" transform="rotate(-0 791.424 471.096)">four cached decisions</text>
+  </g>
+  <g id="text_21">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="791.424" y="495.072" transform="rotate(-0 791.424 495.072)">25.00 s cold; cached median of 3</text>
+  </g>
+  <g id="text_22">
+   <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="63.36" y="575.424" transform="rotate(-0 63.36 575.424)">Q8 weights + Q8 KV · Four decision branches · One chat slot · Exclusive context scheduling</text>
+  </g>
+  <g id="text_23">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="63.36" y="603.936" transform="rotate(-0 63.36 603.936)">System RAM: 96 GB installed; 12.25 GiB process PSS peak including startup in the 64K smoke.</text>
+  </g>
+  <g id="text_24">
+   <text style="fill: #b7c5d0; font: 10px 'DejaVu Sans'; text-anchor: start" x="63.36" y="629.856" transform="rotate(-0 63.36 629.856)">Measured on 2026-09-21 · Exact settings and sample counts in the technical report</text>
+  </g>
+ </g>
+</svg>

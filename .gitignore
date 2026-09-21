@@ -1,0 +1,17 @@
+.runtime/
+.reference/
+.build/
+results/
+models/
+.venv/
+__pycache__/
+.env
+.env.*
+*.gguf
+*.safetensors
+.ruff_cache/
+*.pyc
+.DS_Store
+.release-work/
+private-release/
+dist/
