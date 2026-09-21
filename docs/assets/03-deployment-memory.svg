@@ -30,362 +30,197 @@ z
   </g>
   <g id="axes_1">
    <g id="patch_2">
-    <path d="M 66.11328 543.45816 
-L 547.32672 543.45816 
-Q 560.58048 543.45816 560.58048 532.25424 
-L 560.58048 125.46576 
-Q 560.58048 114.26184 547.32672 114.26184 
-L 66.11328 114.26184 
-Q 52.85952 114.26184 52.85952 125.46576 
-L 52.85952 532.25424 
-Q 52.85952 543.45816 66.11328 543.45816 
+    <path d="M 81.19296 543.45816 
+L 1070.80704 543.45816 
+Q 1098.06336 543.45816 1098.06336 532.25424 
+L 1098.06336 125.46576 
+Q 1098.06336 114.26184 1070.80704 114.26184 
+L 81.19296 114.26184 
+Q 53.93664 114.26184 53.93664 125.46576 
+L 53.93664 532.25424 
+Q 53.93664 543.45816 81.19296 543.45816 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #17232d; stroke: #2b3b47; stroke-linejoin: miter"/>
+" clip-path="url(#p5debe89222)" style="fill: #17232d; stroke: #2b3b47; stroke-linejoin: miter"/>
    </g>
    <g id="patch_3">
-    <path d="M 82.4256 224.14644 
-L 531.0144 224.14644 
-L 531.0144 215.09712 
-L 82.4256 215.09712 
+    <path d="M 114.7392 224.14644 
+L 1037.2608 224.14644 
+L 1037.2608 215.09712 
+L 114.7392 215.09712 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #2c3c49"/>
+" clip-path="url(#p5debe89222)" style="fill: #2c3c49"/>
    </g>
    <g id="patch_4">
-    <path d="M 82.4256 224.14644 
-L 297.08235 224.14644 
-L 297.08235 215.09712 
-L 82.4256 215.09712 
+    <path d="M 114.7392 224.14644 
+L 556.1802 224.14644 
+L 556.1802 215.09712 
+L 114.7392 215.09712 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #63e7bd"/>
+" clip-path="url(#p5debe89222)" style="fill: #63e7bd"/>
    </g>
    <g id="patch_5">
-    <path d="M 82.4256 275.85684 
-L 531.0144 275.85684 
-L 531.0144 266.80752 
-L 82.4256 266.80752 
+    <path d="M 114.7392 275.85684 
+L 1037.2608 275.85684 
+L 1037.2608 266.80752 
+L 114.7392 266.80752 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #2c3c49"/>
+" clip-path="url(#p5debe89222)" style="fill: #2c3c49"/>
    </g>
    <g id="patch_6">
-    <path d="M 82.4256 275.85684 
-L 453.21228 275.85684 
-L 453.21228 266.80752 
-L 82.4256 266.80752 
+    <path d="M 114.7392 275.85684 
+L 877.26096 275.85684 
+L 877.26096 266.80752 
+L 114.7392 266.80752 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #20ac91"/>
+" clip-path="url(#p5debe89222)" style="fill: #20ac91"/>
    </g>
    <g id="patch_7">
-    <path d="M 82.4256 327.56724 
-L 531.0144 327.56724 
-L 531.0144 318.51792 
-L 82.4256 318.51792 
+    <path d="M 114.7392 327.56724 
+L 1037.2608 327.56724 
+L 1037.2608 318.51792 
+L 114.7392 318.51792 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #2c3c49"/>
+" clip-path="url(#p5debe89222)" style="fill: #2c3c49"/>
    </g>
    <g id="patch_8">
-    <path d="M 82.4256 327.56724 
-L 409.40478 327.56724 
-L 409.40478 318.51792 
-L 82.4256 318.51792 
+    <path d="M 114.7392 327.56724 
+L 787.17096 327.56724 
+L 787.17096 318.51792 
+L 114.7392 318.51792 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #66b4f2"/>
+" clip-path="url(#p5debe89222)" style="fill: #66b4f2"/>
    </g>
    <g id="patch_9">
-    <path d="M 82.4256 379.27764 
-L 531.0144 379.27764 
-L 531.0144 370.22832 
-L 82.4256 370.22832 
+    <path d="M 114.7392 379.27764 
+L 1037.2608 379.27764 
+L 1037.2608 370.22832 
+L 114.7392 370.22832 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #2c3c49"/>
+" clip-path="url(#p5debe89222)" style="fill: #2c3c49"/>
    </g>
    <g id="patch_10">
-    <path d="M 82.4256 379.27764 
-L 305.113725 379.27764 
-L 305.113725 370.22832 
-L 82.4256 370.22832 
+    <path d="M 114.7392 379.27764 
+L 572.6967 379.27764 
+L 572.6967 370.22832 
+L 114.7392 370.22832 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #3e7eb1"/>
+" clip-path="url(#p5debe89222)" style="fill: #3e7eb1"/>
    </g>
    <g id="patch_11">
-    <path d="M 82.4256 430.98804 
-L 531.0144 430.98804 
-L 531.0144 421.93872 
-L 82.4256 421.93872 
+    <path d="M 114.7392 430.98804 
+L 1037.2608 430.98804 
+L 1037.2608 421.93872 
+L 114.7392 421.93872 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #2c3c49"/>
+" clip-path="url(#p5debe89222)" style="fill: #2c3c49"/>
    </g>
    <g id="patch_12">
-    <path d="M 82.4256 430.98804 
-L 156.31425 430.98804 
-L 156.31425 421.93872 
-L 82.4256 421.93872 
+    <path d="M 114.7392 430.98804 
+L 266.691 430.98804 
+L 266.691 421.93872 
+L 114.7392 421.93872 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #bea0e0"/>
+" clip-path="url(#p5debe89222)" style="fill: #bea0e0"/>
    </g>
    <g id="patch_13">
-    <path d="M 82.4256 482.69844 
-L 531.0144 482.69844 
-L 531.0144 473.64912 
-L 82.4256 473.64912 
+    <path d="M 114.7392 482.69844 
+L 1037.2608 482.69844 
+L 1037.2608 473.64912 
+L 114.7392 473.64912 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #2c3c49"/>
+" clip-path="url(#p5debe89222)" style="fill: #2c3c49"/>
    </g>
    <g id="patch_14">
-    <path d="M 82.4256 482.69844 
-L 142.29585 482.69844 
-L 142.29585 473.64912 
-L 82.4256 473.64912 
+    <path d="M 114.7392 482.69844 
+L 237.8622 482.69844 
+L 237.8622 473.64912 
+L 114.7392 473.64912 
 z
-" clip-path="url(#pe1147d8931)" style="fill: #8970af"/>
+" clip-path="url(#p5debe89222)" style="fill: #8970af"/>
    </g>
    <g id="text_1">
-    <text style="fill: #f1f7fa; font: 700 18px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="144.222075" transform="rotate(-0 82.4256 144.222075)">GPU VRAM · inference peak</text>
+    <text style="fill: #f1f7fa; font: 700 24.3px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="145.960481" transform="rotate(-0 114.7392 145.960481)">Peak inference VRAM</text>
    </g>
    <g id="text_2">
-    <text style="fill: #b7c5d0; font: 11.5px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="166.129081" transform="rotate(-0 82.4256 166.129081)">GiB · observed device memory · lower is less</text>
+    <text style="fill: #b7c5d0; font: 15.525px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="167.23973" transform="rotate(-0 114.7392 167.23973)">GiB · observed device memory · lower is less</text>
    </g>
    <g id="text_3">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="205.04985" transform="rotate(-0 82.4256 205.04985)">Winnow-12B Q8</text>
+    <text style="fill: #f1f7fa; font: 16.2px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="206.208787" transform="rotate(-0 114.7392 206.208787)">Winnow-12B Q8</text>
    </g>
    <g id="text_4">
-    <text style="fill: #63e7bd; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="531.0144" y="205.601725" transform="rotate(-0 531.0144 205.601725)">14.4</text>
+    <text style="fill: #63e7bd; font: 700 18.9px 'DejaVu Sans'; text-anchor: end" x="1037.2608" y="206.953819" transform="rotate(-0 1037.2608 206.953819)">14.36 GiB</text>
    </g>
    <g id="text_5">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="256.76025" transform="rotate(-0 82.4256 256.76025)">Winnow-12B BF16</text>
+    <text style="fill: #f1f7fa; font: 16.2px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="257.919187" transform="rotate(-0 114.7392 257.919187)">Winnow-12B BF16</text>
    </g>
    <g id="text_6">
-    <text style="fill: #20ac91; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="531.0144" y="257.312125" transform="rotate(-0 531.0144 257.312125)">24.8</text>
+    <text style="fill: #20ac91; font: 700 18.9px 'DejaVu Sans'; text-anchor: end" x="1037.2608" y="258.664219" transform="rotate(-0 1037.2608 258.664219)">24.80 GiB</text>
    </g>
    <g id="text_7">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="308.47065" transform="rotate(-0 82.4256 308.47065)">Kev-9B BF16</text>
+    <text style="fill: #f1f7fa; font: 16.2px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="309.629588" transform="rotate(-0 114.7392 309.629588)">Kev-9B BF16</text>
    </g>
    <g id="text_8">
-    <text style="fill: #66b4f2; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="531.0144" y="309.022525" transform="rotate(-0 531.0144 309.022525)">21.9</text>
+    <text style="fill: #66b4f2; font: 700 18.9px 'DejaVu Sans'; text-anchor: end" x="1037.2608" y="310.374619" transform="rotate(-0 1037.2608 310.374619)">21.87 GiB</text>
    </g>
    <g id="text_9">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="360.18105" transform="rotate(-0 82.4256 360.18105)">Kev-4B BF16</text>
+    <text style="fill: #f1f7fa; font: 16.2px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="361.339987" transform="rotate(-0 114.7392 361.339987)">Kev-4B BF16</text>
    </g>
    <g id="text_10">
-    <text style="fill: #3e7eb1; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="531.0144" y="360.732925" transform="rotate(-0 531.0144 360.732925)">14.9</text>
+    <text style="fill: #3e7eb1; font: 700 18.9px 'DejaVu Sans'; text-anchor: end" x="1037.2608" y="362.085019" transform="rotate(-0 1037.2608 362.085019)">14.89 GiB</text>
    </g>
    <g id="text_11">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="411.89145" transform="rotate(-0 82.4256 411.89145)">Laya Typed Decisions</text>
+    <text style="fill: #f1f7fa; font: 16.2px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="413.050387" transform="rotate(-0 114.7392 413.050387)">Laya Typed Decisions</text>
    </g>
    <g id="text_12">
-    <text style="fill: #bea0e0; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="531.0144" y="412.443325" transform="rotate(-0 531.0144 412.443325)">4.9</text>
+    <text style="fill: #bea0e0; font: 700 18.9px 'DejaVu Sans'; text-anchor: end" x="1037.2608" y="413.795419" transform="rotate(-0 1037.2608 413.795419)">4.94 GiB</text>
    </g>
    <g id="text_13">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="82.4256" y="463.60185" transform="rotate(-0 82.4256 463.60185)">Laya English</text>
+    <text style="fill: #f1f7fa; font: 16.2px 'DejaVu Sans'; text-anchor: start" x="114.7392" y="464.760787" transform="rotate(-0 114.7392 464.760787)">Laya English</text>
    </g>
    <g id="text_14">
-    <text style="fill: #8970af; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="531.0144" y="464.153725" transform="rotate(-0 531.0144 464.153725)">4.0</text>
+    <text style="fill: #8970af; font: 700 18.9px 'DejaVu Sans'; text-anchor: end" x="1037.2608" y="465.505819" transform="rotate(-0 1037.2608 465.505819)">4.00 GiB</text>
    </g>
    <g id="text_15">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="82.4256" y="520.069384" transform="rotate(-0 82.4256 520.069384)">0</text>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="114.7392" y="521.083454" transform="rotate(-0 114.7392 521.083454)">0</text>
    </g>
    <g id="text_16">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="231.9552" y="520.069384" transform="rotate(-0 231.9552 520.069384)">10</text>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="268.4928" y="521.083454" transform="rotate(-0 268.4928 521.083454)">5</text>
    </g>
    <g id="text_17">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="381.4848" y="520.069384" transform="rotate(-0 381.4848 520.069384)">20</text>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="422.2464" y="521.083454" transform="rotate(-0 422.2464 521.083454)">10</text>
    </g>
    <g id="text_18">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="531.0144" y="520.069384" transform="rotate(-0 531.0144 520.069384)">30</text>
-   </g>
-  </g>
-  <g id="axes_2">
-   <g id="patch_15">
-    <path d="M 604.67328 543.45816 
-L 1085.88672 543.45816 
-Q 1099.14048 543.45816 1099.14048 532.25424 
-L 1099.14048 125.46576 
-Q 1099.14048 114.26184 1085.88672 114.26184 
-L 604.67328 114.26184 
-Q 591.41952 114.26184 591.41952 125.46576 
-L 591.41952 532.25424 
-Q 591.41952 543.45816 604.67328 543.45816 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #17232d; stroke: #2b3b47; stroke-linejoin: miter"/>
-   </g>
-   <g id="patch_16">
-    <path d="M 620.9856 224.14644 
-L 1069.5744 224.14644 
-L 1069.5744 215.09712 
-L 620.9856 215.09712 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #2c3c49"/>
-   </g>
-   <g id="patch_17">
-    <path d="M 620.9856 224.14644 
-L 730.304436 224.14644 
-L 730.304436 215.09712 
-L 620.9856 215.09712 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #63e7bd"/>
-   </g>
-   <g id="patch_18">
-    <path d="M 620.9856 275.85684 
-L 1069.5744 275.85684 
-L 1069.5744 266.80752 
-L 620.9856 266.80752 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #2c3c49"/>
-   </g>
-   <g id="patch_19">
-    <path d="M 620.9856 275.85684 
-L 823.575343 275.85684 
-L 823.575343 266.80752 
-L 620.9856 266.80752 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #20ac91"/>
-   </g>
-   <g id="patch_20">
-    <path d="M 620.9856 327.56724 
-L 1069.5744 327.56724 
-L 1069.5744 318.51792 
-L 620.9856 318.51792 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #2c3c49"/>
-   </g>
-   <g id="patch_21">
-    <path d="M 620.9856 327.56724 
-L 1045.594277 327.56724 
-L 1045.594277 318.51792 
-L 620.9856 318.51792 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #66b4f2"/>
-   </g>
-   <g id="patch_22">
-    <path d="M 620.9856 379.27764 
-L 1069.5744 379.27764 
-L 1069.5744 370.22832 
-L 620.9856 370.22832 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #2c3c49"/>
-   </g>
-   <g id="patch_23">
-    <path d="M 620.9856 379.27764 
-L 828.327148 379.27764 
-L 828.327148 370.22832 
-L 620.9856 370.22832 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #3e7eb1"/>
-   </g>
-   <g id="patch_24">
-    <path d="M 620.9856 430.98804 
-L 1069.5744 430.98804 
-L 1069.5744 421.93872 
-L 620.9856 421.93872 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #2c3c49"/>
-   </g>
-   <g id="patch_25">
-    <path d="M 620.9856 430.98804 
-L 650.152394 430.98804 
-L 650.152394 421.93872 
-L 620.9856 421.93872 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #bea0e0"/>
-   </g>
-   <g id="patch_26">
-    <path d="M 620.9856 482.69844 
-L 1069.5744 482.69844 
-L 1069.5744 473.64912 
-L 620.9856 473.64912 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #2c3c49"/>
-   </g>
-   <g id="patch_27">
-    <path d="M 620.9856 482.69844 
-L 650.12166 482.69844 
-L 650.12166 473.64912 
-L 620.9856 473.64912 
-z
-" clip-path="url(#pa97cd42ed3)" style="fill: #8970af"/>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="576" y="521.083454" transform="rotate(-0 576 521.083454)">15</text>
    </g>
    <g id="text_19">
-    <text style="fill: #f1f7fa; font: 700 18px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="144.151763" transform="rotate(-0 620.9856 144.151763)">System RAM · loading peak</text>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="729.7536" y="521.083454" transform="rotate(-0 729.7536 521.083454)">20</text>
    </g>
    <g id="text_20">
-    <text style="fill: #b7c5d0; font: 11.5px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="166.129081" transform="rotate(-0 620.9856 166.129081)">GiB · process-tree PSS · lower is less</text>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="883.5072" y="521.083454" transform="rotate(-0 883.5072 521.083454)">25</text>
    </g>
    <g id="text_21">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="205.04985" transform="rotate(-0 620.9856 205.04985)">Winnow-12B Q8</text>
-   </g>
-   <g id="text_22">
-    <text style="fill: #63e7bd; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="1069.5744" y="205.601725" transform="rotate(-0 1069.5744 205.601725)">12.2</text>
-   </g>
-   <g id="text_23">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="256.76025" transform="rotate(-0 620.9856 256.76025)">Winnow-12B BF16</text>
-   </g>
-   <g id="text_24">
-    <text style="fill: #20ac91; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="1069.5744" y="257.312125" transform="rotate(-0 1069.5744 257.312125)">22.6</text>
-   </g>
-   <g id="text_25">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="308.47065" transform="rotate(-0 620.9856 308.47065)">Kev-9B BF16</text>
-   </g>
-   <g id="text_26">
-    <text style="fill: #66b4f2; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="1069.5744" y="309.022525" transform="rotate(-0 1069.5744 309.022525)">47.3</text>
-   </g>
-   <g id="text_27">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="360.18105" transform="rotate(-0 620.9856 360.18105)">Kev-4B BF16</text>
-   </g>
-   <g id="text_28">
-    <text style="fill: #3e7eb1; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="1069.5744" y="360.732925" transform="rotate(-0 1069.5744 360.732925)">23.1</text>
-   </g>
-   <g id="text_29">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="411.89145" transform="rotate(-0 620.9856 411.89145)">Laya Typed Decisions</text>
-   </g>
-   <g id="text_30">
-    <text style="fill: #bea0e0; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="1069.5744" y="412.443325" transform="rotate(-0 1069.5744 412.443325)">3.3</text>
-   </g>
-   <g id="text_31">
-    <text style="fill: #f1f7fa; font: 12px 'DejaVu Sans'; text-anchor: start" x="620.9856" y="463.60185" transform="rotate(-0 620.9856 463.60185)">Laya English</text>
-   </g>
-   <g id="text_32">
-    <text style="fill: #8970af; font: 700 14px 'DejaVu Sans'; text-anchor: end" x="1069.5744" y="464.153725" transform="rotate(-0 1069.5744 464.153725)">3.2</text>
-   </g>
-   <g id="text_33">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="620.9856" y="520.069384" transform="rotate(-0 620.9856 520.069384)">0</text>
-   </g>
-   <g id="text_34">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="710.70336" y="520.069384" transform="rotate(-0 710.70336 520.069384)">10</text>
-   </g>
-   <g id="text_35">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="800.42112" y="520.069384" transform="rotate(-0 800.42112 520.069384)">20</text>
-   </g>
-   <g id="text_36">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="890.13888" y="520.069384" transform="rotate(-0 890.13888 520.069384)">30</text>
-   </g>
-   <g id="text_37">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="979.85664" y="520.069384" transform="rotate(-0 979.85664 520.069384)">40</text>
-   </g>
-   <g id="text_38">
-    <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: middle" x="1069.5744" y="520.069384" transform="rotate(-0 1069.5744 520.069384)">50</text>
+    <text style="fill: #b7c5d0; font: 14.175px 'DejaVu Sans'; text-anchor: middle" x="1037.2608" y="521.083454" transform="rotate(-0 1037.2608 521.083454)">30</text>
    </g>
   </g>
-  <g id="text_39">
-   <text style="fill: #f1f7fa; font: 700 29px 'DejaVu Sans'; text-anchor: start" x="51.84" y="37.584" transform="rotate(-0 51.84 37.584)">Winnow-12B | Deployment memory</text>
+  <g id="text_22">
+   <text style="fill: #f1f7fa; font: 700 29px 'DejaVu Sans'; text-anchor: start" x="51.84" y="37.584" transform="rotate(-0 51.84 37.584)">Winnow-12B | GPU memory</text>
   </g>
-  <g id="text_40">
+  <g id="text_23">
    <text style="fill: #b7c5d0; font: 16px 'DejaVu Sans'; text-anchor: start" x="51.84" y="74.52" transform="rotate(-0 51.84 74.52)">Both Winnow formats · Same RTX PRO 5000 Blackwell</text>
   </g>
-  <g id="text_41">
-   <text style="fill: #f1f7fa; font: 11px 'DejaVu Sans'; text-anchor: start" x="51.84" y="578.016" transform="rotate(-0 51.84 578.016)">Measured serving configurations. Loading includes runtime merge work. Jev server memory is unavailable.</text>
+  <g id="text_24">
+   <text style="fill: #f1f7fa; font: 11px 'DejaVu Sans'; text-anchor: start" x="51.84" y="578.016" transform="rotate(-0 51.84 578.016)">Q8 / BF16 precision is labeled. Laya: FP32 weights with BF16 autocast.</text>
   </g>
-  <g id="text_42">
-   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="51.84" y="603.936" transform="rotate(-0 51.84 603.936)">Q8 / BF16 precision is labeled. Laya: FP32 weights, BF16 autocast. Peaks are not minimum installed RAM.</text>
+  <g id="text_25">
+   <text style="fill: #b7c5d0; font: 10.5px 'DejaVu Sans'; text-anchor: start" x="51.84" y="603.936" transform="rotate(-0 51.84 603.936)">Observed peaks for the tested serving configurations. Jev's hosted GPU memory is unavailable.</text>
   </g>
-  <g id="text_43">
+  <g id="text_26">
    <text style="fill: #b7c5d0; font: 10px 'DejaVu Sans'; text-anchor: start" x="51.84" y="627.264" transform="rotate(-0 51.84 627.264)">2026-09-21 · github.com/EldanRing/winnow-inference</text>
   </g>
  </g>
  <defs>
-  <clipPath id="pe1147d8931">
-   <rect x="51.84" y="113.4" width="509.76" height="430.92"/>
-  </clipPath>
-  <clipPath id="pa97cd42ed3">
-   <rect x="590.4" y="113.4" width="509.76" height="430.92"/>
+  <clipPath id="p5debe89222">
+   <rect x="51.84" y="113.4" width="1048.32" height="430.92"/>
   </clipPath>
  </defs>
 </svg>
