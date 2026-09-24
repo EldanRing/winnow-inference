@@ -24,6 +24,7 @@ def main():
         "--model-dir", type=Path, default=ROOT / "models", help="Directory populated by setup.py"
     )
     p.add_argument("--model", type=Path, help="Custom GGUF; defaults to the release in --model-dir")
+    p.add_argument("--alias", default="Winnow-12B", help="Model name advertised by the server")
     p.add_argument("--mmproj", type=Path)
     p.add_argument("--text-only", action="store_true", help="Do not load a vision projector")
     p.add_argument(
@@ -96,7 +97,7 @@ def main():
         "--model",
         str(a.model.resolve()),
         "--alias",
-        "Winnow-12B",
+        a.alias,
         "--ctx-size",
         str(a.context),
         "--parallel",

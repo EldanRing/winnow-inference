@@ -129,8 +129,15 @@ class Onboarding(unittest.TestCase):
             self.assertEqual(override["environment"]["WINNOW_CONTEXT"], "32768")
             self.assertEqual(override["environment"]["WINNOW_PARALLEL"], "2")
             self.assertEqual(override["environment"]["WINNOW_MEMORY"], "auto")
-            custom = json.loads(subprocess.check_output(base + ["--model", str(model)], text=True))
+            custom = json.loads(
+                subprocess.check_output(
+                    base + ["--model", str(model), "--alias", "Custom-Model"], text=True
+                )
+            )
             self.assertNotIn("--mmproj", custom["command"])
+            self.assertEqual(
+                custom["command"][custom["command"].index("--alias") + 1], "Custom-Model"
+            )
 
 
 if __name__ == "__main__":
