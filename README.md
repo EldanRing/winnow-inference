@@ -34,6 +34,21 @@ downloads. The training dataset is private. Exact release checksums are in
 
 ## Reasoning results
 
+### Q8 reasoning on Jev: 192-token historical experiment
+
+| 12B Q8 method | Correct / 231 | Accuracy |
+|---|---:|---:|
+| Native direct | 198 | 85.71% |
+| Same-model reasoning, MTP off | 208 | 90.04% |
+| Same-model reasoning, MTP draft depth 1 | 209 | 90.48% |
+
+This all-cases, 192-token recipe scored partial text and used no gate or blend;
+it is **not** the released `q8-fixed50-v1` policy or its separate 96-decision pilot.
+The MTP variant was faster but regressed from 83/96 to 81/96 on an external panel.
+[Full Q8 benchmark, completion handling, probability losses and timing](docs/REASONING-RESULTS.md#q8-reasoning-on-the-full-jev-public-subset).
+
+### Historical NVFP4 and E4B comparison
+
 A historical text-only experiment added same-model reasoning below a raw confidence
 threshold, then blended direct and augmented probabilities equally. It improved
 Jev and Kev-clean results but reduced Typed teacher agreement (direct → adaptive):

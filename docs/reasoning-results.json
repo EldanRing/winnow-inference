@@ -1020,5 +1020,417 @@
         "source_fit_sha256": "ec2b4f838a4455ac14d4fbb421d7364d19783179f030d53ddff0b08b024d8f17"
       }
     }
+  },
+  "q8_jev192_historical": {
+    "scope": "Historical all-cases Q8 192-token generation then native scoring; no gate/blend/incomplete-output fallback; distinct from released q8-fixed50-v1",
+    "jev_cases": 231,
+    "jev_groups": 195,
+    "external_cases": 96,
+    "external_composition": {
+      "Kev-clean": 48,
+      "Typed": 48
+    },
+    "model_sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea",
+    "assistant_sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+    "original_server_sha256": "752dfceb6172936a940e6179fe6720f06506e733ef459b5ad764641a722d6923",
+    "MTP_server_sha256": "5bf757b6306a30813811f8647c52c0346d68d41070716908c8482f11853fccd5",
+    "generation": {
+      "temperature": 0,
+      "seed": 314159,
+      "max_tokens": 192,
+      "cache_prompt": false,
+      "reasoning_effort": "none"
+    },
+    "draft": {
+      "type": "draft-mtp",
+      "n_max": 1,
+      "n_min": 0,
+      "p_min": 0.0
+    },
+    "completion_handling": "Raw capped/truncated output retained and scored, no fallback",
+    "metrics": {
+      "jev": {
+        "direct": {
+          "n": 231,
+          "correct": 198,
+          "accuracy": 0.8571428571428571,
+          "NLL": 0.38268292548132204,
+          "Brier_sum": 0.20856957230700562,
+          "wins": 0,
+          "losses": 0,
+          "paired_delta_accuracy": 0.0,
+          "group_bootstrap95_delta": [
+            0.0,
+            0.0
+          ]
+        },
+        "non_MTP_192": {
+          "n": 231,
+          "correct": 208,
+          "accuracy": 0.9004329004329005,
+          "NLL": 0.39881870222961024,
+          "Brier_sum": 0.17964492582756653,
+          "wins": 19,
+          "losses": 9,
+          "paired_delta_accuracy": 0.04329004329004329,
+          "group_bootstrap95_delta": [
+            0.0,
+            0.09053497942386832
+          ]
+        },
+        "MTP_192": {
+          "n": 231,
+          "correct": 209,
+          "accuracy": 0.9047619047619048,
+          "NLL": 0.35750224039154227,
+          "Brier_sum": 0.155336501577755,
+          "wins": 20,
+          "losses": 9,
+          "paired_delta_accuracy": 0.047619047619047616,
+          "group_bootstrap95_delta": [
+            0.0,
+            0.09649122807017543
+          ]
+        }
+      },
+      "external": {
+        "direct": {
+          "n": 96,
+          "correct": 80,
+          "accuracy": 0.8333333333333334,
+          "NLL": 0.5042175556846371,
+          "Brier_sum": 0.2531608595203065,
+          "wins": 0,
+          "losses": 0,
+          "paired_delta_accuracy": 0.0,
+          "group_bootstrap95_delta": [
+            0.0,
+            0.0
+          ]
+        },
+        "non_MTP_192": {
+          "n": 96,
+          "correct": 83,
+          "accuracy": 0.8645833333333334,
+          "NLL": 0.9009761859008939,
+          "Brier_sum": 0.25720613880213233,
+          "wins": 8,
+          "losses": 5,
+          "paired_delta_accuracy": 0.03125,
+          "group_bootstrap95_delta": [
+            -0.0392156862745098,
+            0.09782608695652174
+          ]
+        },
+        "MTP_192": {
+          "n": 96,
+          "correct": 81,
+          "accuracy": 0.84375,
+          "NLL": 1.009387631760024,
+          "Brier_sum": 0.2992381877988913,
+          "wins": 8,
+          "losses": 7,
+          "paired_delta_accuracy": 0.010416666666666666,
+          "group_bootstrap95_delta": [
+            -0.06315789473684211,
+            0.08247422680412371
+          ]
+        }
+      }
+    },
+    "MTP_vs_non_MTP_paired": {
+      "jev-mtp192": {
+        "n": 231,
+        "correct": 209,
+        "wins": 2,
+        "losses": 1,
+        "group_bootstrap95_delta": [
+          -0.008849557522123894,
+          0.017777777777777778
+        ],
+        "reasoning_text_identical_count": 132
+      },
+      "external-mtp192": {
+        "n": 96,
+        "correct": 81,
+        "wins": 0,
+        "losses": 2,
+        "group_bootstrap95_delta": [
+          -0.05263157894736842,
+          0.0
+        ],
+        "reasoning_text_identical_count": 54
+      }
+    },
+    "latency": {
+      "definition": "Consecutive generation then native HTTP scoring; resident model; excludes separate direct calls/startup. Jev comparator historical, external separate runs; no interleaved repeated timing.",
+      "jev_non_MTP_auto": {
+        "n": 231,
+        "total": 524.1402415325283,
+        "mean": 2.2690053745996894,
+        "p50": 1.8375641779857688,
+        "p95": 4.759838272992056,
+        "max": 5.2213886409881525,
+        "generation": {
+          "n": 231,
+          "total": 476.224886162614,
+          "mean": 2.06157959377755,
+          "p50": 1.728904682036955,
+          "p95": 4.102020924969111,
+          "max": 4.344080437964294
+        },
+        "native": {
+          "n": 231,
+          "total": 47.879409498360474,
+          "mean": 0.20727017098857348,
+          "p50": 0.09023732197238132,
+          "p95": 0.6992866959772073,
+          "max": 1.0117546010296792
+        },
+        "server_generation_prompt_ms": {
+          "n": 231,
+          "total": 49203.886,
+          "mean": 213.0038354978355,
+          "p50": 87.278,
+          "p95": 722.415,
+          "max": 1039.839
+        },
+        "server_generation_decode_ms": {
+          "n": 231,
+          "total": 426299.896,
+          "mean": 1845.4540952380953,
+          "p50": 1633.954,
+          "p95": 3431.552,
+          "max": 3438.305
+        }
+      },
+      "jev_MTP": {
+        "n": 231,
+        "total": 360.38598542741966,
+        "mean": 1.5601124910277908,
+        "p50": 1.2207273859530687,
+        "p95": 3.4632560839527287,
+        "max": 4.015884783992078,
+        "generation": {
+          "n": 231,
+          "total": 312.45355743472464,
+          "mean": 1.3526128027477258,
+          "p50": 1.1070256870007142,
+          "p95": 2.7827896010130644,
+          "max": 3.16361379501177
+        },
+        "native": {
+          "n": 231,
+          "total": 47.89529740053695,
+          "mean": 0.20733894978587422,
+          "p50": 0.08999646903248504,
+          "p95": 0.6988278590142727,
+          "max": 1.0113072919775732
+        },
+        "server_generation_prompt_ms": {
+          "n": 231,
+          "total": 52478.887,
+          "mean": 227.181329004329,
+          "p50": 91.785,
+          "p95": 775.467,
+          "max": 1092.032
+        },
+        "server_generation_decode_ms": {
+          "n": 231,
+          "total": 259246.794,
+          "mean": 1122.2804935064935,
+          "p50": 980.235,
+          "p95": 2023.59,
+          "max": 2236.001
+        }
+      },
+      "external_non_MTP": {
+        "n": 96,
+        "total": 186.63461077271495,
+        "mean": 1.9441105288824474,
+        "p50": 1.9396794374915771,
+        "p95": 2.774245378037449,
+        "max": 3.4950071630300954,
+        "generation": {
+          "n": 96,
+          "total": 176.41883952444186,
+          "mean": 1.8376962450462695,
+          "p50": 1.8445491659804247,
+          "p95": 2.632500502979383,
+          "max": 3.3824517630273476
+        },
+        "native": {
+          "n": 96,
+          "total": 10.201231056824327,
+          "mean": 0.10626282350858673,
+          "p50": 0.09878069299156778,
+          "p95": 0.1430867559975013,
+          "max": 0.1556950300000608
+        },
+        "server_generation_prompt_ms": {
+          "n": 96,
+          "total": 10126.323,
+          "mean": 105.48253125,
+          "p50": 96.916,
+          "p95": 146.19,
+          "max": 163.478
+        },
+        "server_generation_decode_ms": {
+          "n": 96,
+          "total": 166084.045,
+          "mean": 1730.0421354166667,
+          "p50": 1746.018,
+          "p95": 2503.296,
+          "max": 3293.165
+        }
+      },
+      "external_MTP": {
+        "n": 96,
+        "total": 123.89698012010194,
+        "mean": 1.2905935429177287,
+        "p50": 1.3071690880169626,
+        "p95": 1.77407614904223,
+        "max": 2.1031178520061076,
+        "generation": {
+          "n": 96,
+          "total": 113.64054825343192,
+          "mean": 1.183755710973249,
+          "p50": 1.1982702744717244,
+          "p95": 1.6412233920418657,
+          "max": 1.9901832579635084
+        },
+        "native": {
+          "n": 96,
+          "total": 10.242464226030279,
+          "mean": 0.1066923356878154,
+          "p50": 0.0968261695234105,
+          "p95": 0.14443401095923036,
+          "max": 0.15607411501696333
+        },
+        "server_generation_prompt_ms": {
+          "n": 96,
+          "total": 10724.018,
+          "mean": 111.70852083333334,
+          "p50": 100.06,
+          "p95": 161.499,
+          "max": 179.6
+        },
+        "server_generation_decode_ms": {
+          "n": 96,
+          "total": 102707.01699999999,
+          "mean": 1069.8647604166667,
+          "p50": 1088.7085,
+          "p95": 1503.721,
+          "max": 1899.671
+        }
+      }
+    },
+    "failures": {
+      "jev_non_MTP": {
+        "truncations": 31,
+        "empty": 0,
+        "soft100word_exceeded": 3,
+        "requests_failed": 0,
+        "semantic_reasoning_validity": "Not exhaustively judged; truncation is reported and raw trace retained."
+      },
+      "jev_MTP": {
+        "truncations": 28,
+        "empty": 0,
+        "soft100word_exceeded": 2,
+        "requests_failed": 0,
+        "semantic_reasoning_validity": "Not exhaustively judged; truncation is reported and raw trace retained."
+      },
+      "external_non_MTP": {
+        "truncations": 0,
+        "empty": 0,
+        "soft100word_exceeded": 0,
+        "requests_failed": 0,
+        "semantic_reasoning_validity": "Not exhaustively judged; truncation is reported and raw trace retained."
+      },
+      "external_MTP": {
+        "truncations": 0,
+        "empty": 0,
+        "soft100word_exceeded": 0,
+        "requests_failed": 0,
+        "semantic_reasoning_validity": "Not exhaustively judged; truncation is reported and raw trace retained."
+      }
+    },
+    "tokens": {
+      "jev_non_MTP": {
+        "generated": {
+          "n": 231,
+          "total": 24278,
+          "mean": 105.0995670995671,
+          "p50": 94,
+          "p95": 192,
+          "max": 192
+        },
+        "generation_prompt_total": 163418,
+        "native_input_total": 185858
+      },
+      "jev_MTP": {
+        "generated": {
+          "n": 231,
+          "total": 24221,
+          "mean": 104.85281385281385,
+          "p50": 91,
+          "p95": 192,
+          "max": 192
+        },
+        "generation_prompt_total": 163418,
+        "native_input_total": 185778
+      },
+      "external_non_MTP": {
+        "generated": {
+          "n": 96,
+          "total": 9520,
+          "mean": 99.16666666666667,
+          "p50": 100.0,
+          "p95": 143,
+          "max": 188
+        },
+        "generation_prompt_total": 25701,
+        "native_input_total": 36264
+      },
+      "external_MTP": {
+        "generated": {
+          "n": 96,
+          "total": 9438,
+          "mean": 98.3125,
+          "p50": 97.5,
+          "p95": 142,
+          "max": 188
+        },
+        "generation_prompt_total": 25701,
+        "native_input_total": 36178
+      }
+    },
+    "baseline_limit": "Initial direct predictions reused from verified saved runs; historical direct binary hashes unavailable. No exact historical binary-match claim.",
+    "recount": {
+      "jev_original": {
+        "n": 231,
+        "direct_correct": 198,
+        "method_correct": 208,
+        "mean_seconds": 2.2690053745996894
+      },
+      "jev_mtp": {
+        "n": 231,
+        "direct_correct": 198,
+        "method_correct": 209,
+        "mean_seconds": 1.5601124910277908
+      },
+      "external_original": {
+        "n": 96,
+        "direct_correct": 80,
+        "method_correct": 83,
+        "mean_seconds": 1.9441105288824474
+      },
+      "external_mtp": {
+        "n": 96,
+        "direct_correct": 80,
+        "method_correct": 81,
+        "mean_seconds": 1.2905935429177287
+      }
+    }
   }
 }

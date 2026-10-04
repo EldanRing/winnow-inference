@@ -1,11 +1,28 @@
 # Winnow-12B benchmark report
 
-This page covers direct-decision benchmarks. For the separate historical and
-released-policy comparisons, see [reasoning results and tradeoffs](REASONING-RESULTS.md).
+This page covers direct-decision benchmarks and the historical full-Jev Q8
+reasoning experiment. For all policy comparisons, see
+[reasoning results and tradeoffs](REASONING-RESULTS.md).
 
 Winnow-12B is evaluated in **BF16 and Q8** against Kev, Laya, and hosted Jev. The local-model comparison uses one RTX PRO 5000 Blackwell, one model at a time, with localhost clients. RTX 5070 Ti deployment results are reported separately. Measurements: September 21, 2026.
 
 The downloadable model is a Gemma 4 12B IT LoRA fine-tune with the adapter merged into the weights. **Training data is private and is not distributed in this repository.**
+
+## Q8 reasoning on the full Jev public subset
+
+This section uses separate historical RTX 5070 Ti measurements. The direct
+comparison tables below retain their original hardware and measurement dates.
+
+| 12B Q8 method | Correct / 231 | Accuracy |
+|---|---:|---:|
+| Native direct | 198 | 85.71% |
+| Same-model reasoning, MTP off | 208 | 90.04% |
+| Same-model reasoning, MTP draft depth 1 | 209 | 90.48% |
+
+This all-cases, 192-token recipe scored partial text and used no gate or blend;
+it is **not** the released `q8-fixed50-v1` policy or its separate 96-decision pilot.
+The MTP variant was faster but regressed from 83/96 to 81/96 on an external panel.
+[Full Q8 benchmark, completion handling, probability losses and timing](REASONING-RESULTS.md#q8-reasoning-on-the-full-jev-public-subset).
 
 ## Decision quality
 

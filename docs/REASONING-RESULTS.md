@@ -4,6 +4,53 @@ Optional generated context improved some measured decision tasks and worsened ot
 
 [Run reasoning](QUICKSTART.md#download-and-launch) · [Policy contract](ADAPTIVE.md) · [Aggregate measurements](reasoning-results.json) · [Direct-decision benchmarks](BENCHMARKS.md)
 
+## Q8 reasoning on the full Jev public subset
+
+**Winnow-12B Q8 scored 198/231 direct, 208/231 with capped reasoning, and 209/231 with the historical MTP variant.** This is the full 231-question Jev public subset (195 scenario groups), separate from the later 96-decision LogiQA2/HelpSteer2 confirmation below. Jev public-subset accuracy is not the official composite leaderboard score.
+
+| Historical Q8 method | Correct / 231 | Accuracy | Paired corrections / regressions vs direct | NLL | Brier |
+|---|---:|---:|---:|---:|---:|
+| Native direct | 198 | 85.71% | — | 0.382683 | 0.208570 |
+| Reasoning, 192-token cap, MTP off | 208 | 90.04% | 19 / 9 | 0.398819 | 0.179645 |
+| Reasoning, 192-token cap, MTP draft depth 1 | 209 | 90.48% | 20 / 9 | 0.357502 | 0.155337 |
+
+The improvements versus direct are +4.33 and +4.76 percentage points. MTP versus the non-MTP reasoning reference had two corrections and one regression. The non-MTP arm's higher accuracy accompanied worse NLL than direct; these are different quality measures. Brier sums squared error over candidate classes, then averages decisions.
+
+### Recipe and completion handling
+
+This historical recipe generated ordinary-template analysis for **every case**, then appended it to the state and rescored with the same merged Q8 model through the native endpoint at temperature 1. There was **no confidence gate, probability blend, fitted temperature, or incomplete-generation fallback**. State/question inputs and candidate mappings were preserved; gold labels and benchmark rationales were absent from generation prompts.
+
+Generation used temperature 0, seed 314159, a hard 192-token ceiling, a soft 100-word instruction, cache disabled and `reasoning_effort: none`. The non-MTP run had **31/231 capped/truncated outputs**; MTP had **28/231**. Both retained and scored partial text. Empty outputs and failed quality requests were zero. The semantic validity of every analysis was not independently adjudicated.
+
+Both used an RTX 5070 Ti, text-only 8K contexts, Q8 KV, four native branches, one chat slot, selected-head scoring, batch 2048 and microbatch 1024. The initial non-MTP experiment used exclusive memory; a saved automatic-memory rerun preserved every generated trace and all 208 correct decisions. The isolated resident MTP variant used automatic memory, the matching official BF16 assistant, **maximum draft length 1**, minimum 0 and p-min 0. This is not the later MTP4 configuration.
+
+**These numbers do not measure today's `q8-fixed50-v1` client.** That client gates on confidence, blends completed probabilities and falls back on incomplete generation. Its distinct 96-decision confirmation is [reported separately](#q8-confirmation-direct-versus-adaptive). The current `--reasoning on` command should not be described as reproducing the historical 192-token all-cases recipe.
+
+### Timing and external regression
+
+| Consecutive generation → native-scoring HTTP calls | Mean | Median | p95 |
+|---|---:|---:|---:|
+| Jev non-MTP 192, saved automatic-memory reference | 2.269 s | 1.838 s | 4.760 s |
+| Jev MTP 192 | 1.560 s | 1.221 s | 3.463 s |
+| External non-MTP 192, companion comparison run | 1.944 s | 1.940 s | 2.774 s |
+| External MTP 192 | 1.291 s | 1.307 s | 1.774 s |
+
+The observed mean reductions were 31.24% on Jev and 33.62% externally. These are generation-plus-scoring method latencies with the model resident; separately collected direct scoring, server startup and model loading are excluded. Jev's reference was historical; external arms were separate runs, not randomized/interleaved timing repetitions. Changed reasoning traces and lengths also affect timing. The initial exclusive-memory non-MTP Jev run averaged 2.299 s; do not substitute it for the 2.269 s automatic-memory comparator.
+
+The **external 96-case panel was 48 Kev-clean plus 48 Typed decisions**, distinct from both Jev and the later 96-decision Q8 confirmation:
+
+| External historical Q8 method | Correct / 96 | Accuracy / teacher agreement | NLL | Brier |
+|---|---:|---:|---:|---:|
+| Native direct | 80 | 83.33% | 0.504218 | 0.253161 |
+| Non-MTP 192 | 83 | 86.46% | 0.900976 | 0.257206 |
+| MTP 192 | 81 | 84.38% | 1.009388 | 0.299238 |
+
+MTP lost two answers versus the non-MTP reference, with zero corrections, and worsened external NLL/Brier. Both external reasoning arms had zero truncations or failed quality requests. MTP and non-MTP reasoning text matched on only 132/231 Jev and 54/96 external cases: the variant is numerically distinct, not lossless. Paired group-bootstrap 95% intervals for MTP minus non-MTP accuracy/agreement were −0.885 to +1.778 pp on Jev and −5.263 to 0 pp externally. These do not remove exposure or generalization uncertainty.
+
+The Q8 target is the published artifact with SHA-256 `b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea`; the MTP assistant is `dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae`. Aggregate receipts retain the historical server identities. The first 198/231 comparison reused verified saved direct predictions; historical baseline binary hashes were unavailable, so exact historical binary identity is not claimed. A corroborating saved run matched every direct probability/winner, and the later integration checked native mappings/probabilities.
+
+These are previously observed public examples. The model, prompt and 192-token budget were frozen for the assessment, but prior development exposure, unknown pretraining overlap and related questions limit transfer claims. The results are descriptive harness comparisons, without a neutral extra-context control. They do not establish universal reasoning gains, current-policy benchmark accuracy, or lossless MTP acceleration.
+
 ## Historical public-panel comparison
 
 Both models used the same historical recipe: text only, raw native temperature 1, reasoning when maximum candidate probability was below 0.8, then an equal blend of direct and completed augmented probabilities. The same model generated context through its ordinary chat template. These runs used 8K context, Q8 KV, four native branches, one chat slot, batch 2048/microbatch 1024, automatic resident memory and matching MTP4 on an RTX 5070 Ti 16 GB. Generation continued to natural EOS within context; incomplete generation fell back to direct.
@@ -96,11 +143,11 @@ These are resident harness arm means with counterbalanced arm order. They exclud
 
 ## What the MTP evidence establishes
 
-MTP uses the matching assistant to draft chat tokens; native direct decisions generate zero output tokens. Enabling MTP does not itself add decision reasoning. The reasoning measurements above used MTP-enabled profiles, so their latency does not establish MTP-off performance.
+MTP uses the matching assistant to draft chat tokens; native direct decisions generate zero output tokens. Enabling MTP does not itself add decision reasoning. The capped Q8 experiment above compared MTP off with draft depth 1. The later routed-policy measurements used MTP-enabled profiles; their latency does not establish MTP-off performance.
 
 The packaged 8K vision-plus-MTP functional sequences recorded sampled device peaks of 11,773 MiB for NVFP4 and 10,197 MiB for E4B on the RTX 5070 Ti 16 GB. Sampling was every 200 ms and included the device baseline; it can miss transients. Models ran separately. These are configuration observations, not pure MTP overhead or sustained-capacity guarantees. Q8 vision plus MTP did not fit that measured card.
 
-The matched on/off checks had only one request per arm, with six-token text and two-token image outputs: text was faster with MTP and images slower. Earlier Q8 probes did not meet exact generated-sequence parity. This evidence supports functional compatibility, **not a general MTP speedup or lossless-generation claim**. See [the supported mode and memory guide](QUICKSTART.md#supported-choices).
+The matched on/off checks had only one request per arm, with six-token text and two-token image outputs: text was faster with MTP and images slower. Earlier Q8 probes did not meet exact generated-sequence parity. These short checks support functional compatibility. The separate [capped Q8 assessment](#timing-and-external-regression) measured lower latency with mixed quality; neither establishes a general MTP speedup or lossless-generation claim. See [the supported mode and memory guide](QUICKSTART.md#supported-choices).
 
 ## Scope and provenance
 
