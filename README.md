@@ -109,26 +109,56 @@ checks that your toolkit supports your GPU before it downloads anything.
 
 ```sh
 python3 scripts/winnow.py presets
-python3 scripts/winnow.py setup --model q8
 ```
 
-Short presets are `q8`, `nv4` and `e4b`. Each defaults to 8K text with MTP and
-reasoning off. Setup checks prerequisites, downloads verified weights and builds.
-It does not install system packages. Existing valid downloads are reused.
+For the documented **12B Q8, 64K context, vision** configuration, choose the
+command for your platform. Setup and serve must use the same model and mode.
+
+**Linux/NVIDIA — 16 GB RTX 5070 Ti profile:**
+
+```sh
+python3 scripts/winnow.py setup --model q8 --vision on --context 64k --profile 5070ti-64k
+```
+
+**Apple Silicon — documented 24 GB profile:**
+
+```sh
+python3 scripts/winnow.py setup --model q8 --vision on --context 64k --profile apple-silicon
+```
+
+Setup checks prerequisites, downloads the verified model and vision projector,
+and builds. It does not install system packages. Existing valid downloads are
+reused. See [platform requirements and validation limits](docs/INSTALL.md).
 
 ### 3. Start and query
 
+Use the matching platform command:
+
+**Linux/NVIDIA:**
+
 ```sh
-python3 scripts/winnow.py serve --model q8 --context 8k
-# In a second terminal:
+python3 scripts/winnow.py serve --model q8 --vision on --context 64k --profile 5070ti-64k
+```
+
+**Apple Silicon:**
+
+```sh
+python3 scripts/winnow.py serve --model q8 --vision on --context 64k --profile apple-silicon
+```
+
+In a second terminal:
+
+```sh
 python3 scripts/winnow.py decide --model q8 --input examples/decisions.json
 ```
 
-Select `--vision on`, `--mtp on` or `--reasoning on` explicitly; download the
-matching assets first with the same flags. Context and numerical settings can be
-overridden where supported. The [quickstart](docs/QUICKSTART.md) includes the mode
-matrix, memory estimates, measured baselines and examples. Changed configurations
-do not inherit the measured calibration or performance claims.
+The short presets `q8`, `nv4` and `e4b` default to 8K text with MTP and reasoning
+off when no mode flags are supplied. The examples above explicitly select 64K
+vision. Select `--mtp on` or `--reasoning on` only for a supported combination,
+and download the matching assets first with the same flags. The
+[quickstart](docs/QUICKSTART.md) includes the mode matrix, memory estimates,
+measured baselines and examples. Changed configurations do not inherit the
+measured calibration or performance claims.
 
 The server uses **http://127.0.0.1:8091**. Leave its terminal running; Ctrl+C stops
 it. Direct clients verify the chosen model and quantization. Use `--model-dir`
