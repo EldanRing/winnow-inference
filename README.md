@@ -32,6 +32,26 @@ BF16 GGUF, Q8 GGUF, and the matching vision projector are separate
 downloads. The training dataset is private. Exact release checksums are in
 [the model manifest](manifests/models.json).
 
+## Reasoning results
+
+A historical text-only experiment added same-model reasoning below a raw confidence
+threshold, then blended direct and augmented probabilities equally. It improved
+Jev and Kev-clean results but reduced Typed teacher agreement (direct → adaptive):
+
+| Historical model / recipe | Jev, 231 | Kev-clean, 1,046 | Typed agreement, 2,000 |
+|---|---:|---:|---:|
+| 12B NVFP4, fixed gate | 83.55 → 87.88% | 77.82 → 81.45% | 70.60 → 70.15% |
+| E4B Q8, fixed gate | 80.52 → 83.55% | 72.66 → 76.96% | 72.35 → 69.50% |
+
+These historical recipes differ from the released NVFP4 entropy and E4B calibrated
+policies. Full-router means were 347 ms and 234 ms; their included direct HTTP calls
+averaged 51 ms and 37 ms. Later E4B calibration improved probability losses with
+little agreement change; the small Q8 confirmation remained inconclusive.
+[See full counts, policy comparisons, latency definitions and MTP limits](docs/REASONING-RESULTS.md).
+Direct decisions remain the default.
+
+<img src="docs/assets/e4b-01-reasoning-outcomes.png" width="640" alt="Historical E4B reasoning corrections and regressions across Jev, Kev-clean and Typed.">
+
 ## Quickstart
 
 [Choose direct decisions, reasoning and MTP](docs/QUICKSTART.md) with one model selector

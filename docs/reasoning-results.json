@@ -1,0 +1,1024 @@
+{
+  "schema_version": 1,
+  "scope": "Saved aggregate measurements; documentation update only, no new inference. Studies have different comparators and timing boundaries.",
+  "hardware": "RTX 5070 Ti 16 GB; single GPU, models run separately",
+  "historical_public_panel": {
+    "nvfp4": {
+      "recipe": "Historical raw T1, maxP<0.8, equal direct/augmented probability blend; not released NVFP4 entropy or E4B calibrated policy",
+      "timing_definition": "Direct HTTP measured inside full router; all cases including bypass/fallback; startup excluded",
+      "panels": {
+        "jevbench": {
+          "metrics": {
+            "direct": {
+              "n": 231,
+              "groups": 195,
+              "correct": 193,
+              "accuracy": 0.8354978354978355,
+              "NLL": 0.40275172657989283,
+              "Brier_sum": 0.2235365420663909,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 231,
+              "groups": 195,
+              "correct": 203,
+              "accuracy": 0.8787878787878788,
+              "NLL": 0.3662952845258333,
+              "Brier_sum": 0.1982514708114626,
+              "paired_fixes": 14,
+              "paired_regressions": 4,
+              "paired_group_bootstrap95_delta": [
+                0.008658008658008658,
+                0.07883817427385892
+              ]
+            }
+          },
+          "routing": {
+            "n": 231,
+            "triggered": 49,
+            "trigger_rate": 0.21212121212121213,
+            "completed_reasoning": 48,
+            "fallbacks": {
+              "reasoning_truncated": 1
+            },
+            "finish_reasons": {
+              "stop": 48,
+              "length": 1
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 231,
+              "mean_seconds": 0.12765605628865395,
+              "median_seconds": 0.05346359801478684,
+              "p95_seconds": 0.4456975409993902
+            },
+            "end_to_end": {
+              "n": 231,
+              "mean_seconds": 0.6151308678443346,
+              "median_seconds": 0.0553127370076254,
+              "p95_seconds": 2.7690917210420594
+            }
+          }
+        },
+        "kev-clean": {
+          "metrics": {
+            "direct": {
+              "n": 1046,
+              "groups": 879,
+              "correct": 814,
+              "accuracy": 0.7782026768642447,
+              "NLL": 0.7491898346423821,
+              "Brier_sum": 0.3333654875183933,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 1046,
+              "groups": 879,
+              "correct": 852,
+              "accuracy": 0.8145315487571702,
+              "NLL": 0.6933880395445964,
+              "Brier_sum": 0.30275683073259424,
+              "paired_fixes": 54,
+              "paired_regressions": 16,
+              "paired_group_bootstrap95_delta": [
+                0.020833333333333332,
+                0.05318138651471985
+              ]
+            }
+          },
+          "routing": {
+            "n": 1046,
+            "triggered": 191,
+            "trigger_rate": 0.1826003824091778,
+            "completed_reasoning": 187,
+            "fallbacks": {
+              "reasoning_truncated": 4
+            },
+            "finish_reasons": {
+              "stop": 187,
+              "length": 4
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 1046,
+              "mean_seconds": 0.053295440325946644,
+              "median_seconds": 0.05031398651772179,
+              "p95_seconds": 0.07330592797370628
+            },
+            "end_to_end": {
+              "n": 1046,
+              "mean_seconds": 0.38746672303379776,
+              "median_seconds": 0.052202505990862846,
+              "p95_seconds": 1.2565924749942496
+            }
+          }
+        },
+        "typed-decisions": {
+          "metrics": {
+            "direct": {
+              "n": 2000,
+              "groups": 400,
+              "correct": 1412,
+              "accuracy": 0.706,
+              "NLL": 0.7915319148099914,
+              "Brier_sum": 0.4327686682695382,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 2000,
+              "groups": 400,
+              "correct": 1403,
+              "accuracy": 0.7015,
+              "NLL": 0.830279043583865,
+              "Brier_sum": 0.451878716812308,
+              "paired_fixes": 86,
+              "paired_regressions": 95,
+              "paired_group_bootstrap95_delta": [
+                -0.018,
+                0.009
+              ]
+            }
+          },
+          "routing": {
+            "n": 2000,
+            "triggered": 572,
+            "trigger_rate": 0.286,
+            "completed_reasoning": 572,
+            "fallbacks": {},
+            "finish_reasons": {
+              "stop": 572
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 2000,
+              "mean_seconds": 0.04098718068320886,
+              "median_seconds": 0.02556956248008646,
+              "p95_seconds": 0.07968992803944275
+            },
+            "end_to_end": {
+              "n": 2000,
+              "mean_seconds": 0.29511506878986254,
+              "median_seconds": 0.05641212101909332,
+              "p95_seconds": 1.0549302630242892
+            }
+          }
+        },
+        "overall": {
+          "metrics": {
+            "direct": {
+              "n": 3277,
+              "groups": 1474,
+              "correct": 2419,
+              "accuracy": 0.7381751602075068,
+              "NLL": 0.7506109385095727,
+              "Brier_sum": 0.3862906859019384,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 3277,
+              "groups": 1474,
+              "correct": 2458,
+              "accuracy": 0.7500762892889838,
+              "NLL": 0.7538773839660803,
+              "Brier_sum": 0.38640133302665775,
+              "paired_fixes": 154,
+              "paired_regressions": 115,
+              "paired_group_bootstrap95_delta": [
+                0.002390914524805738,
+                0.022370012091898428
+              ]
+            }
+          },
+          "routing": {
+            "n": 3277,
+            "triggered": 812,
+            "trigger_rate": 0.24778761061946902,
+            "completed_reasoning": 807,
+            "fallbacks": {
+              "reasoning_truncated": 5
+            },
+            "finish_reasons": {
+              "stop": 807,
+              "length": 5
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 3277,
+              "mean_seconds": 0.051025310024423856,
+              "median_seconds": 0.047000841004773974,
+              "p95_seconds": 0.08124636299908161
+            },
+            "end_to_end": {
+              "n": 3277,
+              "mean_seconds": 0.3471515289426667,
+              "median_seconds": 0.05402059102198109,
+              "p95_seconds": 1.1067369990050793
+            }
+          }
+        }
+      }
+    },
+    "e4b": {
+      "recipe": "Historical raw T1, maxP<0.8, equal direct/augmented probability blend; not released NVFP4 entropy or E4B calibrated policy",
+      "timing_definition": "Direct HTTP measured inside full router; all cases including bypass/fallback; startup excluded",
+      "panels": {
+        "jevbench": {
+          "metrics": {
+            "direct": {
+              "n": 231,
+              "groups": 195,
+              "correct": 186,
+              "accuracy": 0.8051948051948052,
+              "NLL": 0.5005798569413742,
+              "Brier_sum": 0.2746010619364932,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 231,
+              "groups": 195,
+              "correct": 193,
+              "accuracy": 0.8354978354978355,
+              "NLL": 0.46390106428538025,
+              "Brier_sum": 0.2525553702737991,
+              "paired_fixes": 15,
+              "paired_regressions": 8,
+              "paired_group_bootstrap95_delta": [
+                -0.008733624454148471,
+                0.07327586206896551
+              ]
+            }
+          },
+          "routing": {
+            "n": 231,
+            "triggered": 59,
+            "trigger_rate": 0.2554112554112554,
+            "completed_reasoning": 59,
+            "fallbacks": {},
+            "finish_reasons": {
+              "stop": 59
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 231,
+              "mean_seconds": 0.08205542194423189,
+              "median_seconds": 0.03740850096801296,
+              "p95_seconds": 0.27872125001158565
+            },
+            "end_to_end": {
+              "n": 231,
+              "mean_seconds": 0.28101405174520827,
+              "median_seconds": 0.0396410669782199,
+              "p95_seconds": 1.2896532149752602
+            }
+          }
+        },
+        "kev-clean": {
+          "metrics": {
+            "direct": {
+              "n": 1046,
+              "groups": 879,
+              "correct": 760,
+              "accuracy": 0.7265774378585086,
+              "NLL": 0.8161653921190375,
+              "Brier_sum": 0.38507597485076267,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 1046,
+              "groups": 879,
+              "correct": 805,
+              "accuracy": 0.7695984703632888,
+              "NLL": 0.7482624581987862,
+              "Brier_sum": 0.35703541536312555,
+              "paired_fixes": 78,
+              "paired_regressions": 33,
+              "paired_group_bootstrap95_delta": [
+                0.023299161230195712,
+                0.06333973128598848
+              ]
+            }
+          },
+          "routing": {
+            "n": 1046,
+            "triggered": 314,
+            "trigger_rate": 0.30019120458891013,
+            "completed_reasoning": 314,
+            "fallbacks": {},
+            "finish_reasons": {
+              "stop": 314
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 1046,
+              "mean_seconds": 0.03630326271053122,
+              "median_seconds": 0.03481842248584144,
+              "p95_seconds": 0.04946589202154428
+            },
+            "end_to_end": {
+              "n": 1046,
+              "mean_seconds": 0.1873893891634815,
+              "median_seconds": 0.036816979496506974,
+              "p95_seconds": 0.6659077070071362
+            }
+          }
+        },
+        "typed-decisions": {
+          "metrics": {
+            "direct": {
+              "n": 2000,
+              "groups": 400,
+              "correct": 1447,
+              "accuracy": 0.7235,
+              "NLL": 0.7110741895290447,
+              "Brier_sum": 0.4014721295118691,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 2000,
+              "groups": 400,
+              "correct": 1390,
+              "accuracy": 0.695,
+              "NLL": 0.7419838515627108,
+              "Brier_sum": 0.4219573715251879,
+              "paired_fixes": 101,
+              "paired_regressions": 158,
+              "paired_group_bootstrap95_delta": [
+                -0.047,
+                -0.0095
+              ]
+            }
+          },
+          "routing": {
+            "n": 2000,
+            "triggered": 997,
+            "trigger_rate": 0.4985,
+            "completed_reasoning": 997,
+            "fallbacks": {},
+            "finish_reasons": {
+              "stop": 997
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 2000,
+              "mean_seconds": 0.032546273864194515,
+              "median_seconds": 0.03771557001164183,
+              "p95_seconds": 0.054035281005781144
+            },
+            "end_to_end": {
+              "n": 2000,
+              "mean_seconds": 0.2529933937082533,
+              "median_seconds": 0.07175893048406579,
+              "p95_seconds": 0.5497166069690138
+            }
+          }
+        },
+        "overall": {
+          "metrics": {
+            "direct": {
+              "n": 3277,
+              "groups": 1474,
+              "correct": 2393,
+              "accuracy": 0.7302410741531888,
+              "NLL": 0.7297806915374,
+              "Brier_sum": 0.3872952621376155,
+              "paired_fixes": 0,
+              "paired_regressions": 0,
+              "paired_group_bootstrap95_delta": [
+                0.0,
+                0.0
+              ]
+            },
+            "adaptive": {
+              "n": 3277,
+              "groups": 1474,
+              "correct": 2388,
+              "accuracy": 0.7287152883735124,
+              "NLL": 0.7243855295243439,
+              "Brier_sum": 0.38929327984542345,
+              "paired_fixes": 194,
+              "paired_regressions": 199,
+              "paired_group_bootstrap95_delta": [
+                -0.01413108839446783,
+                0.011732016054337758
+              ]
+            }
+          },
+          "routing": {
+            "n": 3277,
+            "triggered": 1370,
+            "trigger_rate": 0.4180653036313702,
+            "completed_reasoning": 1370,
+            "fallbacks": {},
+            "finish_reasons": {
+              "stop": 1370
+            }
+          },
+          "latency": {
+            "direct_HTTP": {
+              "n": 3277,
+              "mean_seconds": 0.03723544796848406,
+              "median_seconds": 0.03540347097441554,
+              "p95_seconds": 0.05576921004103497
+            },
+            "end_to_end": {
+              "n": 3277,
+              "mean_seconds": 0.23402817651347307,
+              "median_seconds": 0.05032966303406283,
+              "p95_seconds": 0.5855758729740046
+            }
+          }
+        }
+      }
+    }
+  },
+  "released_policy_comparisons": {
+    "12b-nvfp4": {
+      "cases": 900,
+      "groups": 600,
+      "source_metrics": {
+        "HelpSteer2": {
+          "incumbent": {
+            "NLL": 1.818116647623692,
+            "Brier": 0.4343743081505951,
+            "correct": 0.4166666666666667,
+            "consensus_NLL": 1.7308748840306978,
+            "consensus_Brier": 0.8064951556844556,
+            "expected_rating_MAE_vs_individual_mean": 0.8051407575224596,
+            "expected_rating_MSE_vs_individual_mean": 1.1880070712966155,
+            "expected_rating_MAE_vs_consensus": 0.924283125809313,
+            "expected_rating_MSE_vs_consensus": 1.6048435305165576,
+            "expected_rating_individual_absolute_error": 0.9681010566311998,
+            "empirical_normalized_RPS": 0.11480838179773825
+          },
+          "selected": {
+            "NLL": 1.8171286034376506,
+            "Brier": 0.4351252990602923,
+            "correct": 0.405,
+            "consensus_NLL": 1.7385013326704812,
+            "consensus_Brier": 0.8137050877567384,
+            "expected_rating_MAE_vs_individual_mean": 0.8067792377451884,
+            "expected_rating_MSE_vs_individual_mean": 1.1921602321298366,
+            "expected_rating_MAE_vs_consensus": 0.9321680256804533,
+            "expected_rating_MSE_vs_consensus": 1.6167871414914576,
+            "expected_rating_individual_absolute_error": 0.9720856446907618,
+            "empirical_normalized_RPS": 0.11501618816163597
+          }
+        },
+        "LogiQA2": {
+          "incumbent": {
+            "NLL": 1.0318161681150373,
+            "Brier": 0.4895112290093806,
+            "correct": 0.6966666666666667,
+            "consensus_NLL": 1.0318161681150373,
+            "consensus_Brier": 0.4895112290093806
+          },
+          "selected": {
+            "NLL": 1.0220820282076415,
+            "Brier": 0.4850614138090326,
+            "correct": 0.7,
+            "consensus_NLL": 1.0220820282076415,
+            "consensus_Brier": 0.4850614138090326
+          }
+        }
+      },
+      "source_equal_macro": {
+        "incumbent": {
+          "correct": 0.5566666666666666,
+          "NLL": 1.4249664078693647,
+          "Brier": 0.46194276857998784
+        },
+        "selected": {
+          "correct": 0.5525,
+          "NLL": 1.419605315822646,
+          "Brier": 0.4600933564346624
+        }
+      },
+      "paired_counts": {
+        "HelpSteer2": {
+          "fixes": 3,
+          "regressions": 10,
+          "decisions": 600,
+          "groups": 300,
+          "interpretation": "Consensus annotation agreement, not objective correctness"
+        },
+        "LogiQA2": {
+          "fixes": 1,
+          "regressions": 0,
+          "decisions": 300,
+          "groups": 300,
+          "interpretation": "Original source answer accuracy"
+        }
+      },
+      "paired_intervals": {
+        "macro_delta": {
+          "correct": -0.004166666666666667,
+          "NLL": -0.005361092046718563,
+          "Brier": -0.0018494121453253927
+        },
+        "source_stratified_group_bootstrap_95CI": {
+          "correct": [
+            -0.010833333333333334,
+            0.0033333333333333335
+          ],
+          "NLL": [
+            -0.014480391735791218,
+            0.003912688652034257
+          ],
+          "Brier": [
+            -0.00656821247366027,
+            0.0031288760302990316
+          ]
+        },
+        "groups_per_source": {
+          "LogiQA2": 300,
+          "HelpSteer2": 300
+        }
+      },
+      "timing": {
+        "incumbent": {
+          "mean_seconds": 0.7515910561887237,
+          "median_seconds": 0.8914866204722784,
+          "p95_seconds": 1.549144399992656,
+          "total_arm_seconds": 676.4319505698513,
+          "reasoning_invocations": 485,
+          "natural_EOS": 483,
+          "context_fallbacks": 2,
+          "generated_tokens": 67737,
+          "generation_prompt_tokens": 307160,
+          "native_input_tokens": 864046,
+          "arm_order": {
+            "incumbent": 435,
+            "selected": 465
+          }
+        },
+        "selected": {
+          "mean_seconds": 0.6599814393280798,
+          "median_seconds": 0.13957558549009264,
+          "p95_seconds": 1.5200273939990439,
+          "total_arm_seconds": 593.9832953952719,
+          "reasoning_invocations": 403,
+          "natural_EOS": 401,
+          "context_fallbacks": 2,
+          "generated_tokens": 59184,
+          "generation_prompt_tokens": 253956,
+          "native_input_tokens": 800495,
+          "arm_order": {
+            "incumbent": 435,
+            "selected": 465
+          }
+        }
+      },
+      "released_policy": "nvfp4-entropy-v1",
+      "comparator": "Incumbent reasoning route, not raw direct inference",
+      "timing_definition": "Resident harness arm time with counterbalanced ordering; excludes process startup"
+    },
+    "e4b-q8": {
+      "cases": 900,
+      "groups": 600,
+      "source_metrics": {
+        "HelpSteer2": {
+          "incumbent": {
+            "NLL": 2.061750619900745,
+            "Brier": 0.5010967309594664,
+            "correct": 0.43166666666666664,
+            "consensus_NLL": 1.916047415644875,
+            "consensus_Brier": 0.8671202875758413,
+            "expected_rating_MAE_vs_individual_mean": 0.8378587553319177,
+            "expected_rating_MSE_vs_individual_mean": 1.2374980335511463,
+            "expected_rating_MAE_vs_consensus": 0.8914629203799799,
+            "expected_rating_MSE_vs_consensus": 1.517894180045849,
+            "expected_rating_individual_absolute_error": 0.9766827383636878,
+            "empirical_normalized_RPS": 0.12620128176091341
+          },
+          "selected": {
+            "NLL": 1.7502377872201424,
+            "Brier": 0.44107792158160586,
+            "correct": 0.43333333333333335,
+            "consensus_NLL": 1.6456371005677386,
+            "consensus_Brier": 0.8070429456820246,
+            "expected_rating_MAE_vs_individual_mean": 0.7829994511774324,
+            "expected_rating_MSE_vs_individual_mean": 1.0475411660363594,
+            "expected_rating_MAE_vs_consensus": 0.8889973416505262,
+            "expected_rating_MSE_vs_consensus": 1.3749113666222486,
+            "expected_rating_individual_absolute_error": 0.9645161560677011,
+            "empirical_normalized_RPS": 0.1086365773983471
+          }
+        },
+        "LogiQA2": {
+          "incumbent": {
+            "NLL": 1.1219889240553844,
+            "Brier": 0.5485181307580836,
+            "correct": 0.6266666666666667,
+            "consensus_NLL": 1.1219889240553844,
+            "consensus_Brier": 0.5485181307580836
+          },
+          "selected": {
+            "NLL": 1.0200689255692397,
+            "Brier": 0.5217261094819609,
+            "correct": 0.6266666666666667,
+            "consensus_NLL": 1.0200689255692397,
+            "consensus_Brier": 0.5217261094819609
+          }
+        }
+      },
+      "source_equal_macro": {
+        "incumbent": {
+          "correct": 0.5291666666666667,
+          "NLL": 1.5918697719780646,
+          "Brier": 0.524807430858775
+        },
+        "selected": {
+          "correct": 0.53,
+          "NLL": 1.385153356394691,
+          "Brier": 0.48140201553178336
+        }
+      },
+      "paired_counts": {
+        "HelpSteer2": {
+          "fixes": 9,
+          "regressions": 8,
+          "decisions": 600,
+          "groups": 300,
+          "interpretation": "Consensus annotation agreement, not objective correctness"
+        },
+        "LogiQA2": {
+          "fixes": 4,
+          "regressions": 4,
+          "decisions": 300,
+          "groups": 300,
+          "interpretation": "Original source answer accuracy"
+        }
+      },
+      "paired_intervals": {
+        "macro_delta": {
+          "correct": 0.0008333333333333334,
+          "NLL": -0.20671641558337367,
+          "Brier": -0.04340541532699163
+        },
+        "source_stratified_group_bootstrap_95CI": {
+          "correct": [
+            -0.010833333333333334,
+            0.0125
+          ],
+          "NLL": [
+            -0.2418454565039847,
+            -0.17413652478977173
+          ],
+          "Brier": [
+            -0.05567897518487325,
+            -0.031453591212736026
+          ]
+        },
+        "groups_per_source": {
+          "LogiQA2": 300,
+          "HelpSteer2": 300
+        }
+      },
+      "timing": {
+        "incumbent": {
+          "mean_seconds": 0.3273882855019636,
+          "median_seconds": 0.40474012700724415,
+          "p95_seconds": 0.7456290700356476,
+          "total_arm_seconds": 294.6494569517672,
+          "reasoning_invocations": 474,
+          "natural_EOS": 474,
+          "context_fallbacks": 0,
+          "generated_tokens": 34598,
+          "generation_prompt_tokens": 255076,
+          "native_input_tokens": 792222,
+          "arm_order": {
+            "incumbent": 435,
+            "selected": 465
+          }
+        },
+        "selected": {
+          "mean_seconds": 0.3283199710553486,
+          "median_seconds": 0.4049796830222476,
+          "p95_seconds": 0.7453648579539731,
+          "total_arm_seconds": 295.48797394981375,
+          "reasoning_invocations": 474,
+          "natural_EOS": 474,
+          "context_fallbacks": 0,
+          "generated_tokens": 34598,
+          "generation_prompt_tokens": 255076,
+          "native_input_tokens": 792222,
+          "arm_order": {
+            "incumbent": 435,
+            "selected": 465
+          }
+        }
+      },
+      "released_policy": "e4b-calibrated50-v1",
+      "comparator": "Incumbent reasoning route, not raw direct inference",
+      "timing_definition": "Resident harness arm time with counterbalanced ordering; excludes process startup"
+    }
+  },
+  "q8_confirmation": {
+    "quality_source_equal_group_weighted": {
+      "accuracy_or_consensus_agreement": {
+        "direct": 0.625,
+        "adaptive": 0.640625,
+        "delta": 0.015625,
+        "paired_delta_95CI": [
+          -0.0234375,
+          0.0546875
+        ],
+        "unit": "fraction"
+      },
+      "NLL": {
+        "direct": 1.3226318668572499,
+        "adaptive": 1.350276259047926,
+        "delta": 0.02764439219067616,
+        "paired_delta_95CI": [
+          -0.022247942841893888,
+          0.07779698063989268
+        ],
+        "unit": "score"
+      },
+      "Brier": {
+        "direct": 0.40625742299291734,
+        "adaptive": 0.4025496925037391,
+        "delta": -0.003707730489178218,
+        "paired_delta_95CI": [
+          -0.030780829043024052,
+          0.02539114371024083
+        ],
+        "unit": "score"
+      },
+      "ECE10": {
+        "direct": 0.2443104115933552,
+        "adaptive": 0.22547573424544654,
+        "delta": -0.018834677347908668,
+        "paired_delta_95CI": [
+          -0.04759555953686953,
+          0.01678543198847357
+        ],
+        "unit": "score"
+      }
+    },
+    "paired_counts_by_source": {
+      "HelpSteer2": {
+        "wins": 5,
+        "losses": 3,
+        "unchanged_winner": 51,
+        "changed_both_wrong": 5,
+        "decisions": 64,
+        "groups": 32
+      },
+      "LogiQA2": {
+        "wins": 0,
+        "losses": 0,
+        "unchanged_winner": 32,
+        "changed_both_wrong": 0,
+        "decisions": 32,
+        "groups": 32
+      }
+    },
+    "actual_CLI_timing": {
+      "direct": {
+        "decision_weighted_mean_seconds": 0.1976625918262774,
+        "p50_seconds": 0.1637147560250014,
+        "p95_seconds": 0.4139104000059888,
+        "total_seconds": 18.97560881532263,
+        "source_equal_mean_seconds": 0.1825457056124833,
+        "by_source_mean_seconds": {
+          "HelpSteer2": 0.2278963642538656,
+          "LogiQA2": 0.13719504697110096
+        }
+      },
+      "adaptive": {
+        "decision_weighted_mean_seconds": 0.7426773025351091,
+        "p50_seconds": 0.21374931599712,
+        "p95_seconds": 2.116206506965682,
+        "total_seconds": 71.29702104337048,
+        "source_equal_mean_seconds": 0.6190840034173561,
+        "by_source_mean_seconds": {
+          "HelpSteer2": 0.9898639007706151,
+          "LogiQA2": 0.24830410606409714
+        }
+      }
+    },
+    "trigger": {
+      "calls": 37,
+      "decisions": 96,
+      "fraction": 0.3854166666666667,
+      "completed_blends": 37,
+      "fallbacks": 0
+    },
+    "tokens": {
+      "routed": 37,
+      "bypassed": 59,
+      "completed_blends": 37,
+      "fallback_reasons": {},
+      "natural_EOS_confirmed_by_pipeline_paths": 37,
+      "not_natural_EOS": 0,
+      "EOS_metadata_limit": "Collector retains pipeline metadata, not full generation responses; natural EOS confirmed only by completed-blend/typed post-EOS fallback paths. Non-EOS cause cannot be separated into truncation versus other stop here.",
+      "generation_prompt_tokens_known": 26694,
+      "generated_tokens_known": 4019,
+      "routed_generation_usage_unknown": 0,
+      "native_input_tokens": {
+        "direct": 57563,
+        "adaptive": 89095
+      },
+      "native_output_tokens": 0,
+      "successful_native_calls": {
+        "direct": 96,
+        "adaptive": 133
+      },
+      "failed_augmented_native_attempts": 0,
+      "adaptive_inspect_calls": 96
+    },
+    "memory": {
+      "peak_MiB": 14927,
+      "minimum_free_MiB": 955,
+      "profile": "Text-only8192/residentMTP4/q8_0KV/batch512/ubatch256,5070Ti16GB"
+    },
+    "bindings": {
+      "binary_sha256": "7c5cbd01aa832828c5c78f16ae4c54b2cae9bb7eb4076a6af695f3763d6d8337",
+      "runtime_sha256": "9560b74c9fd736c80880c2733569075e066e7e8f49a7b465c8a4589604c4f65e",
+      "manifest_sha256": "acde75e5f0e9281497267a5fbdc4050c364368a65523ad05c6132e73503317f2"
+    },
+    "cases": 96,
+    "groups": 64,
+    "policy": "q8-fixed50-v1",
+    "comparator": "Native direct",
+    "timing_definition": "Decision-weighted complete CLI time including process startup and inspection",
+    "source_counts": {
+      "LogiQA2": {
+        "n": 32,
+        "direct_correct": 25,
+        "adaptive_correct": 25
+      },
+      "HelpSteer2": {
+        "n": 64,
+        "direct_consensus_agreement": 30,
+        "adaptive_consensus_agreement": 32
+      }
+    }
+  },
+  "source_receipt_sha256": {
+    "historical_nvfp4": "486ee86ea8400deda134e0ca805b0ab940aba526ecc5ed62065939fefc9c3ee8",
+    "historical_e4b": "ebf3357db1842cfe67727c968ffe0e4038647a28aceefb6e81e08a36873fb04f",
+    "12b-nvfp4_retained_final": "088f3f1e706185bfd74f14d958bf34e98d5f9eb67d886b31b017a3c3267cffd2",
+    "e4b-q8_retained_final": "ecba45442ab85822c056b1dd86bbd8e2cecaf2200890b166e117cca423a19ce9",
+    "q8_confirmation_aggregates": "40ac76e756438c38da3165db78b6ec05e3b30c002f536b708c4a39d510ce4388"
+  },
+  "released_policy_contract": {
+    "schema_version": 1,
+    "policy_set_version": "adaptive-20261004-v1",
+    "default_mode": "direct",
+    "generation": {
+      "max_tokens": -1,
+      "ignore_eos": false,
+      "context": 8192,
+      "temperature": 0,
+      "seed": 314159,
+      "reasoning_effort": "none",
+      "request_seconds": 75
+    },
+    "native": {
+      "temperature": 1.0,
+      "endpoint": "/v1/systemone",
+      "request_seconds": 30,
+      "candidate_order": "request insertion order; false,true for noul; numeric indices for score"
+    },
+    "policies": {
+      "nvfp4-entropy-v1": {
+        "id": "nvfp4-entropy-v1",
+        "model_slug": "12b-nvfp4",
+        "alias": "Winnow-12B",
+        "experimental": true,
+        "target": {
+          "bytes": 8163448416,
+          "sha256": "9aaf25d04b8ab8259be54b153c99e2ab799948256a10abf51b2cd79e665b1f2f"
+        },
+        "assistant": {
+          "bytes": 861519840,
+          "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+          "repository": "google/gemma-4-12B-it-assistant",
+          "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+          "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+        },
+        "policy": {
+          "direct_temperature": 1.0,
+          "augmented_temperature": 1.0,
+          "weight": 0.5,
+          "gate": "normalized_entropy",
+          "threshold": 0.48619198949270803
+        },
+        "source_selection_sha256": "5581d6c3a1fc614ea585dd02950833989957f6195b1b3a64ccbe37c3cc98d0cf",
+        "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+        "quality_limit": "Final two-source source-equal agreement -0.417pp, paired95% interval[-1.083,+0.333]; speed/quality tradeoff, no1pp preservation proof.",
+        "profile": {
+          "batch": 2048,
+          "ubatch": 1024
+        }
+      },
+      "e4b-calibrated50-v1": {
+        "id": "e4b-calibrated50-v1",
+        "model_slug": "e4b-q8",
+        "alias": "Winnow-E4B",
+        "experimental": true,
+        "target": {
+          "bytes": 8005437472,
+          "sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2"
+        },
+        "assistant": {
+          "bytes": 171766688,
+          "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
+          "repository": "google/gemma-4-E4B-it-assistant",
+          "revision": "8d0031ea8c2109e2b1e86bb9368a4539b537f80a",
+          "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+        },
+        "policy": {
+          "direct_temperature": 1.2041180007310734,
+          "augmented_temperature": 3.4209273427377678,
+          "weight": 0.5,
+          "gate": "raw_maxP",
+          "threshold": 0.8
+        },
+        "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e",
+        "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+        "quality_limit": "Final Brier/NLL improved on LogiQA2 and HelpSteer2; combines calibration and generated context; independent Boolean transfer not established.",
+        "profile": {
+          "batch": 2048,
+          "ubatch": 1024
+        }
+      },
+      "q8-fixed50-v1": {
+        "id": "q8-fixed50-v1",
+        "model_slug": "12b-q8",
+        "alias": "Winnow-12B",
+        "experimental": true,
+        "target": {
+          "bytes": 12669646592,
+          "sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea"
+        },
+        "assistant": {
+          "bytes": 861519840,
+          "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+          "repository": "google/gemma-4-12B-it-assistant",
+          "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+          "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+        },
+        "policy": {
+          "direct_temperature": 1.0,
+          "augmented_temperature": 1.0,
+          "weight": 0.5,
+          "gate": "raw_maxP",
+          "threshold": 0.8
+        },
+        "source_selection_sha256": null,
+        "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+        "quality_limit": "Identity temperatures retained after four-family FIT cross-validation rejected calibration. Completed64-group/96-decision same-source confirmation was inconclusive: agreement62.5% to64.0625%, paired95% change interval[-2.34375,+5.46875]pp; NLL slightly worsened. Text only; no Boolean transfer or1pp proof.",
+        "profile": {
+          "batch": 512,
+          "ubatch": 256
+        },
+        "source_fit_sha256": "ec2b4f838a4455ac14d4fbb421d7364d19783179f030d53ddff0b08b024d8f17"
+      }
+    }
+  }
+}

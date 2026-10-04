@@ -1,5 +1,8 @@
 # Winnow-12B benchmark report
 
+This page covers direct-decision benchmarks. For the separate historical and
+released-policy comparisons, see [reasoning results and tradeoffs](REASONING-RESULTS.md).
+
 Winnow-12B is evaluated in **BF16 and Q8** against Kev, Laya, and hosted Jev. The local-model comparison uses one RTX PRO 5000 Blackwell, one model at a time, with localhost clients. RTX 5070 Ti deployment results are reported separately. Measurements: September 21, 2026.
 
 The downloadable model is a Gemma 4 12B IT LoRA fine-tune with the adapter merged into the weights. **Training data is private and is not distributed in this repository.**

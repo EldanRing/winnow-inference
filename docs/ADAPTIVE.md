@@ -1,5 +1,8 @@
 # Experimental adaptive decision contract
 
+For measured gains, regressions, latency and calibration tradeoffs, see
+[reasoning results](REASONING-RESULTS.md).
+
 Use the [quickstart](QUICKSTART.md) for download, launch and client commands.
 Native `/v1/systemone` calls remain direct. Adaptive reasoning is explicit,
 Linux/CUDA only, one question and text only, with an 8K default.

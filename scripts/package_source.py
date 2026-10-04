@@ -39,6 +39,7 @@ PUBLIC_DOC_FILES = {
     "docs/API.md", "docs/ADAPTIVE.md", "docs/BENCHMARKS.md", "docs/EVALUATION.md",
     "docs/IMPLEMENTATION.md", "docs/INSTALL.md", "docs/PRESETS-AND-ASSETS.md",
     "docs/QUICKSTART.md", "docs/RELEASE.md", "docs/VALIDATION.md", "docs/benchmarks.json",
+    "docs/REASONING-RESULTS.md", "docs/reasoning-results.json",
 }
 
 PRIVATE_REVIEW_FILES = {'docs/MODEL-CARD-12B.md', 'docs/LOCAL-RELEASE-CANDIDATE.md', 'docs/MODEL-CARD-NVFP4.md', 'docs/CLAIMS-REVIEW.md', 'docs/MODEL-CARD-E4B.md'}
