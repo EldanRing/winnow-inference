@@ -1,6 +1,8 @@
 .runtime/
 .reference/
 .build/
+.build-rc/
+.build-rc-cuda133/
 results/
 models/
 .venv/

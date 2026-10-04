@@ -39,7 +39,9 @@ python3 scripts/package_source.py --output dist/winnow-inference --init-git
 
 The exporter copies allowlisted committed source, creates fresh history with no
 remote, and writes a file-hash receipt beside the output. It refuses dirty trees,
-symlinks, unapproved files and existing output directories. Nothing is uploaded.
+symlinks, unapproved files and existing output directories. Private review
+worksheets and draft model cards are excluded by explicit path, while the public
+adaptive contract and technical limits remain included. Nothing is uploaded.
 
 The Docker context is independently allowlisted. Verify its actual source stage:
 

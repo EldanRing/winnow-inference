@@ -1,0 +1,158 @@
+# Download and run Winnow
+
+Choose a short preset with `--model q8`, `nv4` or `e4b` (`--preset` is an alias).
+Run `python3 scripts/winnow.py presets` to see defaults and memory guidance.
+The old model names remain accepted. Set context with `--context 4k`, `16k` or
+`65536`; vision, MTP and reasoning are independent on/off flags. Reasoning and MTP
+are independent switches. Reasoning adds a short model-generated analysis before
+rescoring selected text decisions using the model's frozen adaptive policy. MTP
+uses the matching assistant to draft ordinary chat tokens. Native direct decisions
+generate no tokens, so MTP does not itself add decision reasoning.
+
+This is a private release candidate. Some model/assistant URLs are planned release
+destinations and may return an unavailable-asset error until publication. Exact
+sizes and SHA256 are checked; no other weights are substituted. Nothing in setup
+publishes files or uses a paid service.
+
+## Supported choices
+
+| Model | Direct, MTP off | Direct, MTP on | Reasoning, MTP off | Reasoning, MTP on |
+|---|---|---|---|---|
+| 12B Q8 | Text or vision | Text; vision needs more memory* | Text | Text |
+| 12B NVFP4 | Text or vision | Text or vision | Text | Text |
+| E4B Q8 | Text or vision | Text or vision | Text | Text |
+
+Optional reasoning and MTP require Linux/CUDA and a compatible GPU. Direct serving
+also supports Apple Silicon Metal through a source build; optional modes have not
+been validated on Mac. CPU-only, native Windows and multi-GPU serving are outside
+this release. Reasoning accepts one question and a text state. Image reasoning is rejected before downloading or loading.
+*Q8 vision plus MTP exceeded the measured 16 GB profile; larger or custom
+configurations are unvalidated. Memory guidance is not a fit guarantee.
+
+All three presets default to **8K text, reasoning off, MTP off**. Context, native
+branches, batch, microbatch and cache can be overridden. MTP requires one chat
+slot and auto memory; reasoning requires one question with a text state. Presets
+supply defaults, not numeric lockouts. The legacy direct platform profiles remain
+available through `scripts/serve.py`.
+
+| Preset | Default modes/context | Estimated GPU memory |
+|---|---|---|
+| `q8` — 12B Q8 | 8K, text, MTP/reasoning off | 12.8–14.8 GiB |
+| `nv4` — 12B NVFP4 | 8K, text, MTP/reasoning off | 8.6–10.6 GiB |
+| `e4b` — E4B Q8 | 8K, text, MTP/reasoning off | 8.4–10.4 GiB |
+
+These estimates assume q8 KV, four native branches and one chat slot. Context,
+images, cache precision, batches, concurrency, hardware and other GPU workloads
+change usage. Setup warns about estimated capacity; it does not impose a blanket
+16 GB gate. Historical measured baselines on RTX 5070 Ti: E4B direct 8K text
+8.56 GiB; E4B direct 64K vision 10.72 GiB; Q8 8K text + MTP 14.75 GiB sampled;
+NVFP4 8K vision + MTP 11.50 GiB sampled. These are different configurations.
+
+Custom reasoning configurations retain the frozen policy but do not inherit its
+published calibration, quality or latency evidence. The client reports a brief
+configuration note when settings differ. MTP-off latency is also distinct.
+
+## Source setup
+
+From the candidate source directory, install the [system prerequisites](INSTALL.md)
+once. Linux needs Python 3.10+, Git, CMake 3.24+, C++17, OpenSSL development headers,
+a compatible NVIDIA driver and CUDA toolkit. Apple Silicon needs Xcode command-line
+tools, arm64 Python, CMake and OpenSSL. No pip or Hugging Face CLI is needed.
+
+Select the desired combination during setup; for example:
+
+```sh
+python3 scripts/winnow.py setup --model e4b --vision off --reasoning off --mtp off
+```
+
+Setup checks prerequisites, acquires verified files, builds, and prints the launch
+command. Change the same switches to prepare another mode. For multiple installed
+CUDA toolkits, add `--cuda-compiler /path/to/cuda/bin/nvcc --cuda-arch 120`, using
+your GPU's architecture. Setup does not install system packages.
+
+## Download and launch
+
+These examples use E4B. Replace `e4b` with either 12B model selector. Download is
+explicit; launching never starts a hidden download. Run one server at a time.
+For example, append `--context 16k` to a serve command; add `--batch 1024
+--ubatch 512` if needed. Numerical overrides affect memory use.
+
+| Choice | Download | Start server |
+|---|---|---|
+| Direct decisions and ordinary chat | `python3 scripts/winnow.py download --model e4b` | `python3 scripts/winnow.py serve --model e4b` |
+| Direct decisions and MTP chat | `python3 scripts/winnow.py download --model e4b --mtp on` | `python3 scripts/winnow.py serve --model e4b --mtp on` |
+| Adaptive decisions without MTP | `python3 scripts/winnow.py download --model e4b --reasoning on` | `python3 scripts/winnow.py serve --model e4b --reasoning on` |
+| Adaptive decisions with MTP | `python3 scripts/winnow.py download --model e4b --reasoning on --mtp on` | `python3 scripts/winnow.py serve --model e4b --reasoning on --mtp on` |
+
+For vision, add `--vision on` to download and serve, using a supported matrix cell.
+The projector is downloaded only for vision, and the assistant only for MTP.
+Targets/projectors live under `models/gguf/`; assistants under `models/assistants/`.
+Use `--model-dir PATH` on download and serve to store them elsewhere.
+
+In a second terminal, query a direct server:
+
+```sh
+python3 scripts/winnow.py decide --model e4b --input examples/decisions.json
+```
+
+For an adaptive server, match its reasoning and MTP switches:
+
+```sh
+python3 scripts/winnow.py decide --model e4b --reasoning on --mtp on \
+  --input examples/adaptive-decision.json
+```
+
+Omit `--mtp on` in that client command when the adaptive server has MTP off. A
+mismatch is an error, not a silent mode change. Direct clients also verify the
+selected model and quantization; a leftover server for another model is rejected. Ordinary API calls to
+`/v1/systemone` always remain direct; adaptive routing is performed by this client.
+The frozen policy can bypass reasoning, and failed generation falls back to its
+calibrated direct result. It does not guarantee improved accuracy.
+
+By default the server uses `127.0.0.1:8091`. `--port`, `--host`, `--threads`,
+`--gpu`, `--server` and `--api-key-file` are passed to the underlying launcher.
+Use `--dry-run` to inspect a launch. Clients accept `--base-url`; authentication
+uses `WINNOW_API_KEY_FILE` or `WINNOW_API_KEY`. Stop your server with Ctrl+C.
+
+## Reuse verified local assets
+
+To avoid redownloading, give one or more explicit directories containing the
+manifest filenames, either flat or in their canonical subdirectories:
+
+```sh
+python3 scripts/winnow.py download --model e4b --reasoning on --mtp on \
+  --asset-dir /path/to/targets --asset-dir /path/to/assistants --offline
+```
+
+Files are verified before copying and again before installation. Existing correct
+files are reused; corrupt files are not overwritten. `--offline` fails clearly
+when an asset is missing. Without it, missing files use the recorded release URL;
+interrupted HTTP downloads resume. A missing planned release file reports its
+URL/status and stops. The same asset options work with `scripts/setup.py`.
+
+## Thin Linux runtime archive
+
+Extract the runtime archive on a compatible Linux/CUDA host. Its CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries (exact dependencies in
+`candidate-manifest.json`) must already be installed; this is not a portable Mac binary
+or a system dependency installer. Model weights are separate.
+
+Use `bin/winnow` in place of `python3 scripts/winnow.py` in every table command.
+The archive includes the downloader, manifests, license/attribution files and
+examples, and automatically selects its bundled `bin/winnow-server`. No source
+build is needed. Source setup.py is intentionally a source-build workflow.
+
+## Explicit launch settings
+
+The launcher ignores automatic llama.cpp system/user configuration and clears
+inherited backend asset/speculation settings that would override the selected
+modes. Other environment settings are retained. Launch is offline; use the
+separate download command to acquire verified weights.
+
+## Validation scope
+
+The release readiness receipt distinguishes focused first-response checks in a
+fresh source/export directory from installation on a new machine. Reusing local
+verified assets and installed toolkits avoids another large download; it does not
+establish a clean-machine install. Downloader resume/error/integrity behavior is
+covered separately. Existing numerical quality/latency evidence retains its
+original model, binary and profile provenance.

@@ -13,6 +13,9 @@ git clone https://github.com/EldanRing/winnow-inference.git
 cd winnow-inference
 ```
 
+See [the unified quickstart](QUICKSTART.md) for model selection and independent
+reasoning/MTP switches, including the thin runtime.
+
 ## Recommended: guided native setup
 
 **Apple Silicon:** install the Xcode command-line tools and Homebrew prerequisites:
@@ -20,8 +23,8 @@ cd winnow-inference
 ```sh
 xcode-select --install
 brew install python cmake openssl@3
-python3 scripts/setup.py --profile apple-silicon
-python3 scripts/serve.py --profile apple-silicon
+python3 scripts/winnow.py setup --model q8 --vision on --context 64k --profile apple-silicon
+python3 scripts/winnow.py serve --model q8 --vision on --context 64k --profile apple-silicon
 ```
 
 Wait for the Xcode tools installation to finish before setup. The script finds
@@ -34,8 +37,8 @@ capacity was checked on a 24 GB M4 Pro with an earlier Winnow checkpoint.
 
 ```sh
 sudo apt-get install build-essential cmake git python3 libssl-dev
-python3 scripts/setup.py --profile 5070ti-64k
-python3 scripts/serve.py --profile 5070ti-64k
+python3 scripts/winnow.py setup --model q8 --vision on --context 64k --profile 5070ti-64k
+python3 scripts/winnow.py serve --model q8 --vision on --context 64k --profile 5070ti-64k
 ```
 
 The [CUDA toolkit](https://developer.nvidia.com/cuda-downloads) must be installed
@@ -149,9 +152,9 @@ compilation checks without CUDA or weights; the serving launcher still targets G
 ## Obtain and verify weights
 
 [Winnow-12B on Hugging Face](https://huggingface.co/EldanRing/Winnow-12B)
-contains merged BF16 safetensors, Q8 GGUF and the matching F16 vision projector.
-This server loads the Q8 GGUF; the BF16 safetensors are available for other
-compatible runtimes. The projector is required only for vision.
+distributes model weights in GGUF format, including Q8 and BF16, plus the matching
+F16 vision projector. Merged BF16 safetensors are not part of the current model
+release. This guide uses Q8 GGUF; the projector is required only for vision.
 
 Download the two GGUF files with the included dependency-free downloader:
 
@@ -238,3 +241,20 @@ Use a fresh output directory for each artifact or configuration.
 - A context allocation fails: choose a measured profile for the card. Increasing
   parallel chat slots divides their context; it does not increase per-chat capacity.
 - HTTP 401 during a check: give the check the server's key through the variables above.
+
+## Multiple CUDA toolkits
+
+`python3 scripts/setup.py --cuda-compiler /path/to/cuda/bin/nvcc --cuda-arch 120`
+checks the selected compiler and passes both compiler and toolkit root to the
+build. Use the architecture matching your GPU. `CUDACXX` is also forwarded when
+no explicit compiler is supplied. Changing toolkits requires a fresh build directory
+with `scripts/build.py --build-dir PATH`; retain an existing build you still need.
+
+## Runtime verified-lock errors
+
+Git CRLF checkout conversion can change the bytes of correctly patched source.
+New runtime clones disable that conversion locally. Existing runtime files are
+restored to LF only when the complete patched file set and every normalized
+SHA256 match the lock; actual edits are rejected. Errors identify each differing
+file and its expected/actual hash. Preserve a changed runtime for inspection and
+use a separate clean checkout; do not bypass verification or force-apply patches.

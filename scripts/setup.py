@@ -10,7 +10,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from download import download_models
+from assets import MODELS, MODEL_ALIASES, acquire, selection
+from launch_options import DEFAULT_CONTEXT, context_size, memory_note, memory_estimate
 from profiles import PROFILES, resolve_profile
 from verify_model import ROOT
 
@@ -24,7 +25,7 @@ def output(command):
         return ""
 
 
-def prerequisites(profile, skip_build=False):
+def prerequisites(profile, skip_build=False, cuda_compiler=None, model="q8", context=DEFAULT_CONTEXT, vision="off", mtp="off", reasoning="off", gpu_id="0"):
     errors = []
     if sys.version_info < (3, 10):  # noqa: UP036 -- show an actionable error on old Python
         errors.append("Python 3.10 or newer is required.")
@@ -43,7 +44,7 @@ def prerequisites(profile, skip_build=False):
                 if prefix and Path(prefix, "include/openssl/ssl.h").is_file():
                     os.environ["OPENSSL_ROOT_DIR"] = prefix
         else:
-            nvcc = os.environ.get("CUDACXX") or shutil.which("nvcc")
+            nvcc = str(cuda_compiler) if cuda_compiler else os.environ.get("CUDACXX") or shutil.which("nvcc")
             if not nvcc or not output([nvcc, "--version"]):
                 errors.append(
                     "CUDA toolkit compiler nvcc is missing. Install the NVIDIA CUDA toolkit; a driver alone is not enough. Set CUDACXX if nvcc is outside PATH."
@@ -68,7 +69,7 @@ def prerequisites(profile, skip_build=False):
                 "nvidia-smi",
                 "--query-gpu=name,memory.total,compute_cap",
                 "--format=csv,noheader,nounits",
-                "--id=0",
+                "--id=" + str(gpu_id),
             ]
         )
         if not gpu:
@@ -80,13 +81,13 @@ def prerequisites(profile, skip_build=False):
             fields = gpu.splitlines()[0].split(",")
             if len(fields) == 3:
                 try:
-                    if float(fields[1]) < 16000:
-                        errors.append(
-                            "The 64K CUDA profile needs a 16 GB class GPU. This card needs a separately tuned profile; see docs/INSTALL.md."
-                        )
+                    print(memory_note(model, context, vision, mtp, reasoning), flush=True)
+                    lower, upper = memory_estimate(model, context, vision, mtp, reasoning)
+                    if float(fields[1]) / 1024 < upper:
+                        print("Memory warning: this GPU is below the upper estimate; reduce context/modes if allocation fails. Other workloads reduce free memory.", flush=True)
                 except ValueError:
                     pass
-                if not skip_build and (nvcc := (os.environ.get("CUDACXX") or shutil.which("nvcc"))):
+                if not skip_build and (nvcc := (str(cuda_compiler) if cuda_compiler else os.environ.get("CUDACXX") or shutil.which("nvcc"))):
                     arch = "compute_" + fields[2].strip().replace(".", "")
                     if arch not in output([nvcc, "--list-gpu-arch"]).split():
                         errors.append(
@@ -99,6 +100,16 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--profile", choices=["auto", *PROFILES], default="auto")
     p.add_argument("--model-dir", type=Path, default=ROOT / "models")
+    p.add_argument("--model", "--preset", choices=[*MODEL_ALIASES, *MODELS], default="q8")
+    p.add_argument("--context", type=context_size, default=DEFAULT_CONTEXT)
+    p.add_argument("--gpu", default="0")
+    p.add_argument("--reasoning", choices=["off", "on"], default="off")
+    p.add_argument("--mtp", choices=["off", "on"], default="off")
+    p.add_argument("--vision", choices=["off", "on"])
+    p.add_argument("--asset-dir", type=Path, action="append", default=[])
+    p.add_argument("--offline", action="store_true")
+    p.add_argument("--cuda-compiler", type=Path, help="Existing nvcc; pins compiler and toolkit in build.py")
+    p.add_argument("--cuda-arch", default="native")
     p.add_argument("--text-only", action="store_true")
     p.add_argument(
         "--check-only",
@@ -118,11 +129,17 @@ def main():
     if a.check_only and a.download_only:
         p.error("Choose --check-only or --download-only")
     try:
+        vision = a.vision or "off"
+        if a.text_only and vision == "on":
+            p.error("Choose --text-only or --vision on")
+        selection(a.model, a.reasoning, a.mtp, vision)
         selected = None
         if not a.download_only:
             selected, _ = resolve_profile(a.profile)
             print(f"Profile: {selected}", flush=True)
-            errors = prerequisites(selected, a.skip_build)
+            if selected == "apple-silicon" and (a.reasoning == "on" or a.mtp == "on"):
+                p.error("Optional reasoning/MTP requires Linux/CUDA")
+            errors = prerequisites(selected, a.skip_build, a.cuda_compiler, a.model, a.context, vision, a.mtp, a.reasoning, a.gpu)
             if a.skip_build and not (ROOT / ".build/bin/winnow-server").is_file():
                 errors.append("No server found. Omit --skip-build to build it.")
             if errors:
@@ -137,24 +154,27 @@ def main():
             print("Prerequisites passed.", flush=True)
             if a.check_only:
                 return 0
-        download_models(a.model_dir, a.text_only)
+        acquire(a.model, a.model_dir, a.reasoning, a.mtp, vision, a.asset_dir, a.offline)
         if a.download_only:
             print("Weights are ready. Follow the container instructions in docs/INSTALL.md.")
             return 0
         if not a.skip_build:
             print("Building Winnow (first build can take several minutes)...", flush=True)
-            subprocess.run(
-                [sys.executable, str(ROOT / "scripts/build.py"), "--jobs", str(a.jobs)], check=True
-            )
-        command = ["python3", "scripts/serve.py", "--profile", selected]
+            build = [sys.executable, str(ROOT / "scripts/build.py"), "--jobs", str(a.jobs), "--cuda-arch", a.cuda_arch]
+            compiler = a.cuda_compiler or os.environ.get("CUDACXX")
+            if compiler:
+                build += ["--cuda-compiler", str(compiler)]
+            subprocess.run(build, check=True)
+        command = ["python3", "scripts/winnow.py", "serve", "--model", a.model,
+                   "--reasoning", a.reasoning, "--mtp", a.mtp, "--vision", vision,
+                   "--context", str(a.context), "--gpu", a.gpu]
         if a.model_dir.resolve() != ROOT / "models":
             command.extend(["--model-dir", str(a.model_dir.resolve())])
-        if a.text_only:
-            command.append("--text-only")
         print("\nReady. Start the server from the repository directory:\n  " + shlex.join(command))
-        print(
-            "In a second terminal, try:\n  python3 examples/client.py\nThe example prints a typed decision and a regular chat response."
-        )
+        example = "examples/adaptive-decision.json" if a.reasoning == "on" else "examples/decisions.json"
+        client = ["python3", "scripts/winnow.py", "decide", "--model", a.model,
+                  "--reasoning", a.reasoning, "--mtp", a.mtp, "--input", example]
+        print("In a second terminal, try:\n  " + shlex.join(client))
         return 0
     except KeyboardInterrupt:
         print(

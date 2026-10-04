@@ -49,6 +49,8 @@ struct Service::Impl {
                 throw std::invalid_argument("WINNOW_MEMORY must be auto or exclusive");
             exclusive = std::string(s) == "exclusive";
         }
+        if (hooks.require_resident_chat && exclusive)
+            throw std::invalid_argument("Resident speculative chat requires auto memory; eviction is forbidden");
     }
     void cooperate() {
         if (current && current->cancelled.load())
@@ -103,7 +105,7 @@ void Service::tick() {
         r->done.set_value("{}");
         return;
     }
-    if (!impl->engine && impl->exclusive && impl->hooks.chat_active())
+    if (((!impl->engine && impl->exclusive) || impl->hooks.require_resident_chat) && impl->hooks.chat_active())
         return;
     impl->queue.pop_front();
     impl->current = r;
@@ -119,6 +121,12 @@ void Service::tick() {
             try {
                 impl->create();
             } catch (const std::bad_alloc &) {
+                if (impl->hooks.require_resident_chat) {
+                    // Do not invalidate MTP shared KV/hidden-state associations.
+                    // Engine construction cleans its own partial allocation.
+                    impl->engine.reset();
+                    throw std::runtime_error("Resident MTP native context allocation failed; speculative contexts retained");
+                }
                 impl->exclusive = true;
                 if (impl->hooks.chat_active()) {
                     impl->queue.push_front(r);
@@ -157,6 +165,7 @@ void Service::tick() {
                 out["winnow"]["cancelled_requests"] = impl->cancellations;
                 out["winnow"]["memory_policy"] = impl->exclusive ? "exclusive" : "mixed";
                 out["winnow"]["context_capacity"] = impl->options.context;
+                out["winnow"]["resident_speculative_chat"] = impl->hooks.require_resident_chat;
             }
         }
         r->done.set_value(out.dump());

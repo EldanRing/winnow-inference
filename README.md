@@ -8,6 +8,12 @@ and streaming interfaces.
 Native **NVIDIA CUDA** and **Apple Silicon Metal + Accelerate** backends expose
 the same decision, chat and vision APIs.
 
+This local candidate also contains an **explicitly experimental** adaptive
+decision client. Direct decisions remain the default. The optional Linux/CUDA
+text-only mode uses verified model artifacts and optional matching MTP assistants and frozen model-specific
+policies; it is not a published release or an accuracy-preservation guarantee.
+See [the adaptive contract and limits](docs/ADAPTIVE.md).
+
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the
 GPU. Winnow-12B is a fine-tune of Gemma 4 12B; the same loaded model serves typed
 decisions and regular chat.
@@ -22,11 +28,16 @@ same RTX PRO 5000 Blackwell. See the [full benchmark report](docs/BENCHMARKS.md)
 
 ![Decision-quality comparison of Winnow-12B BF16 and Q8, hosted Jev, Kev and Laya](docs/assets/02-decision-quality.png)
 
-Merged BF16 weights, Q8 GGUF, and the matching vision projector are separate
+BF16 GGUF, Q8 GGUF, and the matching vision projector are separate
 downloads. The training dataset is private. Exact release checksums are in
 [the model manifest](manifests/models.json).
 
 ## Quickstart
+
+[Choose direct decisions, reasoning and MTP](docs/QUICKSTART.md) with one model selector
+and explicit on/off switches. The guide covers verified downloads, source setup,
+the thin runtime, and supported combinations for 12B Q8, 12B NVFP4 and E4B Q8.
+
 
 Supported: **Linux + NVIDIA GPU** (the measured profile uses a 16 GB RTX 5070 Ti)
 or **Apple Silicon Mac** (24 GB or more unified memory for the documented profile).
@@ -59,72 +70,38 @@ Install a compatible NVIDIA driver and the [CUDA toolkit](https://developer.nvid
 A driver alone is not enough; Blackwell needs CUDA 12.8 or newer. The setup script
 checks that your toolkit supports your GPU before it downloads anything.
 
-### 2. Set up Winnow
+### 2. Choose a preset and set up
 
 ```sh
-python3 scripts/setup.py
+python3 scripts/winnow.py presets
+python3 scripts/winnow.py setup --model q8
 ```
 
-This checks prerequisites **before downloading**, selects your platform profile,
-downloads the pinned Q8 model and vision projector (about **12.85 GB**), verifies
-both checksums, and builds the server. No Hugging Face CLI, Python packages,
-API key, or paid service is required. Interrupted downloads resume when you rerun
-the command. Initial setup time depends on your internet connection and CPU;
-subsequent launches reuse the files. It does not install system packages for you.
+Short presets are `q8`, `nv4` and `e4b`. Each defaults to 8K text with MTP and
+reasoning off. Setup checks prerequisites, downloads verified weights and builds.
+It does not install system packages. Existing valid downloads are reused.
 
-### 3. Start the server
+### 3. Start and query
 
 ```sh
-python3 scripts/serve.py
+python3 scripts/winnow.py serve --model q8 --context 8k
+# In a second terminal:
+python3 scripts/winnow.py decide --model q8 --input examples/decisions.json
 ```
 
-Defaults use the downloaded files with vision and the platform profile:
-`5070ti-64k` on Linux, `apple-silicon` on macOS. The server listens on
-**http://127.0.0.1:8091**. Leave this terminal running; Ctrl+C stops the server.
+Select `--vision on`, `--mtp on` or `--reasoning on` explicitly; download the
+matching assets first with the same flags. Context and numerical settings can be
+overridden where supported. The [quickstart](docs/QUICKSTART.md) includes the mode
+matrix, memory estimates, measured baselines and examples. Changed configurations
+do not inherit the measured calibration or performance claims.
 
-### 4. Get your first response
-
-In a **second terminal**, change to the same repository folder and run:
-
-```sh
-python3 examples/client.py
-```
-
-The example prints both typed decisions and a regular chat response. For a single
-decision request:
-
-```sh
-curl http://127.0.0.1:8091/v1/systemone \
-  -H 'Content-Type: application/json' --data-binary @examples/decisions.json
-```
-
-Existing model files: `python3 scripts/setup.py --model-dir /path/to/models`,
-then `python3 scripts/serve.py --model-dir /path/to/models`. Keep the `gguf/`
-subdirectory. Custom files can still use `--model` and `--mmproj` directly.
-Text-only users can add `--text-only` to both setup and launch.
-
-### Profiles and adjustments
-
-| Profile | Context | Vision | Decision branches | KV cache |
-|---|---:|---|---:|---|
-| `5070ti-64k` | 65,536 | Yes | 4 | Q8 |
-| `apple-silicon` | 65,536 | Yes | 1 | F16 |
-
-```sh
-python3 scripts/serve.py --profile apple-silicon  # Mac
-python3 scripts/serve.py --profile 5070ti-64k     # NVIDIA
-# Explicit settings override your platform profile:
-python3 scripts/serve.py --context 32768
-```
-
-Both profiles use exclusive context scheduling: chat and decisions share the
-loaded weights, queue when necessary, and release the idle API's KV cache when
-switching. Context includes formatting, image positions, questions and replies.
-The Mac capacity measurement used an earlier checkpoint; see the
-[validation report](docs/VALIDATION.md). Other GPUs may need different settings.
+The server uses **http://127.0.0.1:8091**. Leave its terminal running; Ctrl+C stops
+it. Direct clients verify the chosen model and quantization. Use `--model-dir`
+for another verified asset directory. The existing `scripts/serve.py` remains
+available for custom GGUF paths and legacy platform profiles.
 
 [Full installation and troubleshooting](docs/INSTALL.md) ·
-[API, vision and concurrency](docs/API.md) · `python3 scripts/serve.py --help`
+[API, vision and concurrency](docs/API.md) · `python3 scripts/winnow.py --help`
 
 ## Verify your setup
 

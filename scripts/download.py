@@ -2,6 +2,9 @@
 """Download the pinned public GGUF files; resume interrupted transfers and verify SHA256."""
 
 import argparse
+import hashlib
+import os
+import stat
 import json
 import re
 import shutil
@@ -17,61 +20,81 @@ from verify_model import ROOT, verify
 def fetch(path, artifact):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.is_symlink():
+        raise ValueError("Download destination symlinks are not allowed")
     if path.exists():
         print(f"Verifying existing {path.name}...", flush=True)
         verify(path, artifact)
-        print("  Verified; no download needed.", flush=True)
         return
     partial = path.with_name(path.name + ".part")
-    size = artifact["bytes"]
-    offset = partial.stat().st_size if partial.exists() else 0
-    if offset > size:
-        raise ValueError(f"Partial download is too large. Remove {partial} and retry.")
-    if offset == size:
-        verify(partial, artifact)
-        partial.replace(path)
-        return
-    if shutil.disk_usage(path.parent).free < size - offset + 64 * 1024**2:
-        raise ValueError(
-            f"Not enough disk space for {path.name}: need {(size - offset) / 1024**3:.2f} GiB more."
-        )
-    headers = {"User-Agent": "winnow-inference-setup", "Accept-Encoding": "identity"}
-    if offset:
-        headers["Range"] = f"bytes={offset}-"
-    print(
-        f"Downloading {path.name} ({size / 1024**3:.2f} GiB), starting at {offset / 1024**3:.2f} GiB...",
-        flush=True,
-    )
-    request = urllib.request.Request(artifact["url"], headers=headers)
-    with urllib.request.urlopen(request, timeout=60) as response:
-        if response.status == 206:
-            match = re.fullmatch(
-                r"bytes (\d+)-(\d+)/(\d+)", response.headers.get("Content-Range", "")
-            )
-            if not match or tuple(map(int, match.groups())) != (offset, size - 1, size):
-                raise ValueError("Download server returned an unexpected byte range; retry later.")
-        elif response.status == 200:
-            # A server may ignore Range; restarting is safe, appending would corrupt the file.
-            offset = 0
-        else:
-            raise ValueError(f"Unexpected download status: {response.status}")
-        start = time.monotonic()
-        last = start
-        received = offset
-        with partial.open("ab" if offset else "wb") as stream:
-            while block := response.read(4 * 1024**2):
-                received += len(block)
-                if received > size:
-                    raise ValueError("Download exceeds the pinned artifact size.")
-                stream.write(block)
-                now = time.monotonic()
-                if now - last >= 5:
-                    rate = (received - offset) / max(now - start, 0.001) / 1024**2
-                    print(f"  {100 * received / size:.1f}% — {rate:.1f} MiB/s", flush=True)
-                    last = now
-    print("  Checking SHA256...", flush=True)
-    verify(partial, artifact)
-    partial.replace(path)
+    if partial.is_symlink():
+        raise ValueError("Partial download symlinks are not allowed")
+    # Hold the no-follow descriptor through resume, hash verification and install.
+    flags = os.O_RDWR | os.O_NOFOLLOW
+    try:
+        fd = os.open(partial, flags | os.O_CREAT | os.O_EXCL, 0o644)
+    except FileExistsError:
+        fd = os.open(partial, flags)
+    with os.fdopen(fd, "r+b") as stream:
+        inode = os.fstat(stream.fileno())
+        if not stat.S_ISREG(inode.st_mode) or inode.st_nlink != 1:
+            raise ValueError("Partial download must be a regular unlinked file")
+        size = artifact["bytes"]
+        offset = inode.st_size
+        if offset > size:
+            raise ValueError(f"Partial download is too large. Remove {partial} and retry.")
+        if offset < size:
+            if shutil.disk_usage(path.parent).free < size - offset + 64 * 1024**2:
+                raise ValueError(f"Not enough disk space for {path.name}")
+            headers = {"User-Agent": "winnow-inference-setup", "Accept-Encoding": "identity"}
+            if offset:
+                headers["Range"] = f"bytes={offset}-"
+            print(f"Downloading {path.name} ({size / 1024**3:.2f} GiB), starting at {offset / 1024**3:.2f} GiB...", flush=True)
+            request = urllib.request.Request(artifact["url"], headers=headers)
+            with urllib.request.urlopen(request, timeout=60) as response:
+                if response.status == 206:
+                    match = re.fullmatch(r"bytes (\d+)-(\d+)/(\d+)", response.headers.get("Content-Range", ""))
+                    if not match or tuple(map(int, match.groups())) != (offset, size - 1, size):
+                        raise ValueError("Download server returned an unexpected byte range; retry later.")
+                elif response.status == 200:
+                    offset = 0
+                else:
+                    raise ValueError(f"Unexpected download status: {response.status}")
+                if not offset:
+                    stream.truncate(0)
+                stream.seek(offset)
+                start = last = time.monotonic()
+                received = offset
+                while block := response.read(4 * 1024**2):
+                    received += len(block)
+                    if received > size:
+                        raise ValueError("Download exceeds the pinned artifact size.")
+                    stream.write(block)
+                    now = time.monotonic()
+                    if now - last >= 5:
+                        rate = (received - offset) / max(now - start, 0.001) / 1024**2
+                        print(f"  {100 * received / size:.1f}% — {rate:.1f} MiB/s", flush=True)
+                        last = now
+        stream.flush()
+        if os.fstat(stream.fileno()).st_size != size:
+            raise ValueError("Downloaded size does not match pinned artifact")
+        stream.seek(0)
+        digest = hashlib.sha256()
+        while block := stream.read(8 * 1024**2):
+            digest.update(block)
+        if digest.hexdigest() != artifact["sha256"]:
+            raise ValueError("SHA256 mismatch for downloaded artifact")
+        current = partial.lstat()
+        if (current.st_dev, current.st_ino) != (inode.st_dev, inode.st_ino):
+            raise ValueError("Partial download path changed during transfer")
+        # Never replace a concurrent final file, and never follow a final symlink.
+        os.link(partial, path, follow_symlinks=False)
+        installed = path.lstat()
+        if (installed.st_dev, installed.st_ino) != (inode.st_dev, inode.st_ino):
+            path.unlink()
+            raise ValueError("Partial download path changed during installation")
+        if partial.lstat().st_ino == inode.st_ino:
+            partial.unlink()
     print(f"  Ready: {path}", flush=True)
 
 

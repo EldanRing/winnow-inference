@@ -1,0 +1,119 @@
+--- a/common/speculative.cpp
++++ b/common/speculative.cpp
+@@ -1360,6 +1360,11 @@
+     std::vector<std::vector<float>> verify_h;
+     std::vector<int32_t> verify_h_rows;
+ 
++    // Opt-in invariant checks only: accepted text feature positions must be current.
++    bool media_guard = std::getenv("WINNOW_RESIDENT_VISION_MTP") &&
++        std::string(std::getenv("WINNOW_RESIDENT_VISION_MTP")) == "1";
++    std::vector<llama_pos> feature_pos;
++    std::vector<std::vector<llama_pos>> verify_pos;
+     std::vector<int>                i_last;
+     std::vector<std::vector<float>> chain_h;
+ 
+@@ -1441,6 +1446,12 @@
+ 
+         verify_h.assign(n_seq, {});
+         verify_h_rows.assign(n_seq, 0);
++        if (media_guard) {
++            if (!is_mem_shared) throw std::runtime_error("Vision MTP requires Gemma shared target KV");
++            feature_pos.assign(n_seq, -1);
++            verify_pos.resize(n_seq);
++            SPC_INF("%s", "WINNOW_MTP_MEDIA_STATE_GUARD enabled (shared target KV)\n");
++        }
+     }
+ 
+     ~common_speculative_impl_draft_mtp() override {
+@@ -1464,6 +1475,9 @@
+     }
+ 
+     void begin(llama_seq_id seq_id, const llama_tokens & prompt) override {
++        if (media_guard && (seq_id < 0 || seq_id >= (llama_seq_id) n_seq || feature_pos[seq_id] < 0)) {
++            throw std::runtime_error("Vision MTP requires fresh target text features after media before generation");
++        }
+         const int32_t N = (int32_t) prompt.size();
+         if (N <= 0) {
+             return;
+@@ -1486,8 +1500,17 @@
+             return true;
+         }
+ 
+-        // TODO: how to make it work with vision tokens?
++        // Shared Gemma target KV already contains media. Invalidate pending text
++        // feature state until a subsequent target text decode supplies fresh h_nextn.
+         if (batch_in.token == nullptr || batch_in.embd != nullptr) {
++            if (media_guard) {
++                for (int k = 0; k < batch_in.n_tokens; ++k) {
++                    for (int j = 0; j < batch_in.n_seq_id[k]; ++j) {
++                        const llama_seq_id seq_id = batch_in.seq_id[k][j];
++                        if (seq_id >= 0 && seq_id < (llama_seq_id) n_seq) feature_pos[seq_id] = -1;
++                    }
++                }
++            }
+             return true;
+         }
+ 
+@@ -1586,14 +1609,17 @@
+             const int32_t n_rows = i_batch_end[seq_id] - i_batch_beg[seq_id] + 1;
+             verify_h_rows[seq_id] = n_rows;
+             verify_h[seq_id].resize((size_t) n_rows * n_embd);
++            if (media_guard) verify_pos[seq_id].resize(n_rows);
+ 
+             for (int32_t i = 0; i < n_rows; ++i) {
++                if (media_guard) verify_pos[seq_id][i] = batch_in.pos[i_batch_beg[seq_id] + i];
+                 const float * h = llama_get_embeddings_nextn_ith(ctx_tgt, i_batch_beg[seq_id] + i);
+                 std::memcpy(verify_h[seq_id].data() + (size_t) i * n_embd, h, row_bytes);
+             }
+ 
+             std::memcpy(pending_h[seq_id].data(),
+                     verify_h[seq_id].data() + (size_t) (n_rows - 1) * n_embd, row_bytes);
++            if (media_guard) feature_pos[seq_id] = verify_pos[seq_id].back();
+         }
+ 
+         return true;
+@@ -1617,6 +1643,10 @@
+                 continue;
+             }
+ 
++            if (media_guard && feature_pos[seq_id] != dp.pos0 - 1) {
++                SPC_ERR("stale vision MTP feature position: feature=%d next=%d\n", (int) feature_pos[seq_id], (int) dp.pos0);
++                throw std::runtime_error("Vision MTP target feature position is stale");
++            }
+             n_drafting++;
+             drafting[seq_id] = true;
+             common_sampler_reset(smpls[seq_id].get());
+@@ -1763,6 +1793,7 @@
+         const int32_t i_h = std::min<int32_t>(n_accepted, n_rows - 1);
+         const size_t row_bytes = (size_t) n_embd * sizeof(float);
+         std::memcpy(pending_h[seq_id].data(), verify_h[seq_id].data() + (size_t) i_h * n_embd, row_bytes);
++        if (media_guard) feature_pos[seq_id] = verify_pos[seq_id][i_h];
+     }
+ };
+ 
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -1028,15 +1028,21 @@
+         if (resident_mtp && std::string(resident_mtp) != "0" && std::string(resident_mtp) != "1")
+             throw std::invalid_argument("WINNOW_RESIDENT_MTP must be 0 or 1");
+         winnow_resident_spec = resident_mtp && std::string(resident_mtp) == "1";
++        const char * vision_mtp = std::getenv("WINNOW_RESIDENT_VISION_MTP");
++        if (vision_mtp && std::string(vision_mtp) != "0" && std::string(vision_mtp) != "1")
++            throw std::invalid_argument("WINNOW_RESIDENT_VISION_MTP must be 0 or 1");
++        const bool resident_vision = vision_mtp && std::string(vision_mtp) == "1";
++        if (resident_vision && (!winnow_resident_spec || !has_mmproj))
++            throw std::invalid_argument("Vision MTP opt-in requires resident MTP and a projector");
+         if (winnow_resident_spec) {
+             const char * memory = std::getenv("WINNOW_MEMORY");
+             if (std::count(params_base.speculative.types.begin(), params_base.speculative.types.end(), COMMON_SPECULATIVE_TYPE_DRAFT_MTP) != 1 ||
+                     !std::all_of(params_base.speculative.types.begin(), params_base.speculative.types.end(), [](common_speculative_type t) {
+                         return t == COMMON_SPECULATIVE_TYPE_NONE || t == COMMON_SPECULATIVE_TYPE_DRAFT_MTP;
+                     }) || !spec_mtp || !has_draft ||
+-                    params_base.n_parallel != 1 || has_mmproj || !params_base.lora_adapters.empty() ||
++                    params_base.n_parallel != 1 || (has_mmproj && !resident_vision) || !params_base.lora_adapters.empty() ||
+                     !memory || std::string(memory) != "auto")
+-                throw std::invalid_argument("Resident MTP requires one draft-mtp type, external draft, single chat slot, text-only, no LoRA and WINNOW_MEMORY=auto");
++                throw std::invalid_argument("Resident MTP requires one draft-mtp type, external draft, single chat slot, explicit vision opt-in for projector, no LoRA and WINNOW_MEMORY=auto");
+         }
+ 
+ 

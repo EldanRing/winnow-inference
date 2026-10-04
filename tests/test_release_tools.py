@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from http_client import request_headers
-from package_source import allowed, package
+from package_source import PRIVATE_REVIEW_FILES, allowed, package
 from verify_model import verify
 
 
@@ -45,6 +45,9 @@ class ReleaseTools(unittest.TestCase):
         ]:
             with self.subTest(path=path):
                 self.assertFalse(allowed(path))
+        for path in PRIVATE_REVIEW_FILES:
+            self.assertFalse(allowed(path))
+        self.assertTrue(allowed("docs/ADAPTIVE.md"))
         self.assertTrue(allowed("scripts/check.py"))
         self.assertTrue(allowed(".github/workflows/checks.yml"))
 
@@ -64,6 +67,10 @@ class ReleaseTools(unittest.TestCase):
             git("commit", "-m", "Historical fixture")
             git("rm", "private-plan.txt")
             (root / "README.md").write_text("Public source")
+            for name in PRIVATE_REVIEW_FILES:
+                private = root / name
+                private.parent.mkdir(parents=True, exist_ok=True)
+                private.write_text("Private review fixture")
             (root / ".gitignore").write_text("private-release/\n")
             git("add", ".")
             git("commit", "-m", "Public tree")

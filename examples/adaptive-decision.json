@@ -1,0 +1,14 @@
+{
+  "state": "The shipment record gives destination=Oslo and dispatch_date=Friday. It does not give a delivery date.",
+  "questions": {
+    "destination": {
+      "type": "choice",
+      "instructions": "Which destination is explicitly recorded?",
+      "criteria": {
+        "oslo": "Oslo",
+        "paris": "Paris",
+        "unspecified": "No destination is recorded"
+      }
+    }
+  }
+}

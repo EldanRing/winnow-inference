@@ -1,0 +1,70 @@
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -881,6 +881,7 @@
+     // note: keep these alive - they determine the lifetime of the model, context, etc.
+     common_init_result_ptr llama_init;
+     std::unique_ptr<winnow::Service> winnow_service;
++    bool winnow_resident_spec = false;
+ 
+     llama_context * ctx_tgt = nullptr;
+ 
+@@ -1023,6 +1024,21 @@
+                                         params_base.speculative.types.end(),
+                                         COMMON_SPECULATIVE_TYPE_DRAFT_MTP) != params_base.speculative.types.end();
+         const bool has_spec = has_draft || spec_mtp;
++        const char * resident_mtp = std::getenv("WINNOW_RESIDENT_MTP");
++        if (resident_mtp && std::string(resident_mtp) != "0" && std::string(resident_mtp) != "1")
++            throw std::invalid_argument("WINNOW_RESIDENT_MTP must be 0 or 1");
++        winnow_resident_spec = resident_mtp && std::string(resident_mtp) == "1";
++        if (winnow_resident_spec) {
++            const char * memory = std::getenv("WINNOW_MEMORY");
++            if (std::count(params_base.speculative.types.begin(), params_base.speculative.types.end(), COMMON_SPECULATIVE_TYPE_DRAFT_MTP) != 1 ||
++                    !std::all_of(params_base.speculative.types.begin(), params_base.speculative.types.end(), [](common_speculative_type t) {
++                        return t == COMMON_SPECULATIVE_TYPE_NONE || t == COMMON_SPECULATIVE_TYPE_DRAFT_MTP;
++                    }) || !spec_mtp || !has_draft ||
++                    params_base.n_parallel != 1 || has_mmproj || !params_base.lora_adapters.empty() ||
++                    !memory || std::string(memory) != "auto")
++                throw std::invalid_argument("Resident MTP requires one draft-mtp type, external draft, single chat slot, text-only, no LoRA and WINNOW_MEMORY=auto");
++        }
++
+ 
+         if (callback_state) {
+             std::vector<std::string> stages = {"text_model"};
+@@ -1388,13 +1404,19 @@
+         // propagate new defaults back to caller
+         params = params_base;
+ 
+-        if (params_base.lora_adapters.empty() && !spec) {
++        if (winnow_resident_spec && (!spec || !ctx_dft || !model_dft ||
++                (llama_model_n_embd(model_tgt) != 3840 && llama_model_n_embd(model_tgt) != 2560) ||
++                llama_model_n_embd_out(model_dft) != llama_model_n_embd(model_tgt) ||
++                llama_vocab_n_tokens(llama_model_get_vocab(model_tgt)) != 262144))
++            throw std::invalid_argument("Resident MTP target/assistant context unavailable or unsupported target shape");
++        if (params_base.lora_adapters.empty() && (!spec || winnow_resident_spec)) {
+             winnow::Hooks hooks;
++            hooks.require_resident_chat = winnow_resident_spec;
+             hooks.chat_active = [this]{ return winnow_chat_active(); };
+             hooks.suspend_chat = [this]{ winnow_suspend_chat(); };
+             hooks.cooperate = [this]{
+                 if (queue_tasks.winnow_poll()) throw std::runtime_error("Server shutting down");
+-                if (ctx_tgt) update_slots();
++                if (ctx_tgt && !winnow_resident_spec) update_slots();
+             };
+             winnow_service = std::make_unique<winnow::Service>(model_tgt, mctx, n_ctx,
+                 params_base.n_batch, params_base.n_ubatch, params_base.cpuparams.n_threads,
+@@ -2426,6 +2448,15 @@
+         if (is_yielding && task.type != SERVER_TASK_TYPE_METRICS && task.type != SERVER_TASK_TYPE_SLOT_GET) {
+             SRV_DBG("decoding, decline task, id_task = %d\n", task.id);
+             return false;
++        }
++
++        // Native engine and speculative target/draft contexts share model weights.
++        // Keep both context sets resident and serialize their inference work.
++        if (winnow_resident_spec && winnow_service && winnow_service->busy() &&
++                (task.type == SERVER_TASK_TYPE_COMPLETION || task.type == SERVER_TASK_TYPE_INFILL ||
++                 task.type == SERVER_TASK_TYPE_EMBEDDING || task.type == SERVER_TASK_TYPE_RERANK)) {
++            queue_tasks.defer(std::move(task));
++            return true;
+         }
+ 
+         if (!ctx_tgt && task.type != SERVER_TASK_TYPE_WINNOW && task.type != SERVER_TASK_TYPE_NEXT_RESPONSE &&

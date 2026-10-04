@@ -32,3 +32,10 @@
 **/*.gguf
 **/*.safetensors
 **/*.pt
+
+# Keep private review worksheets out of container source/runtime stages too.
+docs/CLAIMS-REVIEW.md
+docs/LOCAL-RELEASE-CANDIDATE.md
+docs/MODEL-CARD-12B.md
+docs/MODEL-CARD-NVFP4.md
+docs/MODEL-CARD-E4B.md

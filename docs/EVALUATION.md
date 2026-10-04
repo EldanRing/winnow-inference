@@ -17,10 +17,12 @@ python3 scripts/serve.py --model models/gguf/Winnow-12B-Q8_0.gguf \
   --decision-parallel 4 --chat-parallel 1 --memory auto
 ```
 
-BF16 used a BF16 GGUF converted from the released merged safetensors with the
-pinned llama.cpp converter, retaining the same serving settings and Q8 KV.
-After building the pinned runtime, the optional conversion uses an isolated
-Python environment (conversion dependencies are not needed for GGUF serving):
+The historical BF16 evaluation used a BF16 GGUF converted from the merged
+safetensors at the recorded model revision, with the pinned llama.cpp converter
+and the same serving settings and Q8 KV. The current release distributes GGUF
+weights, not safetensors. The command below records the historical conversion
+provenance; it requires access to that historical revision and is not the current
+installation path. GGUF serving needs no conversion environment:
 
 ```sh
 hf download EldanRing/Winnow-12B \

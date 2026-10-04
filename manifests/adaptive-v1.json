@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "policy_set_version": "adaptive-20261004-v1",
+  "default_mode": "direct",
+  "generation": {
+    "max_tokens": -1,
+    "ignore_eos": false,
+    "context": 8192,
+    "temperature": 0,
+    "seed": 314159,
+    "reasoning_effort": "none",
+    "request_seconds": 75
+  },
+  "native": {
+    "temperature": 1.0,
+    "endpoint": "/v1/systemone",
+    "request_seconds": 30,
+    "candidate_order": "request insertion order; false,true for noul; numeric indices for score"
+  },
+  "policies": {
+    "nvfp4-entropy-v1": {
+      "id": "nvfp4-entropy-v1",
+      "model_slug": "12b-nvfp4",
+      "alias": "Winnow-12B",
+      "experimental": true,
+      "target": {
+        "bytes": 8163448416,
+        "sha256": "9aaf25d04b8ab8259be54b153c99e2ab799948256a10abf51b2cd79e665b1f2f"
+      },
+      "assistant": {
+        "bytes": 861519840,
+        "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+        "repository": "google/gemma-4-12B-it-assistant",
+        "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+        "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+      },
+      "policy": {
+        "direct_temperature": 1.0,
+        "augmented_temperature": 1.0,
+        "weight": 0.5,
+        "gate": "normalized_entropy",
+        "threshold": 0.48619198949270803
+      },
+      "source_selection_sha256": "5581d6c3a1fc614ea585dd02950833989957f6195b1b3a64ccbe37c3cc98d0cf",
+      "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+      "quality_limit": "Final two-source source-equal agreement -0.417pp, paired95% interval[-1.083,+0.333]; speed/quality tradeoff, no1pp preservation proof.",
+      "profile": {
+        "batch": 2048,
+        "ubatch": 1024
+      }
+    },
+    "e4b-calibrated50-v1": {
+      "id": "e4b-calibrated50-v1",
+      "model_slug": "e4b-q8",
+      "alias": "Winnow-E4B",
+      "experimental": true,
+      "target": {
+        "bytes": 8005437472,
+        "sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2"
+      },
+      "assistant": {
+        "bytes": 171766688,
+        "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
+        "repository": "google/gemma-4-E4B-it-assistant",
+        "revision": "8d0031ea8c2109e2b1e86bb9368a4539b537f80a",
+        "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+      },
+      "policy": {
+        "direct_temperature": 1.2041180007310734,
+        "augmented_temperature": 3.4209273427377678,
+        "weight": 0.5,
+        "gate": "raw_maxP",
+        "threshold": 0.8
+      },
+      "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e",
+      "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+      "quality_limit": "Final Brier/NLL improved on LogiQA2 and HelpSteer2; combines calibration and generated context; independent Boolean transfer not established.",
+      "profile": {
+        "batch": 2048,
+        "ubatch": 1024
+      }
+    },
+    "q8-fixed50-v1": {
+      "id": "q8-fixed50-v1",
+      "model_slug": "12b-q8",
+      "alias": "Winnow-12B",
+      "experimental": true,
+      "target": {
+        "bytes": 12669646592,
+        "sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea"
+      },
+      "assistant": {
+        "bytes": 861519840,
+        "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+        "repository": "google/gemma-4-12B-it-assistant",
+        "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+        "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+      },
+      "policy": {
+        "direct_temperature": 1.0,
+        "augmented_temperature": 1.0,
+        "weight": 0.5,
+        "gate": "raw_maxP",
+        "threshold": 0.8
+      },
+      "source_selection_sha256": null,
+      "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+      "quality_limit": "Identity temperatures retained after four-family FIT cross-validation rejected calibration. Completed64-group/96-decision same-source confirmation was inconclusive: agreement62.5% to64.0625%, paired95% change interval[-2.34375,+5.46875]pp; NLL slightly worsened. Text only; no Boolean transfer or1pp proof.",
+      "profile": {
+        "batch": 512,
+        "ubatch": 256
+      },
+      "source_fit_sha256": "ec2b4f838a4455ac14d4fbb421d7364d19783179f030d53ddff0b08b024d8f17"
+    }
+  }
+}

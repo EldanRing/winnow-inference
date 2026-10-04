@@ -2276,9 +2276,7 @@
         "high_containment_state_candidates": 0
       }
     },
-    "unique_training_states": 25997,
-    "unique_training_inputs": 25999,
     "method": "Casefolded alphanumeric exact state/input matching; question IDs and label fields excluded; typed cases split into questions; 5-word state containment >=85% with minimum20 shingles.",
-    "scope": "Parent16k plus continuation26k fine-tuning input files, checksum-verified. Does not audit Gemma pretraining or exclude conceptual/source-family overlap."
+    "scope": "Checksum-verified private fine-tuning inputs. Does not audit Gemma pretraining or exclude conceptual/source-family overlap or development exposure. The training data and training pipeline remain private and are not distributed."
   }
 }

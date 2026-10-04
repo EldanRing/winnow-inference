@@ -18,6 +18,8 @@ struct Request {
     int status = 200;
 };
 struct Hooks {
+    // Resident speculative chat may never be suspended or evicted.
+    bool require_resident_chat = false;
     // All callbacks run on llama-server's inference thread.
     std::function<bool()> chat_active;
     std::function<void()> suspend_chat;

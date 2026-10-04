@@ -1,0 +1,2 @@
+Official Gemma 4 MTP assistant models by Google DeepMind, Apache License 2.0.
+CPU-converted BF16 GGUF files preserve the exact pinned upstream identities recorded in manifest.json. Conversion changes serialization and performs no training. Upstream cards and sanitized provenance are included. Google does not endorse Winnow. Upstream pinned repository listings contained no separate NOTICE file.

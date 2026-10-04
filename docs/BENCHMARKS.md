@@ -18,7 +18,7 @@ The downloadable model is a Gemma 4 12B IT LoRA fine-tune with the adapter merge
 
 JevBench is the 231-record public subset, not the official composite leaderboard score. Kev-v9 contains 1,264 test records; its predefined clean/knowable accuracy denominator is 1,046, including 390 new-v9 decisions. “Clean” here is the benchmark scoring category, not a claim about training-data overlap. Typed results measure agreement with synthetic teacher labels across 400 test cases / 2,000 decisions.
 
-Laya Typed Decisions was trained on that dataset’s separate training partition. Laya’s configured context limits truncate some public inputs. Earlier Kev-v4 measurements informed Winnow’s later data refinement; the inherited and new-v9 results must not be described as wholly untouched task families. Winnow Q8 and Kev-9B differ by only one correct answer on the 390 new-v9 decisions.
+Laya Typed Decisions was trained on that dataset’s separate training partition. Laya’s configured context limits truncate some public inputs. Earlier Kev-v4 measurements were used during Winnow development; the inherited and new-v9 results must not be described as wholly untouched task families. Winnow Q8 and Kev-9B differ by only one correct answer on the 390 new-v9 decisions.
 
 ## Calibration
 
@@ -161,7 +161,7 @@ A 32-item development adapter/merged-model probe retained 31 answers, with corre
 
 ## Artifacts and reproduction
 
-Model files: [EldanRing/Winnow-12B](https://huggingface.co/EldanRing/Winnow-12B). The BF16 pod evaluation served a BF16 GGUF converted from the released merged BF16 safetensors. The Q8 evaluation used the downloadable Q8 GGUF. The corresponding file hashes and serving settings appear in [benchmarks.json](benchmarks.json), with download hashes in [the model manifest](../manifests/models.json).
+Model files: [EldanRing/Winnow-12B](https://huggingface.co/EldanRing/Winnow-12B). The historical BF16 pod evaluation served a BF16 GGUF converted from the merged BF16 safetensors at the recorded model revision. The current release distributes GGUF weights, not safetensors; this provenance does not assert current availability of the historical conversion inputs. The Q8 evaluation used the downloadable Q8 GGUF. The corresponding file hashes and serving settings appear in [benchmarks.json](benchmarks.json), with download hashes in [the model manifest](../manifests/models.json).
 
 Both pod Winnow configurations: 8,192 context, four decision branches, one chat slot, Q8 KV, selected head, optimized pipeline, automatic memory policy, full GPU offload, no projector. The separate 5070 Ti capability test enables vision at 65,536 context with exclusive memory scheduling.
 
@@ -175,10 +175,9 @@ Hosted model revisions: `["typesafe/jev-1.13-20260917"]`. Total recorded cost: *
 
 ## Fine-tuning data overlap check
 
-The checksum-verified initial 16,000-example training mixture and 26,000-example
-refinement mixture were scanned against all 231 JevBench records, 1,264 Kev-v9
-records, and 400 typed-decisions cases. The combined training inputs contained
-25,999 unique normalized inputs because refinement replays earlier data.
+The checksum-verified private fine-tuning inputs were scanned against all
+231 JevBench records, 1,264 Kev-v9 records, and 400 typed-decisions cases.
+The training data and training pipeline remain private and are not distributed.
 
 The audit found **zero exact normalized input or state matches** and **zero
 high-containment state candidates**. Normalization casefolds alphanumeric text;
@@ -187,5 +186,5 @@ at least 20 shingles. Question IDs and label fields are excluded from matching.
 
 This audit covers the fine-tuning inputs, not the base model's pretraining. It
 does not establish absence of conceptual similarity, source-family overlap, or
-development exposure. Earlier Kev-v4 results informed refinement choices.
+development exposure. Earlier Kev-v4 results were used during development.
 

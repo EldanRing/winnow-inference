@@ -35,17 +35,28 @@ PUBLIC_DIRECTORIES = {
 }
 
 
+PUBLIC_DOC_FILES = {
+    "docs/API.md", "docs/ADAPTIVE.md", "docs/BENCHMARKS.md", "docs/EVALUATION.md",
+    "docs/IMPLEMENTATION.md", "docs/INSTALL.md", "docs/PRESETS-AND-ASSETS.md",
+    "docs/QUICKSTART.md", "docs/RELEASE.md", "docs/VALIDATION.md", "docs/benchmarks.json",
+}
+
+PRIVATE_REVIEW_FILES = {'docs/MODEL-CARD-12B.md', 'docs/LOCAL-RELEASE-CANDIDATE.md', 'docs/MODEL-CARD-NVFP4.md', 'docs/CLAIMS-REVIEW.md', 'docs/MODEL-CARD-E4B.md'}
+
 def allowed(name):
     path = PurePosixPath(name)
     return (
-        not path.is_absolute()
+        bool(path.parts)
+        and name not in PRIVATE_REVIEW_FILES
+        and (path.parts[0] != "docs" or name in PUBLIC_DOC_FILES or name.startswith("docs/assets/"))
+        and not path.is_absolute()
         and ".." not in path.parts
         and (
             name in PUBLIC_ROOT_FILES
             or (len(path.parts) > 1 and path.parts[0] in PUBLIC_DIRECTORIES)
         )
         and not any(
-            part.startswith(".env")
+            part.startswith(".env") or part.startswith("._")
             or part
             in {"__pycache__", ".git", "private-release", ".release-work", "models", "results"}
             for part in path.parts
@@ -67,7 +78,8 @@ def package(root, output, init_git=False):
     data = subprocess.check_output(["git", "archive", "--format=tar", "HEAD"], cwd=root)
     files = {}
     with tarfile.open(fileobj=io.BytesIO(data), mode="r:") as archive:
-        members = [member for member in archive if not member.isdir()]
+        members = [member for member in archive
+                   if not member.isdir() and member.name not in PRIVATE_REVIEW_FILES]
         for member in members:
             if not member.isfile() or not allowed(member.name):
                 raise ValueError(f"Not approved for the public source package: {member.name}")

@@ -349,7 +349,7 @@ class Engine {
         std::vector<char> text(size_t(std::max(0, size)) + 1, '\0');
         if (size > 0)
             llama_model_meta_val_str(model, "tokenizer.chat_template", text.data(), text.size());
-        return {{"type", "ready"},
+        json result = {{"type", "ready"},
                 {"protocol", 1},
                 {"runtime_sha256", WINNOW_RUNTIME_SHA256},
                 {"device", device_name},
@@ -369,6 +369,27 @@ class Engine {
                 {"pipeline", options.pipeline},
                 {"request_prefix_cache", true},
                 {"append_state", true}};
+        for (const auto & item : {std::pair<const char *, const char *>{"chat_context", "WINNOW_CHAT_CONTEXT"},
+                                  {"chat_parallel", "WINNOW_CHAT_PARALLEL"}}) {
+            if (const char * value = std::getenv(item.second))
+                result[item.first] = std::atoi(value);
+        }
+        if (const char * value = std::getenv("WINNOW_MEMORY"))
+            result["memory_setting"] = value;
+        const char * resident = std::getenv("WINNOW_RESIDENT_MTP");
+        const char * verified_target = std::getenv("WINNOW_TARGET_SHA256");
+        if (verified_target) {
+            result["target_sha256"] = verified_target;
+            result["resident_mtp"] = resident && std::string(resident) == "1";
+        }
+        if (resident && std::string(resident) == "1") {
+            const char * target = std::getenv("WINNOW_TARGET_SHA256");
+            const char * assistant = std::getenv("WINNOW_ASSISTANT_SHA256");
+            result["resident_mtp"] = true;
+            if (target) result["target_sha256"] = target;
+            if (assistant) result["assistant_sha256"] = assistant;
+        }
+        return result;
     }
 
     void reset(bool clear_token_cache = true) {

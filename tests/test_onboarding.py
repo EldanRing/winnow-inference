@@ -1,6 +1,7 @@
 """Exercise interrupted downloads and launcher defaults without GPU/model downloads."""
 
 import hashlib
+import io
 import json
 import subprocess
 import sys
@@ -68,6 +69,17 @@ class Onboarding(unittest.TestCase):
                     server.shutdown()
                     server.server_close()
                     worker.join()
+
+    def test_partial_symlink_never_overwrites_unrelated_file(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); victim = root / "notes"; victim.write_bytes(b"keep me")
+            target = root / "model.gguf"; target.with_suffix(".gguf.part").symlink_to(victim)
+            with patch("download.urllib.request.urlopen") as request:
+                with self.assertRaisesRegex(ValueError, "symlink"):
+                    fetch(target, {"bytes": 3, "sha256": hashlib.sha256(b"new").hexdigest()})
+                request.assert_not_called()
+            self.assertEqual(victim.read_bytes(), b"keep me")
+            self.assertFalse(target.exists())
 
     def test_invalid_existing_file_is_not_overwritten(self):
         with tempfile.TemporaryDirectory() as temporary:

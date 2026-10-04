@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "status": "Private review only; Linux/CUDA RTX5070Ti SM120; exact8K profiles",
+  "presets": {
+    "12b-q8-vision8k-mtp": {
+      "status": "blocked",
+      "alias": "Winnow-12B",
+      "target": {
+        "bytes": 12669646592,
+        "sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea",
+        "file": "gguf/Winnow-12B-Q8_0.gguf"
+      },
+      "assistant": {
+        "file": "Gemma-4-12B-IT-Assistant-BF16.gguf",
+        "bytes": 861519840,
+        "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+        "repository": "google/gemma-4-12B-it-assistant",
+        "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-12B-it-assistant/blob/46d4c6f13f0ac0ad827b915669b8df9b81c64c51/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training; converter911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "gemma_converter_sha256": "872f3fea7496cefdcd39308ad02e2d30c9f507f68a18f8b4f6962995b09350f5",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 845719296,
+            "sha256": "3279c173daddd7186e79d652ad94022415736d3a1370625696c898429b06d6df",
+            "url": "https://huggingface.co/google/gemma-4-12B-it-assistant/resolve/46d4c6f13f0ac0ad827b915669b8df9b81c64c51/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-12B-Q8_0.gguf",
+          "Winnow-12B-NVFP4.gguf"
+        ]
+      },
+      "projector": {
+        "file": "gguf/mmproj-F16.gguf",
+        "bytes": 175115840,
+        "sha256": "91f086971e56d7a7d8d39e271873fccdb49541bd259d6e02c401a4f1cb7a219e"
+      },
+      "text_only": false,
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "q8_0",
+        "memory": "auto",
+        "decision_parallel": 4,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately.",
+      "blocker": "RTX5070Ti16GB: native compute context allocation failed with cudaMalloc out of memory at the first native request. No silent MTP disable, context reduction or CPU offload. Use explicit Q8 text preset or original direct vision profile."
+    },
+    "12b-q8-text8k-mtp": {
+      "status": "validated",
+      "alias": "Winnow-12B",
+      "target": {
+        "bytes": 12669646592,
+        "sha256": "b710efc4c0d048ee61eed92c5fef5ce323a4d17e7c51f9f0533cc72ae50818ea",
+        "file": "gguf/Winnow-12B-Q8_0.gguf"
+      },
+      "assistant": {
+        "file": "Gemma-4-12B-IT-Assistant-BF16.gguf",
+        "bytes": 861519840,
+        "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+        "repository": "google/gemma-4-12B-it-assistant",
+        "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-12B-it-assistant/blob/46d4c6f13f0ac0ad827b915669b8df9b81c64c51/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training; converter911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "gemma_converter_sha256": "872f3fea7496cefdcd39308ad02e2d30c9f507f68a18f8b4f6962995b09350f5",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 845719296,
+            "sha256": "3279c173daddd7186e79d652ad94022415736d3a1370625696c898429b06d6df",
+            "url": "https://huggingface.co/google/gemma-4-12B-it-assistant/resolve/46d4c6f13f0ac0ad827b915669b8df9b81c64c51/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-12B-Q8_0.gguf",
+          "Winnow-12B-NVFP4.gguf"
+        ]
+      },
+      "projector": null,
+      "text_only": true,
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "q8_0",
+        "memory": "auto",
+        "decision_parallel": 4,
+        "chat_parallel": 1,
+        "batch": 512,
+        "ubatch": 256,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "scope": "Direct native text decisions and ordinary text chat; no vision projector or image support. Text-only adaptive calibration is separately explicit."
+    },
+    "12b-nvfp4-vision8k-mtp": {
+      "status": "validated",
+      "alias": "Winnow-12B",
+      "target": {
+        "bytes": 8163448416,
+        "sha256": "9aaf25d04b8ab8259be54b153c99e2ab799948256a10abf51b2cd79e665b1f2f",
+        "file": "gguf/Winnow-12B-NVFP4.gguf"
+      },
+      "assistant": {
+        "file": "Gemma-4-12B-IT-Assistant-BF16.gguf",
+        "bytes": 861519840,
+        "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
+        "repository": "google/gemma-4-12B-it-assistant",
+        "revision": "46d4c6f13f0ac0ad827b915669b8df9b81c64c51",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-12B-it-assistant/blob/46d4c6f13f0ac0ad827b915669b8df9b81c64c51/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training; converter911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "gemma_converter_sha256": "872f3fea7496cefdcd39308ad02e2d30c9f507f68a18f8b4f6962995b09350f5",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 845719296,
+            "sha256": "3279c173daddd7186e79d652ad94022415736d3a1370625696c898429b06d6df",
+            "url": "https://huggingface.co/google/gemma-4-12B-it-assistant/resolve/46d4c6f13f0ac0ad827b915669b8df9b81c64c51/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-12B-Q8_0.gguf",
+          "Winnow-12B-NVFP4.gguf"
+        ]
+      },
+      "projector": {
+        "file": "gguf/mmproj-F16.gguf",
+        "bytes": 175115840,
+        "sha256": "91f086971e56d7a7d8d39e271873fccdb49541bd259d6e02c401a4f1cb7a219e"
+      },
+      "text_only": false,
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "q8_0",
+        "memory": "auto",
+        "decision_parallel": 4,
+        "chat_parallel": 1,
+        "batch": 2048,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately."
+    },
+    "e4b-q8-vision8k-mtp": {
+      "status": "validated",
+      "alias": "Winnow-E4B",
+      "target": {
+        "bytes": 8005437472,
+        "sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2",
+        "file": "gguf/Winnow-E4B-Q8_0.gguf"
+      },
+      "assistant": {
+        "file": "Gemma-4-E4B-IT-Assistant-BF16.gguf",
+        "bytes": 171766688,
+        "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
+        "repository": "google/gemma-4-E4B-it-assistant",
+        "revision": "8d0031ea8c2109e2b1e86bb9368a4539b537f80a",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-E4B-it-assistant/blob/8d0031ea8c2109e2b1e86bb9368a4539b537f80a/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training; converter911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "gemma_converter_sha256": "872f3fea7496cefdcd39308ad02e2d30c9f507f68a18f8b4f6962995b09350f5",
+        "upstream_weights": [
+          {
+            "name": "model.safetensors",
+            "bytes": 159138208,
+            "sha256": "12875062fc25c51e8fa9b62abd2de7ad48b7d63f8559d5d604fbd5a3d6bcff16",
+            "url": "https://huggingface.co/google/gemma-4-E4B-it-assistant/resolve/8d0031ea8c2109e2b1e86bb9368a4539b537f80a/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-E4B-Q8_0.gguf"
+        ]
+      },
+      "projector": {
+        "file": "gguf/mmproj-Winnow-E4B.gguf",
+        "bytes": 990372672,
+        "sha256": "ddf46c21d7078e95338cfc22306b19b276a29a5ad089023449dd54d4b6170a51"
+      },
+      "text_only": false,
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "q8_0",
+        "memory": "auto",
+        "decision_parallel": 4,
+        "chat_parallel": 1,
+        "batch": 2048,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately."
+    }
+  }
+}
