@@ -9,10 +9,9 @@ rescoring selected text decisions using the model's frozen adaptive policy. MTP
 uses the matching assistant to draft ordinary chat tokens. Native direct decisions
 generate no tokens, so MTP does not itself add decision reasoning.
 
-This is a private release candidate. Some model/assistant URLs are planned release
-destinations and may return an unavailable-asset error until publication. Exact
-sizes and SHA256 are checked; no other weights are substituted. Nothing in setup
-publishes files or uses a paid service.
+Model and assistant assets are published in the existing Winnow model repositories.
+Exact sizes and SHA256 are checked; no other weights are substituted. Nothing in
+setup publishes files or uses a paid service.
 
 ## Supported choices
 
@@ -54,7 +53,7 @@ configuration note when settings differ. MTP-off latency is also distinct.
 
 ## Source setup
 
-From the candidate source directory, install the [system prerequisites](INSTALL.md)
+From the source directory, install the [system prerequisites](INSTALL.md)
 once. Linux needs Python 3.10+, Git, CMake 3.24+, C++17, OpenSSL development headers,
 a compatible NVIDIA driver and CUDA toolkit. Apple Silicon needs Xcode command-line
 tools, arm64 Python, CMake and OpenSSL. No pip or Hugging Face CLI is needed.
@@ -127,12 +126,15 @@ python3 scripts/winnow.py download --model e4b --reasoning on --mtp on \
 Files are verified before copying and again before installation. Existing correct
 files are reused; corrupt files are not overwritten. `--offline` fails clearly
 when an asset is missing. Without it, missing files use the recorded release URL;
-interrupted HTTP downloads resume. A missing planned release file reports its
+interrupted HTTP downloads resume. A missing release file reports its
 URL/status and stops. The same asset options work with `scripts/setup.py`.
 
 ## Thin Linux runtime archive
 
-Extract the runtime archive on a compatible Linux/CUDA host. Its CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries (exact dependencies in
+Download `local-review-runtime-v9.tar.gz` and `SHA256SUMS` from the
+[2026.10.04 release](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.04).
+Verify `sha256sum --check --ignore-missing SHA256SUMS`, then extract the archive on a compatible Linux/CUDA host.
+The archive retains its exact reviewed bytes and historical pre-publication status text; this guide records current availability. Its CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries (exact dependencies in
 `candidate-manifest.json`) must already be installed; this is not a portable Mac binary
 or a system dependency installer. Model weights are separate.
 

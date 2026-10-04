@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Local review candidate; publication requires owner approval",
+  "status": "Published matching MTP assistants; exact artifact hashes are required",
   "license": "Apache-2.0",
   "license_source": "https://ai.google.dev/gemma/apache_2",
   "assets": {

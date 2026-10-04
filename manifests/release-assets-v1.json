@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Private release candidate. Planned destinations do not assert remote availability; every download requires exact size/SHA256.",
+  "status": "Published release assets; every download requires exact size/SHA256.",
   "models": {
     "12b-q8": {
       "alias": "Winnow-12B",
@@ -25,7 +25,7 @@
         "bytes": 861519840,
         "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
         "url": "https://huggingface.co/EldanRing/Winnow-12B/resolve/main/gguf/Gemma-4-12B-IT-Assistant-BF16.gguf",
-        "availability": "planned; not yet published"
+        "availability": "published"
       }
     },
     "12b-nvfp4": {
@@ -37,7 +37,7 @@
         "bytes": 8163448416,
         "sha256": "9aaf25d04b8ab8259be54b153c99e2ab799948256a10abf51b2cd79e665b1f2f",
         "url": "https://huggingface.co/EldanRing/Winnow-12B/resolve/main/gguf/Winnow-12B-NVFP4.gguf",
-        "availability": "planned; not yet published"
+        "availability": "published"
       },
       "projector": {
         "file": "gguf/mmproj-F16.gguf",
@@ -51,7 +51,7 @@
         "bytes": 861519840,
         "sha256": "dc630b2f3f3cb8c3170d865d200f414d2da91676ae37c1738e898f7ba92fbeae",
         "url": "https://huggingface.co/EldanRing/Winnow-12B/resolve/main/gguf/Gemma-4-12B-IT-Assistant-BF16.gguf",
-        "availability": "planned; not yet published"
+        "availability": "published"
       }
     },
     "e4b-q8": {
@@ -77,7 +77,7 @@
         "bytes": 171766688,
         "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
         "url": "https://huggingface.co/EldanRing/Winnow-E4B/resolve/main/gguf/Gemma-4-E4B-IT-Assistant-BF16.gguf",
-        "availability": "planned; not yet published"
+        "availability": "published"
       }
     }
   }

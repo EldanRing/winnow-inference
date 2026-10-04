@@ -8,10 +8,10 @@ and streaming interfaces.
 Native **NVIDIA CUDA** and **Apple Silicon Metal + Accelerate** backends expose
 the same decision, chat and vision APIs.
 
-This local candidate also contains an **explicitly experimental** adaptive
+This release also contains an **explicitly experimental** adaptive
 decision client. Direct decisions remain the default. The optional Linux/CUDA
 text-only mode uses verified model artifacts and optional matching MTP assistants and frozen model-specific
-policies; it is not a published release or an accuracy-preservation guarantee.
+policies; it is not an accuracy-preservation guarantee.
 See [the adaptive contract and limits](docs/ADAPTIVE.md).
 
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the

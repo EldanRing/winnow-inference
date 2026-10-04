@@ -132,7 +132,7 @@ be ignored by clients that only need the core contract.
 The decision engine currently supports merged Gemma 4 GGUF weights, including
 Winnow-12B. Startup LoRA adapters and speculative decoding disable the decision
 service because the selected projection/shared-context path does not support
-those variants in the default profile. This local candidate has an explicit
+those variants in the default profile. This release has an explicit
 `scripts/serve.py --experimental-adaptive POLICY --assistant PATH --text-only`
 Linux/CUDA profile for the pinned matching resident-MTP4 artifacts. It defaults to
 8K contexts, selected head, optimized pipeline and q8_0 KV. Context and numerical
