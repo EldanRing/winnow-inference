@@ -140,26 +140,44 @@ available for custom GGUF paths and legacy platform profiles.
 
 ## Verify your setup
 
-A short, repeatable release check starts and stops its own authenticated local
-servers, including selected/full-head comparison:
+For the default **12B Q8 text-only, 8K** setup above, this short release check
+starts and stops its own authenticated local servers, including selected/full-head
+comparison. These model paths are Q8-specific; they do not select E4B or NVFP4:
 
 ```sh
 python3 scripts/release_check.py --model models/gguf/Winnow-12B-Q8_0.gguf \
-  --mmproj models/gguf/mmproj-F16.gguf --context 65536 \
-  --decision-parallel 4 --memory exclusive --output results/release-smoke
+  --context 8192 --memory exclusive --output results/release-smoke-text
 ```
 
 It uses a 4,096-token output allowance and does not run a quality benchmark or
-context sweep. Add `--long-context` explicitly for capacity confirmation.
-For an already running server, use the individual checks below. Authenticated
-servers are supported through `WINNOW_API_KEY_FILE` or `WINNOW_API_KEY`.
+context sweep. For an already running text server, use the individual checks:
 
 ```sh
-python3 scripts/check.py --output results/check --vision
-python3 scripts/check.py --output results/64k --vision --long-context 65536 --image-size 1536
+python3 scripts/check.py --output results/check
 python3 scripts/bench.py --output results/timings --repeats 5
 python3 scripts/parity.py --output results/selected
 ```
+
+For the optional **12B Q8 64K vision** check, first download the projector explicitly.
+Use a host that meets the [64K platform requirements](docs/INSTALL.md):
+
+```sh
+python3 scripts/winnow.py download --model q8 --vision on
+python3 scripts/release_check.py --model models/gguf/Winnow-12B-Q8_0.gguf \
+  --mmproj models/gguf/mmproj-F16.gguf --context 65536 \
+  --memory exclusive --output results/release-smoke-vision
+```
+
+Add `--long-context` to that release check explicitly for capacity confirmation.
+The following probes require an already running **64K vision** server, launched
+with the matching platform command in [INSTALL](docs/INSTALL.md):
+
+```sh
+python3 scripts/check.py --output results/check-vision --vision
+python3 scripts/check.py --output results/64k --vision --long-context 65536 --image-size 1536
+```
+
+Authenticated servers are supported through `WINNOW_API_KEY_FILE` or `WINNOW_API_KEY`.
 
 Restart with `--head full`, then use `scripts/parity.py --output results/full
 --compare results/selected` to verify selected-head probabilities. The full-head
@@ -173,9 +191,11 @@ Build the container locally on Linux. GPU execution requires Docker Engine with
 the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 and a CUDA 13.0-compatible driver. Apple Silicon uses native Metal above.
 
-For RTX 50-series / SM120, after downloading weights with setup:
+For RTX 50-series / SM120, download both **12B Q8 and its vision projector**
+before starting the default 64K vision container:
 
 ```sh
+python3 scripts/winnow.py download --model q8 --vision on
 docker build --build-arg CUDA_ARCH=120 -t winnow-inference .
 docker run --rm --gpus 'device=0' -p 127.0.0.1:8091:8091 \
   -v "$PWD/models:/models:ro" winnow-inference
