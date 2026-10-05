@@ -20,7 +20,8 @@ RUNTIME_FILES = ["scripts/serve.py", "scripts/profiles.py", "scripts/verify_mode
                  "manifests/models.json", "manifests/adaptive-v1.json", "runtime.lock.json",
                  "manifests/assistants-v1.json", "manifests/runtime-presets-v1.json",
                  "LICENSE", "third_party/llama.cpp-LICENSE",
-                 "third_party/cpp-httplib-LICENSE.txt", "third_party/nlohmann-json-LICENSE.txt", "docs/ADAPTIVE.md", "docs/PRESETS-AND-ASSETS.md"]
+                 "third_party/cpp-httplib-LICENSE.txt", "third_party/nlohmann-json-LICENSE.txt",
+                 "third_party/rotate-bits-LICENSE.txt", "docs/ADAPTIVE.md", "docs/PRESETS-AND-ASSETS.md"]
 
 RUNTIME_FILES = list(dict.fromkeys([
     *RUNTIME_FILES, *sorted(PUBLIC_DOC_FILES),

@@ -23,7 +23,11 @@ class RuntimePackage(unittest.TestCase):
             for name, expected in receipt["files"].items():
                 self.assertEqual(hashlib.sha256((output / name).read_bytes()).hexdigest(), expected["sha256"])
                 self.assertFalse(any(part in {"models", "results", ".runtime", ".git"} for part in Path(name).parts))
-            for filename, copyright in [("cpp-httplib-LICENSE.txt", "2017 yhirose"), ("nlohmann-json-LICENSE.txt", "2013-2025 Niels Lohmann")]:
+            for filename, copyright in [
+                ("cpp-httplib-LICENSE.txt", "2017 yhirose"),
+                ("nlohmann-json-LICENSE.txt", "2013-2025 Niels Lohmann"),
+                ("rotate-bits-LICENSE.txt", "2021 William Casarin"),
+            ]:
                 notice = (output / "third_party" / filename).read_text()
                 self.assertIn(copyright, notice)
                 self.assertIn("Permission is hereby granted", notice)
