@@ -14,6 +14,11 @@ text-only mode uses verified model artifacts and optional matching MTP assistant
 policies; it is not an accuracy-preservation guarantee.
 See [the adaptive contract and limits](docs/ADAPTIVE.md).
 
+**2026.10.05 client compatibility patch:** adaptive decisions now accept one
+text, object, or array state while keeping images unsupported. Existing direct
+decisions, model weights, server binary, and frozen policy constants are unchanged.
+See the [patch release and upgrade instructions](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05).
+
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the
 GPU. Winnow-12B is a fine-tune of Gemma 4 12B; the same loaded model serves typed
 decisions and regular chat.

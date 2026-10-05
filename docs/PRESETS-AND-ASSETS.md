@@ -10,7 +10,7 @@ All unified presets default to 8K text with MTP and reasoning off. Override
 and `--cache` as needed. Use `--vision on|off`, `--mtp on|off` and
 `--reasoning on|off` explicitly. Microbatch must not exceed batch. MTP requires
 Linux/CUDA, one chat slot, auto memory and the matching verified assistant.
-Reasoning requires one named question and a text state; image reasoning is not
+Reasoning requires one named question and a text, object, or array state; image reasoning is not
 supported. Q8 vision plus MTP exceeded the measured 16 GB profile; custom/larger
 configurations are unvalidated. No silent MTP disable or context reduction occurs.
 

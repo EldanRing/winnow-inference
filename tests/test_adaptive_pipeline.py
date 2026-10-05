@@ -99,7 +99,7 @@ class AdaptivePipeline(unittest.TestCase):
         self.assertNotEqual(nv["assistant"]["sha256"], e4["assistant"]["sha256"])
 
     def test_unsupported_adaptive_contract_rejected_before_backend(self):
-        for request in [body(state={"state": "object"}), body(state=["array"]),
+        for request in [body(state=None), body(state=17), body(state=True),
                         {"state": "text", "questions": {"a": {}, "b": {}}},
                         dict(body(), winnow={"images": ["fixture"]}),
                         dict(body(), winnow={"temperature": 2}), dict(body(), model="Wrong-model")]:
@@ -107,6 +107,31 @@ class AdaptivePipeline(unittest.TestCase):
             with self.subTest(request=request), self.assertRaises(ValueError):
                 DecisionPipeline(t, "experimental-adaptive", "nvfp4-entropy-v1").decide(request)
             self.assertEqual(t.calls, [])
+
+    def test_structured_states_preserve_original_native_shape_and_prompt(self):
+        policy = "q8-fixed50-v1"
+        for state in ({"events": ["received", "approved"], "active": True}, ["first", {"second": 2}]):
+            for kind in ("noul", "choice", "score"):
+                request = body(kind, state=state)
+                original = copy.deepcopy(request)
+                keys = keys_for(request["questions"]["unusual/id"])
+                logits = [0.0] * len(keys)
+                t = FakeTransport([identity(policy), native(request, logits, policy),
+                                   generation(), native(request, logits, policy)])
+                out = DecisionPipeline(t, "experimental-adaptive", policy).decide(request)
+                with self.subTest(state=state, kind=kind):
+                    self.assertEqual(request, original)
+                    self.assertEqual(t.calls[1][1]["state"], state)
+                    expected_prompt = ("Analyze this bounded decision briefly. Work through the rule and relevant facts, "
+                                       "including any necessary intermediate steps. Use at most 100 words. Do not mention "
+                                       "benchmark labels or evaluation. Your analysis will be supplied as context to a "
+                                       "separate native decision scorer.\nTask state:\n"
+                                       + json.dumps(state, separators=(",", ":")) + "\nDecision question:\n"
+                                       + json.dumps(request["questions"]["unusual/id"], separators=(",", ":")))
+                    self.assertEqual(t.calls[2][1]["messages"][0]["content"], expected_prompt)
+                    self.assertEqual(t.calls[3][1]["state"],
+                                     {"original_state": state, "model_reasoning": "A complete input-only analysis."})
+                    self.assertTrue(out["winnow"]["adaptive"]["completed_blend"])
 
     def test_identity_context_precision_and_residency_are_required(self):
         for key, value in [("target_sha256", "wrong"), ("assistant_sha256", "wrong"),

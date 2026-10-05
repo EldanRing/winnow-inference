@@ -138,8 +138,11 @@ Linux/CUDA profile for the pinned matching resident-MTP4 artifacts. It defaults 
 8K contexts, selected head, optimized pipeline and q8_0 KV. Context and numerical
 settings can be overridden; MTP still requires one chat slot and auto/mixed memory. The normal profile stays unchanged; other speculative combinations,
 vision, LoRA and model/assistant substitutions are excluded from this opt-in mode.
-The versioned adaptive client supports one question and a text state; ordinary
-native direct requests still support structured states and multiple questions.
+The versioned adaptive client supports one question and a text, object, or array
+state. It keeps structured data intact for direct native scoring and uses an
+`original_state`/`model_reasoning` object for augmented native scoring. Images
+remain unsupported in adaptive mode. Ordinary native direct requests also support
+multiple questions.
 See [the adaptive contract and limits](ADAPTIVE.md).
 Use merged weights. The tested launcher runs a single loaded
 model, not llama-server router mode. CPU-only and multi-GPU model sharding are

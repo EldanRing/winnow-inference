@@ -1,3 +1,34 @@
+# 2026.10.05 adaptive client patch
+
+The optional Linux/CUDA adaptive client now accepts one named question with a
+text, object, or array state. It keeps the original structured state for direct
+native scoring, JSON-serializes it only in the generation prompt, and passes a
+completed structured-state analysis to augmented native scoring as
+`{"original_state": state, "model_reasoning": text}`. String behavior, image
+rejection, invalid-state rejection, model/runtime checks, the frozen gates and
+50/50 blends are unchanged. Native `/v1/systemone` already supported objects and
+arrays; direct decisions remain the default.
+
+The private bounded check used the released Winnow-12B Q8 artifact and official
+MTP assistant on the public Jev231 subset. The old adaptive client scored 196
+text-state cases and rejected 35 object-state cases; fresh direct scored all 231.
+Six string controls matched exactly after the patch. All 35 object states then
+received adaptive responses, with 26/35 correct direct and 30/35 adaptive.
+A **two-run composite**, combining the original 196 text paths with the 35 later
+patched object paths, was 198/231 direct and 205/231 adaptive; it routed 28
+cases, completed 27 blends, and had one natural-EOS/context fallback. This is
+public, previously observed evidence, not a continuous 231-case patched run or
+independent deployment validation. It does not compare always-on reasoning with
+the selective blend. See the [adaptive contract](ADAPTIVE.md) for limits.
+
+Existing users should download the new versioned runtime and checksum file from
+[v2026.10.05](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05),
+verify `SHA256SUMS-client1`, and extract into a new directory. Reuse verified
+model and assistant files via `--model-dir` or `--asset-dir ... --offline`.
+Source users should update to the `v2026.10.05` tag and continue with their
+existing build; the change is in the Python client. No model file, assistant,
+server binary, policy, existing release asset, or old tag was replaced.
+
 # Maintainer checks
 
 The public package contains the inference server, pinned llama.cpp patches,

@@ -24,13 +24,13 @@ setup publishes files or uses a paid service.
 Optional reasoning and MTP require Linux/CUDA and a compatible GPU. Direct serving
 also supports Apple Silicon Metal through a source build; optional modes have not
 been validated on Mac. CPU-only, native Windows and multi-GPU serving are outside
-this release. Reasoning accepts one question and a text state. Image reasoning is rejected before downloading or loading.
+this release. Reasoning accepts one question and a text, object, or array state. Image reasoning is rejected before downloading or loading.
 *Q8 vision plus MTP exceeded the measured 16 GB profile; larger or custom
 configurations are unvalidated. Memory guidance is not a fit guarantee.
 
 All three presets default to **8K text, reasoning off, MTP off**. Context, native
 branches, batch, microbatch and cache can be overridden. MTP requires one chat
-slot and auto memory; reasoning requires one question with a text state. Presets
+slot and auto memory; reasoning requires one question with a text, object, or array state. Presets
 supply defaults, not numeric lockouts. The legacy direct platform profiles remain
 available through `scripts/serve.py`.
 
@@ -131,11 +131,18 @@ URL/status and stops. The same asset options work with `scripts/setup.py`.
 
 ## Thin Linux runtime archive
 
-Download `local-review-runtime-v9.tar.gz` and `SHA256SUMS` from the
-[2026.10.04 release](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.04).
-Verify `sha256sum --check --ignore-missing SHA256SUMS`, then extract the archive on a compatible Linux/CUDA host.
-The archive retains its exact reviewed bytes and historical pre-publication status text; this guide records current availability. Its CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries (exact dependencies in
-`candidate-manifest.json`) must already be installed; this is not a portable Mac binary
+Download `winnow-inference-runtime-2026.10.05-client1.tar.gz` and `SHA256SUMS-client1` from the
+[2026.10.05 client patch](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05).
+Verify `sha256sum --check --ignore-missing SHA256SUMS-client1`, then extract the archive on a compatible Linux/CUDA host.
+Existing `v2026.10.04` downloads remain unchanged. If upgrading an extracted
+runtime, extract this version into a **new directory** and use its `bin/winnow`
+commands; do not overwrite the old runtime in place. Reuse already verified model
+and assistant files with `--model-dir PATH` or the documented `--asset-dir PATH
+--offline` download path. The model weights and server binary are unchanged, so
+there is no weight redownload or server rebuild for this client fix.
+The archive requires CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries, with exact
+dependencies listed in `candidate-manifest.json`; they must already be installed.
+This is not a portable Mac binary
 or a system dependency installer. Model weights are separate.
 
 Use `bin/winnow` in place of `python3 scripts/winnow.py` in every table command.

@@ -144,8 +144,8 @@ class DecisionPipeline:
             if self.target and response.get("model") != self.target["alias"]:
                 raise ValueError("Selected model alias does not match the server response")
             return response
-        if not isinstance(body, dict) or not isinstance(body.get("state"), str):
-            raise ValueError("Experimental adaptive mode requires a text state")
+        if not isinstance(body, dict) or not isinstance(body.get("state"), (str, dict, list)):
+            raise ValueError("Experimental adaptive mode requires a text, object, or array state")
         questions = body.get("questions")
         if not isinstance(questions, dict) or len(questions) != 1:
             raise ValueError("Experimental adaptive mode requires exactly one question")
@@ -242,7 +242,10 @@ class DecisionPipeline:
                     metadata["fallback_reason"] = "generation_empty_or_malformed"
                 else:
                     augmented_request = copy.deepcopy(request)
-                    augmented_request["state"] = body["state"] + "\n\nModel reasoning:\n" + content
+                    if isinstance(body["state"], str):
+                        augmented_request["state"] = body["state"] + "\n\nModel reasoning:\n" + content
+                    else:
+                        augmented_request["state"] = {"original_state": body["state"], "model_reasoning": content}
                     try:
                         augmented = self.transport.post("/v1/systemone", augmented_request, 30)
                         alogits, _ = native_probabilities(augmented, qid, kind, keys, definition["alias"], self.mtp)
