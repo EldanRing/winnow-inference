@@ -8,7 +8,7 @@ The older model names and low-level preset names remain available as aliases.
 All unified presets default to 8K text with MTP and reasoning off. Override
 `--context`, `--decision-context`, `--batch`, `--ubatch`, `--decision-parallel`
 and `--cache` as needed. Use `--vision on|off`, `--mtp on|off` and
-`--reasoning on|off` explicitly. Microbatch must not exceed batch. MTP requires
+`--reasoning off|selective|always` explicitly (`on` aliases selective). Microbatch must not exceed batch. MTP requires
 Linux/CUDA, one chat slot, auto memory and the matching verified assistant.
 Reasoning requires one named question and a text, object, or array state; image reasoning is not
 supported. Q8 vision plus MTP exceeded the measured 16 GB profile; custom/larger

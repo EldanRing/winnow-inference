@@ -4,7 +4,9 @@ For measured gains, regressions, latency and calibration tradeoffs, see
 [reasoning results](REASONING-RESULTS.md).
 
 Use the [quickstart](QUICKSTART.md) for download, launch and client commands.
-Native `/v1/systemone` calls remain direct. Adaptive reasoning is explicit,
+Native `/v1/systemone` calls remain direct. Client reasoning has `off`,
+`selective` and `always` modes; `on` aliases selective. Selective applies the
+frozen gate below; always bypasses only that gate. Both reasoning modes are
 Linux/CUDA only, one question and no images, with an 8K default.
 Matching verified model/runtime identity is required. MTP is independently
 optional; with MTP off no assistant is loaded and speculation is disabled.
@@ -52,7 +54,8 @@ distributions are blended with the fixed weight. No model selection, threshold
 refitting or tuning occurs in the client.
 
 Responses retain the typed native answer shape. `winnow.adaptive` records version,
-policy, raw gate, route, calibration, blend/fallback and observed generation/native
+policy, reasoning mode, whether the gate was applied, raw gate, route, calibration,
+blend/fallback and observed generation/native
 usage. Native `usage.output_tokens` remains0 because native decisions generate no
 tokens; generated prompt/output tokens are reported separately. If a failed HTTP
 request supplied no generation usage, those fields arenull with
@@ -61,6 +64,8 @@ request supplied no generation usage, those fields arenull with
 Custom context/cache/batch/branch settings keep the same frozen policy constants.
 The client reports whether native and chat settings match the measured profile;
 changed configurations do not inherit its calibration, quality or latency claims.
+Always mode retains the calibrated scoring recipe but does not inherit selective
+routing quality or latency results. It still falls back when reasoning cannot complete.
 
 ## Validation limits
 

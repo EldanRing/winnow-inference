@@ -103,6 +103,18 @@ class AdaptivePipeline(unittest.TestCase):
         _, legacy = load_policy("e4b-calibrated50-v1")
         self.assertEqual(manifest["policy_set_version"], "adaptive-20261005-e4b-v2")
         self.assertEqual(current["target"], legacy["target"])
+        self.assertEqual(current["source_selection_sha256"],
+                         "41fedd8f22fb23e1d2046c22a8b460a86af8ad2c7032ec76ff1bb045d690356d")
+        self.assertEqual(current["inherited_calibration_provenance"], {
+            "policy_id": "e4b-calibrated50-v1",
+            "source_selection_sha256": legacy["source_selection_sha256"]})
+        aggregate = json.loads((ROOT / "docs/reasoning-results.json").read_text())
+        self.assertEqual(aggregate["released_policy_contract"], manifest)
+        study = aggregate["e4b_staged_288_holdout"]
+        self.assertEqual(study["current_policy_contract"]["source_selection_sha256"],
+                         current["source_selection_sha256"])
+        self.assertEqual(study["current_policy_contract"]["weight"], 0.75)
+        self.assertEqual(study["current_policy_contract"]["threshold"], 0.95)
         self.assertEqual(current["assistant"], legacy["assistant"])
         self.assertEqual(current["policy"], {
             "direct_temperature": 1.2041180007310734,

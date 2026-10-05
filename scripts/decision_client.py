@@ -10,7 +10,7 @@ import threading
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from adaptive_policy import DecisionPipeline
+from adaptive_policy import DecisionPipeline, REASONING_CHOICES
 from assets import MODELS, MODEL_ALIASES, selection
 from http_client import request_headers
 
@@ -81,7 +81,10 @@ def main():
     parser.add_argument("--output", type=Path)
     parser.add_argument("--model", help="Explicitly override the input request's model alias")
     parser.add_argument("--target", choices=[*MODEL_ALIASES, *MODELS], help="Require the selected artifact identity")
-    parser.add_argument("--mode", choices=["direct", "experimental-adaptive"], default="direct")
+    parser.add_argument("--mode", choices=["direct", "experimental-adaptive"],
+                        help="Compatibility mode: direct (default) or selective experimental-adaptive")
+    parser.add_argument("--reasoning", choices=REASONING_CHOICES,
+                        help="off, selective, or always; on aliases selective; reasoning requires --policy")
     parser.add_argument("--policy", choices=["nvfp4-entropy-v1", "e4b-calibrated50-v1", "e4b-calibrated75-g95-v1", "q8-fixed50-v1"])
     parser.add_argument("--mtp", choices=["on", "off"], default="on", help="Must match the adaptive server's MTP setting")
     args = parser.parse_args()
@@ -92,7 +95,8 @@ def main():
                 raise ValueError("Decision input must be an object")
             body["model"] = args.model
         target = selection(args.target)[0] if args.target else None
-        response = DecisionPipeline(HTTPTransport(args.base_url), args.mode, args.policy, args.mtp, target).decide(body)
+        response = DecisionPipeline(HTTPTransport(args.base_url), args.mode, args.policy, args.mtp,
+                                    target, reasoning=args.reasoning).decide(body)
         note = response.get("winnow", {}).get("adaptive", {}).get("configuration_note")
         if note:
             print(note, file=sys.stderr)

@@ -1,4 +1,60 @@
-# 2026.10.05 E4B adaptive policy update
+# Reasoning modes and upgrades
+
+Choose `--reasoning off`, `selective`, or `always` in the CLI and Python client.
+Off remains the default; existing `on` commands retain selective routing.
+Always attempts reasoning after each valid direct decision, with the same model
+identity checks, calibrated blend, natural stopping, context/deadline limits,
+and direct fallback. It does not inherit selective-policy quality or latency
+claims. See [mode examples](QUICKSTART.md#reasoning-modes) and [Python/API usage](API.md#client-reasoning-modes).
+
+The E4B study's aggregate evidence and selection/calibration provenance are now
+linked from [its results](REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost).
+Policy constants, model files, and the native server are unchanged by this client update.
+
+## Upgrading
+
+Keep your current installation and launch command until the new version works.
+Use the exact published tag/archive and checksum listed on its
+[release page](https://github.com/EldanRing/winnow-inference/releases).
+
+For a Git source install, create a separate checkout so local edits and settings
+stay in place:
+
+```sh
+WINNOW_RELEASE_TAG='replace-with-published-tag'
+git fetch origin --tags
+git worktree add --detach ../winnow-updated "$WINNOW_RELEASE_TAG"
+```
+
+An extracted source archive can instead be unpacked into a new directory.
+From the new source directory, use your existing verified model directory and,
+for this client-only update, your existing matching server binary:
+
+```sh
+python3 scripts/winnow.py serve --model e4b --reasoning selective \
+  --model-dir /absolute/path/to/existing/models \
+  --server /absolute/path/to/existing/.build/bin/winnow-server
+```
+
+Retain your own model, MTP, context, numerical, port and authentication settings
+in that command. If the release changes `runtime.lock.json` or native patches,
+follow [source setup](QUICKSTART.md#source-setup) to rebuild instead.
+
+For a downloaded runtime, verify the archive checksum and extract into a new
+directory. Run the new `bin/winnow` and reuse the old model directory with
+`--model-dir /absolute/path/to/existing/models`; the new archive supplies its
+server binary. Do not overlay old scripts or manifests onto the new package.
+No model download is needed when those files match the new manifest.
+
+No configuration-file migration is required. Existing `--reasoning on` and
+`--mode experimental-adaptive` remain selective; `--mode direct` remains direct.
+Keep API-key files/environment variables and your explicit launch options.
+Routing is chosen by the new client on each call; the native decision endpoint
+remains direct. Stop only your own running server before restarting with the
+new command. To return to the prior version, run its saved command from the
+old directory. Neither installation nor model files need to be deleted.
+
+## Earlier E4B policy update (2026.10.05)
 
 The opt-in E4B policy now uses raw max probability <0.95 and a 25:75
 direct/reasoned blend. The existing E4B direct and augmented temperatures are

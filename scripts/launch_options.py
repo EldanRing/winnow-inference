@@ -43,7 +43,7 @@ def preset_list():
         lo, hi = memory_estimate(name)
         lines.append(f'{name:6}  8K       off     off  off        {lo:.1f}–{hi:.1f} GiB')
     lines += ['', 'All presets are defaults; override --context (e.g. 4k, 16k, 65536),',
-              '--vision on|off, --mtp on|off and --reasoning on|off.',
+              '--vision on|off, --mtp on|off and --reasoning off|selective|always (on aliases selective).',
               'Estimates assume q8 KV, four native branches and one chat slot; no fit guarantee.',
               'Measured historical baselines on RTX 5070 Ti (different modes):']
     lines += [f'  {name}: {value}' for name, value in BASELINES.items()]

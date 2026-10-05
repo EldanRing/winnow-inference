@@ -132,7 +132,8 @@ python3 scripts/winnow.py serve --model q8 --context 8k
 python3 scripts/winnow.py decide --model q8 --input examples/decisions.json
 ```
 
-Select `--vision on`, `--mtp on` or `--reasoning on` explicitly; download the
+Select `--vision on`, `--mtp on` and `--reasoning off|selective|always` explicitly
+(`on` remains an alias for selective); download the
 matching assets first with the same flags. Context and numerical settings can be
 overridden where supported. The [quickstart](docs/QUICKSTART.md) includes the mode
 matrix, memory estimates, measured baselines and examples. Changed configurations

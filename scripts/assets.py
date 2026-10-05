@@ -7,6 +7,7 @@ import urllib.error
 from pathlib import Path
 from download import fetch
 from verify_model import verify
+from adaptive_policy import normalize_reasoning
 
 ROOT = Path(__file__).resolve().parents[1]
 MODELS = json.loads((ROOT / 'manifests/release-assets-v1.json').read_text())['models']
@@ -19,9 +20,10 @@ def canonical_model(name):
 
 def selection(model, reasoning='off', mtp='off', vision='on'):
     model = canonical_model(model)
-    if model not in MODELS or reasoning not in {'on', 'off'} or mtp not in {'on', 'off'} or vision not in {'on', 'off'}:
+    reasoning = normalize_reasoning(reasoning)
+    if model not in MODELS or mtp not in {'on', 'off'} or vision not in {'on', 'off'}:
         raise ValueError('Unknown model or on/off selection')
-    if reasoning == 'on' and vision == 'on':
+    if reasoning != 'off' and vision == 'on':
         raise ValueError('Adaptive reasoning supports text only; choose --vision off')
     spec = MODELS[model]
     return spec, ['model'] + (['projector'] if vision == 'on' else []) + (['assistant'] if mtp == 'on' else [])

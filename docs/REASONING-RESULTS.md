@@ -24,7 +24,7 @@ Generation used temperature 0, seed 314159, a hard 192-token ceiling, a soft 100
 
 Both used an RTX 5070 Ti, text-only 8K contexts, Q8 KV, four native branches, one chat slot, selected-head scoring, batch 2048 and microbatch 1024. The initial non-MTP experiment used exclusive memory; a saved automatic-memory rerun preserved every generated trace and all 208 correct decisions. The isolated resident MTP variant used automatic memory, the matching official BF16 assistant, **maximum draft length 1**, minimum 0 and p-min 0. This is not the later MTP4 configuration.
 
-**These numbers do not measure today's `q8-fixed50-v1` client.** That client gates on confidence, blends completed probabilities and falls back on incomplete generation. Its distinct 96-decision confirmation is [reported separately](#q8-confirmation-direct-versus-adaptive). The current `--reasoning on` command should not be described as reproducing the historical 192-token all-cases recipe.
+**These numbers do not measure today's `q8-fixed50-v1` client.** That client gates on confidence, blends completed probabilities and falls back on incomplete generation. Its distinct 96-decision confirmation is [reported separately](#q8-confirmation-direct-versus-adaptive). Neither selective routing (`--reasoning selective`, formerly `on`) nor `--reasoning always` reproduces the historical 192-token all-cases recipe: both retain the current calibrated blend and natural-EOS fallback.
 
 ### Timing and external regression
 
@@ -130,6 +130,10 @@ A separate 48-case live check on the released runtime found matching routes and
 probabilities for both policies, zero errors, and means of 292 versus 425 ms.
 These timings exclude startup and are not a concurrent-throughput promise.
 
+The exact aggregate, frozen policy contract, and study hashes are in
+[the machine-readable results](reasoning-results.json) under
+`e4b_staged_288_holdout`.
+
 The cases were disjoint from the policy-selection cases but drawn from public
 source families; unknown base-model exposure and related examples limit
 generalization. This evidence is for one-question text decisions with MTP4,
@@ -183,7 +187,7 @@ The matched on/off checks had only one request per arm, with six-token text and 
 
 ## Scope and provenance
 
-This page republishes saved measurements and approved figures; no new inference was run for this documentation update. Historical public panels, the retained two-source comparisons and the Q8 confirmation remain separate studies. Their original measurement binaries/settings were not replaced by a claim that the latest release reran those benchmarks. The release's bounded integration checks verify operation, not new numerical quality.
+Historical public panels, retained two-source comparisons, Q8 confirmation, and the E4B staged holdout are separate studies with different comparators and timing boundaries. Their measurements apply to the recorded binaries and settings. Integration checks establish operation; they do not establish numerical quality for a new routing mode.
 
 Known-record exclusions and dataset splits do not establish absence from base-model pretraining or eliminate semantic/development exposure. The earlier retained final comparisons cover choice/rating; the E4B update adds a bounded Boolean panel. Image reasoning, production cold/concurrent latency, and unrestricted hardware/context changes remain unestablished. Lower probability loss, more correct answers and faster responses are different outcomes.
 

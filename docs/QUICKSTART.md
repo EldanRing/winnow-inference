@@ -3,15 +3,34 @@
 Choose a short preset with `--model q8`, `nv4` or `e4b` (`--preset` is an alias).
 Run `python3 scripts/winnow.py presets` to see defaults and memory guidance.
 The old model names remain accepted. Set context with `--context 4k`, `16k` or
-`65536`; vision, MTP and reasoning are independent on/off flags. Reasoning and MTP
-are independent switches. Reasoning adds a short model-generated analysis before
-rescoring selected text decisions using the model's frozen adaptive policy. MTP
-uses the matching assistant to draft ordinary chat tokens. Native direct decisions
+`65536`. Choose `--reasoning off|selective|always`; `on` remains an alias for
+`selective`. Vision and MTP have independent on/off flags. Reasoning adds a short
+model-generated analysis before rescoring a text decision with the model's
+frozen temperatures and blend. MTP uses the matching assistant to draft ordinary chat tokens. Native direct decisions
 generate no tokens, so MTP does not itself add decision reasoning.
 
 Model and assistant assets are published in the existing Winnow model repositories.
 Exact sizes and SHA256 are checked; no other weights are substituted. Nothing in
 setup publishes files or uses a paid service.
+
+## Reasoning modes
+
+| Option | Decision behavior |
+|---|---|
+| `--reasoning off` | Native direct scoring; the default. |
+| `--reasoning selective` | Reason only when the model's frozen confidence/entropy gate routes the decision. |
+| `--reasoning always` | Attempt reasoning on every valid decision after direct scoring; bypass the gate. |
+
+`--reasoning on` keeps its previous selective behavior. Both reasoning modes
+retain the model-specific temperatures and blend, natural-EOS requirement,
+context limit, request deadline, and calibrated direct fallback. Always mode
+can cost more and does not inherit the selective policy's measured quality or
+latency. It does not reproduce historical all-cases experiments with other blends
+or token limits. See [results and limits](REASONING-RESULTS.md).
+
+Routing runs in the decision client. `serve --reasoning selective` and
+`serve --reasoning always` prepare the same compatible server; choose routing on
+each `decide` call. Native `/v1/systemone` requests remain direct.
 
 ## Supported choices
 
@@ -80,8 +99,8 @@ For example, append `--context 16k` to a serve command; add `--batch 1024
 |---|---|---|
 | Direct decisions and ordinary chat | `python3 scripts/winnow.py download --model e4b` | `python3 scripts/winnow.py serve --model e4b` |
 | Direct decisions and MTP chat | `python3 scripts/winnow.py download --model e4b --mtp on` | `python3 scripts/winnow.py serve --model e4b --mtp on` |
-| Adaptive decisions without MTP | `python3 scripts/winnow.py download --model e4b --reasoning on` | `python3 scripts/winnow.py serve --model e4b --reasoning on` |
-| Adaptive decisions with MTP | `python3 scripts/winnow.py download --model e4b --reasoning on --mtp on` | `python3 scripts/winnow.py serve --model e4b --reasoning on --mtp on` |
+| Adaptive decisions without MTP | `python3 scripts/winnow.py download --model e4b --reasoning selective` | `python3 scripts/winnow.py serve --model e4b --reasoning selective` |
+| Adaptive decisions with MTP | `python3 scripts/winnow.py download --model e4b --reasoning selective --mtp on` | `python3 scripts/winnow.py serve --model e4b --reasoning selective --mtp on` |
 
 For vision, add `--vision on` to download and serve, using a supported matrix cell.
 The projector is downloaded only for vision, and the assistant only for MTP.
@@ -94,19 +113,20 @@ In a second terminal, query a direct server:
 python3 scripts/winnow.py decide --model e4b --input examples/decisions.json
 ```
 
-For an adaptive server, match its reasoning and MTP switches:
+For a reasoning-ready server, choose the client routing mode and match its MTP switch:
 
 ```sh
-python3 scripts/winnow.py decide --model e4b --reasoning on --mtp on \
+python3 scripts/winnow.py decide --model e4b --reasoning selective --mtp on \
   --input examples/adaptive-decision.json
 ```
 
-Omit `--mtp on` in that client command when the adaptive server has MTP off. A
+For every-decision reasoning, replace `--reasoning selective` with
+`--reasoning always` in that command. Omit `--mtp on` when the server has MTP off. A
 mismatch is an error, not a silent mode change. Direct clients also verify the
 selected model and quantization; a leftover server for another model is rejected. Ordinary API calls to
 `/v1/systemone` always remain direct; adaptive routing is performed by this client.
-The frozen policy can bypass reasoning, and failed generation falls back to its
-calibrated direct result. It does not guarantee improved accuracy.
+Selective mode can bypass reasoning. Both reasoning modes fall back to the
+policy-calibrated direct result if generation fails; neither guarantees improved accuracy.
 
 By default the server uses `127.0.0.1:8091`. `--port`, `--host`, `--threads`,
 `--gpu`, `--server` and `--api-key-file` are passed to the underlying launcher.
@@ -119,7 +139,7 @@ To avoid redownloading, give one or more explicit directories containing the
 manifest filenames, either flat or in their canonical subdirectories:
 
 ```sh
-python3 scripts/winnow.py download --model e4b --reasoning on --mtp on \
+python3 scripts/winnow.py download --model e4b --reasoning selective --mtp on \
   --asset-dir /path/to/targets --asset-dir /path/to/assistants --offline
 ```
 
@@ -131,13 +151,11 @@ URL/status and stops. The same asset options work with `scripts/setup.py`.
 
 ## Thin Linux runtime archive
 
-Download `winnow-inference-runtime-2026.10.05-e4b-policy.tar.gz` and
-`SHA256SUMS-e4b-policy` from the [E4B policy release](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05-e4b-policy).
-Verify `sha256sum --check --ignore-missing SHA256SUMS-e4b-policy`, then extract
-into a new directory on a compatible Linux/CUDA host. Reuse verified model and
-assistant files with `--model-dir PATH` or `--asset-dir PATH --offline`.
-This update changes the opt-in E4B policy only; no weight download or server
-rebuild is needed.
+Download a Linux/CUDA runtime archive and its checksum file from the
+[versioned releases](https://github.com/EldanRing/winnow-inference/releases).
+Use the filename and verification command shown for that version. Extract into
+a new directory and run its `bin/winnow` commands. See [upgrade instructions](RELEASE.md#upgrading)
+for reusing existing models, launch settings, and source builds.
 The archive requires CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries, with exact
 dependencies listed in `candidate-manifest.json`; they must already be installed.
 This is not a portable Mac binary

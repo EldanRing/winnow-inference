@@ -103,12 +103,16 @@
         "gate": "raw_maxP",
         "threshold": 0.95
       },
-      "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e",
+      "source_selection_sha256": "41fedd8f22fb23e1d2046c22a8b460a86af8ad2c7032ec76ff1bb045d690356d",
       "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
       "quality_limit": "Text-only 288-decision held-out comparison with the previous E4B policy: 198/288 versus 185/288 source labels/teacher ratings; NLL and Brier improved, with greater reasoning cost. No image-reasoning or production latency claim.",
       "profile": {
         "batch": 2048,
         "ubatch": 1024
+      },
+      "inherited_calibration_provenance": {
+        "policy_id": "e4b-calibrated50-v1",
+        "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e"
       }
     },
     "q8-fixed50-v1": {

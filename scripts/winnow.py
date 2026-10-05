@@ -9,16 +9,18 @@ import sys
 from pathlib import Path
 from assets import MODELS, MODEL_ALIASES, ROOT, acquire, selection
 from launch_options import DEFAULT_CONTEXT, context_size, preset_list, memory_note
+from adaptive_policy import REASONING_CHOICES, normalize_reasoning
 
 
 def serve_command(a):
     spec, _ = selection(a.model, a.reasoning, a.mtp, a.vision)
-    if (a.reasoning == 'on' or a.mtp == 'on') and platform.system() != 'Linux':
+    reasoning = normalize_reasoning(a.reasoning)
+    if (reasoning != 'off' or a.mtp == 'on') and platform.system() != 'Linux':
         raise ValueError('Optional reasoning/MTP profiles are supported only on Linux/CUDA')
     args = [sys.executable, str(ROOT / 'scripts/serve.py'), '--model-dir', str(a.model_dir),
             '--model', str(a.model_dir / spec['model']['file']), '--alias', spec['alias'],
             '--target', a.model, '--context', str(a.context)]
-    if a.reasoning == 'on' or (a.mtp == 'on' and a.vision == 'off'):
+    if reasoning != 'off' or (a.mtp == 'on' and a.vision == 'off'):
         args += ['--experimental-adaptive', spec['policy'], '--text-only', '--mtp', a.mtp]
     elif a.mtp == 'on':
         args += ['--preset', spec['mtp_vision_preset']]
@@ -41,13 +43,15 @@ def main():
     p.add_argument('--model', '--preset', choices=[*MODEL_ALIASES, *MODELS], default='q8', help='Short model preset; explicit mode/context flags override defaults')
     p.add_argument('--context', type=context_size, default=DEFAULT_CONTEXT, help='Tokens, e.g. 4k, 16k or 65536 (default: 8k)')
     p.add_argument('--model-dir', type=Path, default=ROOT / 'models')
-    p.add_argument('--reasoning', choices=['off', 'on'], default='off')
+    p.add_argument('--reasoning', choices=REASONING_CHOICES, default='off',
+                   help='Client routing: off (default), selective, always; on aliases selective')
     p.add_argument('--mtp', choices=['off', 'on'], default='off')
     p.add_argument('--vision', choices=['off', 'on'], default='off')
     p.add_argument('--asset-dir', type=Path, action='append', default=[], help='Explicit verified local asset cache; repeatable')
     p.add_argument('--offline', action='store_true', help='Require local assets; never contact a download server')
     p.add_argument('--server', type=Path)
     a, extra = p.parse_known_args()
+    a.reasoning = normalize_reasoning(a.reasoning)
     try:
         if a.action == 'presets':
             if extra:
@@ -74,8 +78,8 @@ def main():
             if a.asset_dir or a.offline or a.server:
                 p.error('Asset/server options do not apply to decide')
             command = [sys.executable, str(ROOT / 'scripts/decision_client.py'), '--model', spec['alias'], '--target', a.model]
-            if a.reasoning == 'on':
-                command += ['--mode', 'experimental-adaptive', '--policy', spec['policy'], '--mtp', a.mtp]
+            if a.reasoning != 'off':
+                command += ['--reasoning', a.reasoning, '--policy', spec['policy'], '--mtp', a.mtp]
             subprocess.run(command + extra, check=True)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         p.exit(1, 'Winnow: ' + str(error) + '\n')

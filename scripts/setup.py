@@ -14,6 +14,7 @@ from assets import MODELS, MODEL_ALIASES, acquire, selection
 from launch_options import DEFAULT_CONTEXT, context_size, memory_note, memory_estimate
 from profiles import PROFILES, resolve_profile
 from verify_model import ROOT
+from adaptive_policy import REASONING_CHOICES, normalize_reasoning
 
 
 def output(command):
@@ -103,7 +104,8 @@ def main():
     p.add_argument("--model", "--preset", choices=[*MODEL_ALIASES, *MODELS], default="q8")
     p.add_argument("--context", type=context_size, default=DEFAULT_CONTEXT)
     p.add_argument("--gpu", default="0")
-    p.add_argument("--reasoning", choices=["off", "on"], default="off")
+    p.add_argument("--reasoning", choices=REASONING_CHOICES, default="off",
+                   help="Client routing: off, selective, always; on aliases selective")
     p.add_argument("--mtp", choices=["off", "on"], default="off")
     p.add_argument("--vision", choices=["off", "on"])
     p.add_argument("--asset-dir", type=Path, action="append", default=[])
@@ -124,6 +126,7 @@ def main():
     p.add_argument("--skip-build", action="store_true", help="Use an already built native server")
     p.add_argument("--jobs", type=int, default=4)
     a = p.parse_args()
+    a.reasoning = normalize_reasoning(a.reasoning)
     if a.jobs < 1:
         p.error("--jobs must be positive")
     if a.check_only and a.download_only:
@@ -137,7 +140,7 @@ def main():
         if not a.download_only:
             selected, _ = resolve_profile(a.profile)
             print(f"Profile: {selected}", flush=True)
-            if selected == "apple-silicon" and (a.reasoning == "on" or a.mtp == "on"):
+            if selected == "apple-silicon" and (a.reasoning != "off" or a.mtp == "on"):
                 p.error("Optional reasoning/MTP requires Linux/CUDA")
             errors = prerequisites(selected, a.skip_build, a.cuda_compiler, a.model, a.context, vision, a.mtp, a.reasoning, a.gpu)
             if a.skip_build and not (ROOT / ".build/bin/winnow-server").is_file():
@@ -171,7 +174,7 @@ def main():
         if a.model_dir.resolve() != ROOT / "models":
             command.extend(["--model-dir", str(a.model_dir.resolve())])
         print("\nReady. Start the server from the repository directory:\n  " + shlex.join(command))
-        example = "examples/adaptive-decision.json" if a.reasoning == "on" else "examples/decisions.json"
+        example = "examples/adaptive-decision.json" if a.reasoning != "off" else "examples/decisions.json"
         client = ["python3", "scripts/winnow.py", "decide", "--model", a.model,
                   "--reasoning", a.reasoning, "--mtp", a.mtp, "--input", example]
         print("In a second terminal, try:\n  " + shlex.join(client))

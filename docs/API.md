@@ -148,8 +148,41 @@ Use merged weights. The tested launcher runs a single loaded
 model, not llama-server router mode. CPU-only and multi-GPU model sharding are
 not release profiles. No benchmark or runtime command calls a paid API.
 
-The unified `scripts/winnow.py` command exposes separate `--reasoning on|off`
-and `--mtp on|off` controls; see [Quickstart](QUICKSTART.md). Adaptive clients and
-servers must agree on MTP. MTP-off reasoning verifies target/runtime identity and
-loads no assistant. It keeps the frozen gate, temperatures, blend and generation
-settings. The additive `winnow.adaptive.mtp` field reports the selected mode.
+## Client reasoning modes
+
+`winnow decide --reasoning off|selective|always` selects client routing;
+`on` aliases `selective`. Native `/v1/systemone` calls remain direct: sending a
+reasoning field to that endpoint does not invoke the client pipeline.
+Selective uses the frozen gate; always bypasses it. Both retain the policy's
+temperatures, blend, identity checks, natural stopping, deadlines and fallback.
+Clients and servers must agree on the independent `--mtp on|off` choice.
+
+The lower-level CLI accepts `--reasoning selective|always --policy POLICY`.
+Existing `--mode direct` and `--mode experimental-adaptive --policy POLICY`
+remain direct and selective respectively. Conflicting options are rejected.
+
+From the repository root, the Python client uses the same modes:
+
+```python
+import sys
+sys.path.insert(0, "scripts")
+from adaptive_policy import DecisionPipeline
+from decision_client import HTTPTransport
+
+client = DecisionPipeline(
+    HTTPTransport("http://127.0.0.1:8091"),
+    policy_id="e4b-calibrated75-g95-v1",
+    reasoning="always", mtp="off",  # Match the server's MTP setting.
+)
+result = client.decide(request)
+```
+
+For selective routing, set `reasoning="selective"`; for direct scoring use
+`DecisionPipeline(transport, reasoning="off")` without a policy. The existing
+positional `DecisionPipeline(transport, "experimental-adaptive", policy_id)`
+call remains selective. Direct responses remain unchanged. Reasoning responses
+keep `mode="experimental-adaptive"` for compatibility and add `reasoning_mode`
+and `gate_applied` to `winnow.adaptive`; always reports `gate_applied=false`
+while retaining the policy's raw gate value and threshold. `mtp` reports the
+independent MTP setting. Always mode does not inherit selective-policy quality
+or latency measurements. See [Quickstart](QUICKSTART.md#reasoning-modes).

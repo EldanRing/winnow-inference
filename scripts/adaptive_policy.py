@@ -8,6 +8,16 @@ import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+REASONING_CHOICES = ("off", "selective", "always", "on")
+
+
+def normalize_reasoning(value):
+    """Keep the original on/off interface while naming selective routing explicitly."""
+    if value not in REASONING_CHOICES:
+        raise ValueError("Reasoning must be off, selective, or always (on aliases selective)")
+    return "selective" if value == "on" else value
+
+
 INSTRUCTION = (
     "Analyze this bounded decision briefly. Work through the rule and relevant facts, "
     "including any necessary intermediate steps. Use at most 100 words. Do not mention "
@@ -122,9 +132,16 @@ def render(question, keys, probabilities):
 
 
 class DecisionPipeline:
-    def __init__(self, transport, mode="direct", policy_id=None, mtp="on", target=None):
-        if mode not in {"direct", "experimental-adaptive"}:
+    def __init__(self, transport, mode=None, policy_id=None, mtp="on", target=None, *, reasoning=None):
+        if mode not in {None, "direct", "experimental-adaptive"}:
             raise ValueError("Unknown decision mode")
+        if reasoning is None:
+            reasoning = "selective" if mode == "experimental-adaptive" else "off"
+        self.reasoning = normalize_reasoning(reasoning)
+        resolved_mode = "direct" if self.reasoning == "off" else "experimental-adaptive"
+        if mode is not None and mode != resolved_mode:
+            raise ValueError("Conflicting mode and reasoning options")
+        mode = resolved_mode
         if (mode == "experimental-adaptive") != (policy_id is not None):
             raise ValueError("A policy is required only for experimental-adaptive mode")
         self.transport, self.mode, self.target = transport, mode, target
@@ -188,9 +205,17 @@ class DecisionPipeline:
         else:
             gate_value = max(raw)
             routed = gate_value < policy["threshold"]
+        if self.reasoning == "always":
+            routed = True
+        notes = []
+        if not measured_profile:
+            notes.append("Custom configuration: frozen policy retained; published calibration/quality/latency results do not validate these settings.")
+        if self.reasoning == "always":
+            notes.append("Always reasoning bypasses the gate; selective-policy quality and latency results do not validate this mode.")
         metadata = {
             "mode": self.mode, "policy_set_version": self.manifest["policy_set_version"],
             "policy_id": definition["id"], "experimental": True,
+            "reasoning_mode": self.reasoning, "gate_applied": self.reasoning == "selective",
             "gate": policy["gate"], "gate_value_raw_T1": gate_value,
             "threshold": policy["threshold"], "routed": routed,
             "direct_temperature": policy["direct_temperature"],
@@ -202,7 +227,7 @@ class DecisionPipeline:
             "native_output_tokens": 0, "completed_blend": False,
             "mtp": "on" if self.mtp else "off",
             "measured_profile": measured_profile,
-            "configuration_note": None if measured_profile else "Custom configuration: frozen policy retained; published calibration/quality/latency results do not validate these settings.",
+            "configuration_note": " ".join(notes) or None,
         }
         if routed:
             generation = dict(self.manifest["generation"])

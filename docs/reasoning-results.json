@@ -907,7 +907,7 @@
   },
   "released_policy_contract": {
     "schema_version": 1,
-    "policy_set_version": "adaptive-20261004-v1",
+    "policy_set_version": "adaptive-20261005-e4b-v2",
     "default_mode": "direct",
     "generation": {
       "max_tokens": -1,
@@ -985,6 +985,41 @@
         "profile": {
           "batch": 2048,
           "ubatch": 1024
+        }
+      },
+      "e4b-calibrated75-g95-v1": {
+        "id": "e4b-calibrated75-g95-v1",
+        "model_slug": "e4b-q8",
+        "alias": "Winnow-E4B",
+        "experimental": true,
+        "target": {
+          "bytes": 8005437472,
+          "sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2"
+        },
+        "assistant": {
+          "bytes": 171766688,
+          "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
+          "repository": "google/gemma-4-E4B-it-assistant",
+          "revision": "8d0031ea8c2109e2b1e86bb9368a4539b537f80a",
+          "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+        },
+        "policy": {
+          "direct_temperature": 1.2041180007310734,
+          "augmented_temperature": 3.4209273427377678,
+          "weight": 0.75,
+          "gate": "raw_maxP",
+          "threshold": 0.95
+        },
+        "source_selection_sha256": "41fedd8f22fb23e1d2046c22a8b460a86af8ad2c7032ec76ff1bb045d690356d",
+        "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+        "quality_limit": "Text-only 288-decision held-out comparison with the previous E4B policy: 198/288 versus 185/288 source labels/teacher ratings; NLL and Brier improved, with greater reasoning cost. No image-reasoning or production latency claim.",
+        "profile": {
+          "batch": 2048,
+          "ubatch": 1024
+        },
+        "inherited_calibration_provenance": {
+          "policy_id": "e4b-calibrated50-v1",
+          "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e"
         }
       },
       "q8-fixed50-v1": {
@@ -1432,5 +1467,141 @@
         "mean_seconds": 1.2905935429177287
       }
     }
+  },
+  "e4b_staged_288_holdout": {
+    "scope": "Disjoint case-level 288-decision text holdout; 96 original-answer LogiQA2 choices, 96 original-answer PAWS Boolean judgments, and 96 HelpSteer2 ratings scored against subjective teacher consensus.",
+    "hashes": {
+      "protocol_sha256": "defee0e8938db7574b249eb693b8abc55a562867a7ea84746441278924271d5d",
+      "finalists_sha256": "41fedd8f22fb23e1d2046c22a8b460a86af8ad2c7032ec76ff1bb045d690356d",
+      "panel_sha256": "03930af715414e66f9f82a0649b7ebc91e23b62d42580b09882057dc8e1db979",
+      "labels_sha256": "e5afc7fa281f8dbfbb795a71a1c901eed6c5a30b8dbe6a43640d19b7830c1e5e",
+      "provenance_sha256": "b1c4edab254cfe59548910204fce48b93a72703d9754f91f0a68d21ae33bf849",
+      "analysis_sha256": "4d8fe41fcefb52741a2c58f1b25724e1dfd48e24ee00a99eebbf9dc0cc99cc83"
+    },
+    "source_input_sha256": {
+      "logiqa-test.txt": "71940b37ae0184b677c253a148d57ad4e75d6113447b1563c2ca82483e4e4f8d",
+      "paws.jsonl": "7d2f9c7973b04d83cde2d87ef20fb9001157e79fb6cfa27597223db9d5b86f3c",
+      "helpsteer2.jsonl": "54f8f7a02c38791bfb8e449a96d071002992a73b3252c708bcd6a598e9cd6c9a"
+    },
+    "model_slug": "e4b-q8",
+    "target_sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2",
+    "assistant_sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
+    "current_policy_contract": {
+      "id": "e4b-calibrated75-g95-v1",
+      "direct_temperature": 1.2041180007310734,
+      "augmented_temperature": 3.4209273427377678,
+      "weight": 0.75,
+      "gate": "raw_maxP",
+      "threshold": 0.95,
+      "source_selection_sha256": "41fedd8f22fb23e1d2046c22a8b460a86af8ad2c7032ec76ff1bb045d690356d",
+      "inherited_calibration_provenance": {
+        "policy_id": "e4b-calibrated50-v1",
+        "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e"
+      }
+    },
+    "previous": {
+      "policy_id": "e4b-calibrated50-v1",
+      "correct_or_teacher_agree": 185,
+      "nll": 0.9999978406898625,
+      "brier_multiclass_sum": 0.5050025301200204,
+      "rating_expected_index_mae": 0.8672827267991932,
+      "routed": 114,
+      "completed": 114,
+      "fallbacks": 0,
+      "serial_seconds_replay": {
+        "mean": 0.2633033174776453,
+        "median": 0.0724570979946293,
+        "p95": 0.7434025389957242,
+        "p99": 0.9686292900005355,
+        "total": 75.83135543356184
+      },
+      "by_source": {
+        "LogiQA2": {
+          "cases": 96,
+          "correct_or_teacher_agree": 63,
+          "nll": 0.8721919706272486,
+          "brier_multiclass_sum": 0.4539687741388847,
+          "rating_expected_index_mae": null
+        },
+        "PAWS": {
+          "cases": 96,
+          "correct_or_teacher_agree": 77,
+          "nll": 0.38143734511583177,
+          "brier_multiclass_sum": 0.24998948867211757,
+          "rating_expected_index_mae": null
+        },
+        "HelpSteer2": {
+          "cases": 96,
+          "correct_or_teacher_agree": 45,
+          "nll": 1.746364206326507,
+          "brier_multiclass_sum": 0.8110493275490589,
+          "rating_expected_index_mae": 0.8672827267991932
+        }
+      }
+    },
+    "current": {
+      "policy_id": "e4b-calibrated75-g95-v1",
+      "correct_or_teacher_agree": 198,
+      "nll": 0.9548324503744711,
+      "brier_multiclass_sum": 0.4833403399900912,
+      "rating_expected_index_mae": 0.877538739760321,
+      "routed": 181,
+      "completed": 181,
+      "fallbacks": 0,
+      "serial_seconds_replay": {
+        "mean": 0.3763890344586495,
+        "median": 0.4586702265078202,
+        "p95": 0.7736593689769506,
+        "p99": 0.9728806869825348,
+        "total": 108.40004192409106
+      },
+      "by_source": {
+        "LogiQA2": {
+          "cases": 96,
+          "correct_or_teacher_agree": 67,
+          "nll": 0.88377885473559,
+          "brier_multiclass_sum": 0.45999624766970126,
+          "rating_expected_index_mae": null
+        },
+        "PAWS": {
+          "cases": 96,
+          "correct_or_teacher_agree": 84,
+          "nll": 0.3156949505355382,
+          "brier_multiclass_sum": 0.19795426832840474,
+          "rating_expected_index_mae": null
+        },
+        "HelpSteer2": {
+          "cases": 96,
+          "correct_or_teacher_agree": 47,
+          "nll": 1.6650235458522848,
+          "brier_multiclass_sum": 0.7920705039721676,
+          "rating_expected_index_mae": 0.877538739760321
+        }
+      }
+    },
+    "paired_current_vs_previous": {
+      "fixes": 14,
+      "regressions": 1,
+      "source_stratified_prompt_group_bootstrap_95pct": {
+        "accuracy_pp": {
+          "p2_5": 2.0833333333333335,
+          "p97_5": 7.291666666666667
+        },
+        "nll": {
+          "p2_5": -0.08808821430242529,
+          "p97_5": -0.008279679754676387
+        },
+        "brier": {
+          "p2_5": -0.04432848994823424,
+          "p97_5": -0.004393952912336479
+        },
+        "latency_seconds": {
+          "p2_5": 0.08966325311141393,
+          "p97_5": 0.14001455479067065
+        }
+      }
+    },
+    "timing_definition": "Resident serial full-client time replayed from the saved paired trace; 48-case live route/probability parity checked separately; excludes startup and is not concurrent throughput.",
+    "limits": "Public source families and unknown base pretraining exposure; finite sample, subjective HelpSteer consensus labels; selective latency is replay-estimated, live parity recorded separately. Final holdout is not used for retuning."
   }
 }
