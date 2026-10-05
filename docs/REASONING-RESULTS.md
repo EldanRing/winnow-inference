@@ -94,15 +94,47 @@ The direct HTTP call was measured **inside the same adaptive workflow** and is i
 
 ## Evidence for the released policies
 
-The policy IDs below are the frozen configurations in [adaptive-v1.json](../manifests/adaptive-v1.json). Gates use raw native temperature-1 probabilities; completed outputs use the listed direct/augmented temperatures and a 50:50 probability blend. No runtime fitting is performed.
+The policy IDs below are the frozen configurations in [adaptive-v1.json](../manifests/adaptive-v1.json). Gates use raw native temperature-1 probabilities; completed outputs use the listed direct/augmented temperatures and probability blend. No runtime fitting is performed.
 
-| Policy | Gate | Direct / augmented temperatures |
-|---|---|---|
-| `q8-fixed50-v1` | Maximum probability <0.8 | 1 / 1 |
-| `nvfp4-entropy-v1` | Normalized entropy >0.48619198949270803 | 1 / 1 |
-| `e4b-calibrated50-v1` | Maximum probability <0.8 | 1.2041180007310734 / 3.4209273427377678 |
+| Policy | Gate | Direct / augmented temperatures | Reasoned weight |
+|---|---|---|---:|
+| `q8-fixed50-v1` | Maximum probability <0.8 | 1 / 1 | 0.50 |
+| `nvfp4-entropy-v1` | Normalized entropy >0.48619198949270803 | 1 / 1 | 0.50 |
+| `e4b-calibrated75-g95-v1` (current E4B) | Maximum probability <0.95 | 1.2041180007310734 / 3.4209273427377678 | 0.75 |
+| `e4b-calibrated50-v1` (legacy) | Maximum probability <0.8 | 1.2041180007310734 / 3.4209273427377678 | 0.50 |
 
 E4B's adaptive temperatures are distinct from its separately measured direct-text Q8 temperature, 1.2574172017327816, fitted on 778 calibration questions. They are also distinct from the BF16 direct temperature. Do not interchange these calibrations.
+
+### E4B policy update: measured quality and cost
+
+With the same E4B Q8 target, matching MTP assistant, 8K text profile and
+separately calibrated direct/augmented probabilities, the current E4B policy
+routes when the raw maximum probability is below 0.95 and assigns 75% of the
+completed blend to the reasoned score. The earlier 0.8 gate and 50% blend
+remain available by their legacy policy ID. Direct decisions are still the
+default mode.
+
+On a disjoint 288-decision text panel (96 choice answers, 96 Boolean answers,
+96 teacher-labeled ratings), the current policy matched 198/288 labels versus
+185/288 with the legacy E4B policy. It corrected 14 answers and regressed one.
+Choice was 67/96 versus 63/96; Boolean was 84/96 versus 77/96; rating agreement
+was 47/96 versus 45/96. Mean NLL fell from 0.999998 to 0.954832 and mean Brier
+from 0.505003 to 0.483340. The paired prompt-group 95% interval for the
+top-one gain was +2.08 to +7.29 percentage points. Choice-only probability
+losses and rating expected-score error did not improve, despite higher
+top-one agreement.
+
+The new gate routed 181/288 versus 114/288 decisions. Estimated resident
+serial mean latency rose from 263 to 376 ms per decision; p95 was 743 to 774 ms.
+A separate 48-case live check on the released runtime found matching routes and
+probabilities for both policies, zero errors, and means of 292 versus 425 ms.
+These timings exclude startup and are not a concurrent-throughput promise.
+
+The cases were disjoint from the policy-selection cases but drawn from public
+source families; unknown base-model exposure and related examples limit
+generalization. This evidence is for one-question text decisions with MTP4,
+not image reasoning. The policy change combines broader routing and more
+reasoned weight; the comparison does not isolate either effect.
 
 ### Q8 confirmation: direct versus adaptive
 
@@ -153,6 +185,6 @@ The matched on/off checks had only one request per arm, with six-token text and 
 
 This page republishes saved measurements and approved figures; no new inference was run for this documentation update. Historical public panels, the retained two-source comparisons and the Q8 confirmation remain separate studies. Their original measurement binaries/settings were not replaced by a claim that the latest release reran those benchmarks. The release's bounded integration checks verify operation, not new numerical quality.
 
-Known-record exclusions and dataset splits do not establish absence from base-model pretraining or eliminate semantic/development exposure. The retained final comparisons cover choice/rating; Boolean transfer, image reasoning, production cold/concurrent latency, and unrestricted hardware/context changes remain unestablished. Lower probability loss, more correct answers and faster responses are different outcomes.
+Known-record exclusions and dataset splits do not establish absence from base-model pretraining or eliminate semantic/development exposure. The earlier retained final comparisons cover choice/rating; the E4B update adds a bounded Boolean panel. Image reasoning, production cold/concurrent latency, and unrestricted hardware/context changes remain unestablished. Lower probability loss, more correct answers and faster responses are different outcomes.
 
 Public context: [12B card](https://huggingface.co/EldanRing/Winnow-12B#experimental-reasoning-for-one-text-question), [E4B card](https://huggingface.co/EldanRing/Winnow-E4B#experimental-reasoning-for-one-text-question), [JevBench](https://github.com/fstandhartinger/jevbench), [Kev](https://github.com/jaredpalmer/kev), and [Typed decisions](https://huggingface.co/datasets/LocalLLaMA/typed-decisions). The accompanying [aggregate JSON](reasoning-results.json) includes the counts, probability losses, timing definitions and measurement identities; it contains no prompts, generated traces, training data or private paths.

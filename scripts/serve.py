@@ -65,7 +65,7 @@ def main():
     p.add_argument("--server", type=Path, default=ROOT / ".build/bin/winnow-server")
     p.add_argument(
         "--experimental-adaptive",
-        choices=["nvfp4-entropy-v1", "e4b-calibrated50-v1", "q8-fixed50-v1"],
+        choices=["nvfp4-entropy-v1", "e4b-calibrated50-v1", "e4b-calibrated75-g95-v1", "q8-fixed50-v1"],
         help="Explicit Linux/CUDA text-only 8K resident MTP4 profile; does not change direct default",
     )
     p.add_argument("--assistant", type=Path, help="Exact matching BF16 MTP GGUF for the opt-in profile")

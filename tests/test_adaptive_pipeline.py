@@ -98,6 +98,34 @@ class AdaptivePipeline(unittest.TestCase):
         self.assertEqual(e4["policy"]["augmented_temperature"], 3.4209273427377678)
         self.assertNotEqual(nv["assistant"]["sha256"], e4["assistant"]["sha256"])
 
+    def test_e4b_release_policy_routes_and_blends_as_shipped(self):
+        manifest, current = load_policy("e4b-calibrated75-g95-v1")
+        _, legacy = load_policy("e4b-calibrated50-v1")
+        self.assertEqual(manifest["policy_set_version"], "adaptive-20261005-e4b-v2")
+        self.assertEqual(current["target"], legacy["target"])
+        self.assertEqual(current["assistant"], legacy["assistant"])
+        self.assertEqual(current["policy"], {
+            "direct_temperature": 1.2041180007310734,
+            "augmented_temperature": 3.4209273427377678,
+            "weight": 0.75, "gate": "raw_maxP", "threshold": 0.95})
+        assets = json.loads((ROOT / "manifests/release-assets-v1.json").read_text())
+        self.assertEqual(assets["models"]["e4b-q8"]["policy"], current["id"])
+        self.assertEqual(assets["models"]["12b-q8"]["policy"], "q8-fixed50-v1")
+        request = body()
+        logits = [0.0, 0.4]
+        augmented = [0.0, 2.0]
+        t = FakeTransport([identity(current["id"]), native(request, logits, current["id"]),
+                           generation(), native(request, augmented, current["id"])])
+        out = DecisionPipeline(t, "experimental-adaptive", current["id"]).decide(request)
+        meta = out["winnow"]["adaptive"]
+        self.assertTrue(meta["routed"])
+        self.assertTrue(meta["completed_blend"])
+        direct = softmax(logits, 1.2041180007310734)
+        reasoned = softmax(augmented, 3.4209273427377678)
+        values = list(out["answers"]["unusual/id"]["probabilities"].values())
+        for got, a, b in zip(values, direct, reasoned):
+            self.assertAlmostEqual(got, 0.25*a + 0.75*b)
+
     def test_unsupported_adaptive_contract_rejected_before_backend(self):
         for request in [body(state=None), body(state=17), body(state=True),
                         {"state": "text", "questions": {"a": {}, "b": {}}},

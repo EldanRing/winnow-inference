@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "policy_set_version": "adaptive-20261004-v1",
+  "policy_set_version": "adaptive-20261005-e4b-v2",
   "default_mode": "direct",
   "generation": {
     "max_tokens": -1,
@@ -75,6 +75,37 @@
       "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e",
       "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
       "quality_limit": "Final Brier/NLL improved on LogiQA2 and HelpSteer2; combines calibration and generated context; independent Boolean transfer not established.",
+      "profile": {
+        "batch": 2048,
+        "ubatch": 1024
+      }
+    },
+    "e4b-calibrated75-g95-v1": {
+      "id": "e4b-calibrated75-g95-v1",
+      "model_slug": "e4b-q8",
+      "alias": "Winnow-E4B",
+      "experimental": true,
+      "target": {
+        "bytes": 8005437472,
+        "sha256": "840e3f50e5a9c218727f44e121d1b37cc9e2c3b318c8eb422ba6ef2e27b618a2"
+      },
+      "assistant": {
+        "bytes": 171766688,
+        "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
+        "repository": "google/gemma-4-E4B-it-assistant",
+        "revision": "8d0031ea8c2109e2b1e86bb9368a4539b537f80a",
+        "format": "BF16 GGUF; convert with pinned runtime converter and existing dependencies"
+      },
+      "policy": {
+        "direct_temperature": 1.2041180007310734,
+        "augmented_temperature": 3.4209273427377678,
+        "weight": 0.75,
+        "gate": "raw_maxP",
+        "threshold": 0.95
+      },
+      "source_selection_sha256": "60f00b138dc8d91fbf61653bcc1b2b9bc418039fd0e6a8e2d7064c0e37c8c22e",
+      "scope": "one question, text state, no vision, Linux CUDA 8K single chat slot, resident MTP4",
+      "quality_limit": "Text-only 288-decision held-out comparison with the previous E4B policy: 198/288 versus 185/288 source labels/teacher ratings; NLL and Brier improved, with greater reasoning cost. No image-reasoning or production latency claim.",
       "profile": {
         "batch": 2048,
         "ubatch": 1024

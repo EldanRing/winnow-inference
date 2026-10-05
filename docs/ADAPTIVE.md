@@ -19,7 +19,8 @@ numerical settings, accepted overrides and artifact verification.
 | ID | Gate on raw native T=1 | Direct/augmented temperatures | Completed blend |
 |---|---|---|---|
 | `nvfp4-entropy-v1` | normalized entropy >0.48619198949270803 | 1 /1 | 50/50 |
-| `e4b-calibrated50-v1` | max probability <0.8 | 1.2041180007310734 /3.4209273427377678 | 50/50 |
+| `e4b-calibrated75-g95-v1` (E4B default when opted in) | max probability <0.95 | 1.2041180007310734 /3.4209273427377678 | 25/75 direct/reasoned |
+| `e4b-calibrated50-v1` (legacy) | max probability <0.8 | 1.2041180007310734 /3.4209273427377678 | 50/50 |
 | `q8-fixed50-v1` | max probability <0.8 | 1 /1 | 50/50 |
 
 Adaptive inputs must have **one named question and a text, object, or array state**.
@@ -65,7 +66,7 @@ changed configurations do not inherit its calibration, quality or latency claims
 
 The supporting adaptive comparisons combine calibration and generated context;
 they do not isolate reasoning causality or guarantee improved accuracy.
-Independent final coverage is choice/rating; Boolean transfer is not established.
+The new E4B policy has held-out text coverage for choice, Boolean, and rating decisions. Image reasoning is not established. Other policies retain their documented limits.
 The 2026.10.05 compatibility patch adds structured-state input coverage; its
 35-object Jev follow-up is public-panel evidence, not independent validation of
 structured-state quality or a new calibration for any model policy.

@@ -131,15 +131,13 @@ URL/status and stops. The same asset options work with `scripts/setup.py`.
 
 ## Thin Linux runtime archive
 
-Download `winnow-inference-runtime-2026.10.05-client1.tar.gz` and `SHA256SUMS-client1` from the
-[2026.10.05 client patch](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05).
-Verify `sha256sum --check --ignore-missing SHA256SUMS-client1`, then extract the archive on a compatible Linux/CUDA host.
-Existing `v2026.10.04` downloads remain unchanged. If upgrading an extracted
-runtime, extract this version into a **new directory** and use its `bin/winnow`
-commands; do not overwrite the old runtime in place. Reuse already verified model
-and assistant files with `--model-dir PATH` or the documented `--asset-dir PATH
---offline` download path. The model weights and server binary are unchanged, so
-there is no weight redownload or server rebuild for this client fix.
+Download `winnow-inference-runtime-2026.10.05-e4b-policy.tar.gz` and
+`SHA256SUMS-e4b-policy` from the [E4B policy release](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05-e4b-policy).
+Verify `sha256sum --check --ignore-missing SHA256SUMS-e4b-policy`, then extract
+into a new directory on a compatible Linux/CUDA host. Reuse verified model and
+assistant files with `--model-dir PATH` or `--asset-dir PATH --offline`.
+This update changes the opt-in E4B policy only; no weight download or server
+rebuild is needed.
 The archive requires CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries, with exact
 dependencies listed in `candidate-manifest.json`; they must already be installed.
 This is not a portable Mac binary

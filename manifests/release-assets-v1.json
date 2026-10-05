@@ -56,7 +56,7 @@
     },
     "e4b-q8": {
       "alias": "Winnow-E4B",
-      "policy": "e4b-calibrated50-v1",
+      "policy": "e4b-calibrated75-g95-v1",
       "mtp_vision_preset": "e4b-q8-vision8k-mtp",
       "model": {
         "file": "gguf/Winnow-E4B-Q8_0.gguf",

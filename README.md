@@ -14,10 +14,13 @@ text-only mode uses verified model artifacts and optional matching MTP assistant
 policies; it is not an accuracy-preservation guarantee.
 See [the adaptive contract and limits](docs/ADAPTIVE.md).
 
-**2026.10.05 client compatibility patch:** adaptive decisions now accept one
-text, object, or array state while keeping images unsupported. Existing direct
-decisions, model weights, server binary, and frozen policy constants are unchanged.
-See the [patch release and upgrade instructions](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05).
+**E4B adaptive policy update:** the opt-in E4B client now uses the tested
+`e4b-calibrated75-g95-v1` policy. On 288 text decisions it matched 198 labels
+versus 185 with the previous E4B policy, at higher reasoning cost (resident
+mean 376 versus 263 ms). The previous E4B policy remains available by ID;
+12B Q8 and NVFP4 policies, model weights, and the server binary are unchanged.
+Direct decisions remain the default. See [results and limits](docs/REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost)
+and [upgrade instructions](docs/RELEASE.md).
 
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the
 GPU. Winnow-12B is a fine-tune of Gemma 4 12B; the same loaded model serves typed

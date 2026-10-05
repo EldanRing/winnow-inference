@@ -1,4 +1,17 @@
-# 2026.10.05 adaptive client patch
+# 2026.10.05 E4B adaptive policy update
+
+The opt-in E4B policy now uses raw max probability <0.95 and a 25:75
+direct/reasoned blend. The existing E4B direct and augmented temperatures are
+unchanged. The former `e4b-calibrated50-v1` remains selectable; Q8 and NVFP4
+policies, model weights, assistant, projector, and server binary are unchanged.
+Direct decisions remain the default. See [measured results and limits](REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost).
+
+Download the new [versioned release](https://github.com/EldanRing/winnow-inference/releases/tag/v2026.10.05-e4b-policy)
+and verify `SHA256SUMS-e4b-policy`. Extract the Linux runtime into a new
+directory, then reuse verified assets. Source users can update to tag
+`v2026.10.05-e4b-policy`. Existing tags and archives remain available.
+
+## Earlier client compatibility patch
 
 The optional Linux/CUDA adaptive client now accepts one named question with a
 text, object, or array state. It keeps the original structured state for direct
