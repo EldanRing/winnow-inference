@@ -7,7 +7,7 @@ BASELINES = {
     'q8': '8K text + MTP: 14.75 GiB sampled',
     'nv4': '8K vision + MTP: 11.50 GiB sampled',
     'e4b': '8K direct text: 8.56 GiB; 64K direct vision: 10.72 GiB',
-    'e2b': '64K vision + MTP4, F16 KV: 8.12 GiB sampled peak on small requests; no full-context generation test',
+    'e2b': '64K vision + MTP4, F16 target KV: 8.12 GiB sampled peak on recorded requests',
 }
 
 
@@ -38,14 +38,17 @@ def memory_note(model, context, vision, mtp, reasoning):
 
 
 def preset_list():
-    lines = ['Preset  Context  Vision  MTP  Reasoning  Estimated GPU memory',
-             '------  -------  ------  ---  ---------  --------------------']
+    lines = ['Preset  Context  CUDA target KV  Vision  MTP  Reasoning  Estimated GPU memory',
+             '------  -------  --------------  ------  ---  ---------  --------------------']
     for name in MODEL_ALIASES:
         lo, hi = memory_estimate(name)
-        lines.append(f'{name:6}  8K       off     off  off        {lo:.1f}–{hi:.1f} GiB')
+        cache = 'F16' if canonical_model(name) == 'e2b-q8' else 'Q8_0'
+        lines.append(f'{name:6}  8K       {cache:14}  off     off  off        {lo:.1f}–{hi:.1f} GiB')
     lines += ['', 'All presets are defaults; override --context (e.g. 4k, 16k, 65536),',
               '--vision on|off, --mtp on|off and --reasoning off|selective|always (on aliases selective).',
               '12B/E4B estimates assume q8 KV and four native branches; E2B uses F16 KV and one native branch.',
+              'F16 target KV is recommended for E2B. Assistant draft KV stays Q8_0 for every MTP recipe.',
+              'Apple Silicon direct launch profiles use F16 target KV; the table describes Linux/CUDA recipes.',
               'All use one chat slot; estimates are not fit guarantees.',
               'Measured historical baselines on RTX 5070 Ti (different modes):']
     lines += [f'  {name}: {value}' for name, value in BASELINES.items()]

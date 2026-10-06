@@ -2530,5 +2530,30 @@
     },
     "scope": "Previously exposed text regression; no public-label tuning. Image evidence recorded separately.",
     "operator_64k_testing": "Dani confirms his own64K testing on2026-10-06; panel configuration remains8192."
+  },
+  "target_cache_recommendation": {
+    "model": "E2B",
+    "target_kv": "f16",
+    "assistant_draft_kv": "q8_0",
+    "default_changed": false,
+    "owner_preference": "F16 target KV",
+    "matched_confirmation": {
+      "n": 48,
+      "q8_top1": 35,
+      "f16_top1": 37,
+      "q8_nll": 0.853,
+      "f16_nll": 0.776,
+      "q8_brier": 0.445,
+      "f16_brier": 0.398,
+      "q8_mean_client_seconds": 0.911,
+      "f16_mean_client_seconds": 0.891,
+      "q8_matched_routed_decode_tps": 355.5,
+      "f16_matched_routed_decode_tps": 395.3,
+      "q8_peak_mib": 7295,
+      "f16_peak_mib": 7349,
+      "frozen_speed_gate_passed": false,
+      "outputs_changed": true
+    },
+    "other_linux_model_defaults": "Retain Q8_0 target/draft KV for12B Q8/NVFP4 andE4B recorded recipes; no matched F16 confirmation for them in this cache study."
   }
 }

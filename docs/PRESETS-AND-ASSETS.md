@@ -5,6 +5,31 @@ for short preset names, mode defaults, memory estimates and measured baselines.
 `q8`, `nv4`, `e4b` and `e2b` select the exact model and matching assistant/projector.
 The older model names and low-level preset names remain available as aliases.
 
+## Cache precision
+
+Use **F16 target KV cache for E2B**. Every named E2B text/vision, 8K/64K,
+MTP-on/off profile already selects F16. Keep the assistant's draft KV cache
+at **Q8_0**, as tested; its BF16 weights are a separate setting.
+
+| Launch path | Target KV default | Assistant draft KV with MTP |
+|---|---|---|
+| E2B Linux/CUDA profiles | F16, recommended | Q8_0 |
+| 12B Q8, 12B NVFP4 and E4B Linux/CUDA profiles | Q8_0, recorded release recipe | Q8_0 |
+| Apple Silicon direct profile | F16 | MTP is not part of this profile |
+
+The matched E2B cache confirmation changed only target KV: F16 scored 37/48
+versus 35/48 with Q8_0, with NLL 0.776 versus 0.853 and Brier 0.398 versus
+0.445. Mean client time was 0.891 versus 0.911 seconds; matched routed decode
+was 395.3 versus 355.5 tokens/s. Outputs and lengths changed. The owner chose
+F16 as the preferred E2B configuration, and the completed full-panel E2B run
+uses F16. See [E2B evidence](E2B.md).
+
+The recorded 12B/NVFP4/E4B release measurements use Q8_0 target KV; this E2B
+comparison does not establish a cache preference for those models. Their
+existing defaults and the Apple Silicon profile are retained. `--cache f16`
+is an explicit target-cache override for the configurable 12B/E4B launchers;
+it does not change weight quantization or the assistant draft cache.
+
 All unified presets default to 8K text, MTP off and reasoning off. Enable MTP
 explicitly with `--mtp on` on download, serve and matching client commands.
 For 12B/E4B, override

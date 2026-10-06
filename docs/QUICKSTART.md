@@ -54,7 +54,11 @@ for commands, explicit context contracts, and quality limits.
 configurations are unvalidated. E2B has a recorded bounded MTP on/off check;
 Dani confirms his own 64K testing. Reported full-panel scores use 8K.
 
-All four model selectors default to **8K text, reasoning off, MTP off**. E2B is
+All four model selectors default to **8K text, reasoning off, MTP off**.
+E2B is configured and recommended with **F16 target KV cache**; assistant draft KV
+remains Q8_0 when MTP is enabled. Other Linux model recipes retain their
+recorded Q8_0 target cache. See [cache precision](PRESETS-AND-ASSETS.md#cache-precision).
+E2B is
 Linux/CUDA only and pins its named profile settings. For 12B/E4B, context, native
 branches, batch, microbatch and cache can be overridden. MTP requires one chat
 slot and auto memory; reasoning requires one question with a text, object, or array state. Presets

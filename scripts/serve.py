@@ -88,7 +88,7 @@ def main():
             p.error("MTP off does not load an assistant")
         if serving["status"] != "validated":
             note = ("Q8 vision + MTP exceeded the measured 16 GB profile." if serving["status"] == "blocked"
-                    else "E2B profile is experimental; 64K evidence covers fit and small requests only.")
+                    else "E2B profile uses the recommended F16 target KV cache; MTP draft KV stays Q8_0.")
             print("Profile note: " + note, file=sys.stderr, flush=True)
         if platform.system() != "Linux" or a.profile != "auto" or a.experimental_adaptive:
             p.error("Named presets require Linux/CUDA; choose one preset without --profile/--experimental-adaptive")
