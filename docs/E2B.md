@@ -55,7 +55,8 @@ one native branch, one chat slot, batch/microbatch 1024, auto memory and disable
 context shifting. MTP uses the exact assistant, Q8 draft KV and draft length 4.
 `--mtp off` omits the assistant; these profiles have CPU contract coverage and
 still need separate live validation. `--vision off` omits the projector.
-The default E2B command uses 8K text with MTP and decision reasoning off.
+The default E2B command uses 8K text, MTP off and decision reasoning off.
+The examples above explicitly enable MTP with `--mtp on` on every command.
 
 The server and client must use matching context, vision and MTP settings.
 Named E2B profiles reject numerical overrides that break their contract.

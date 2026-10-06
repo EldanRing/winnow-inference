@@ -119,8 +119,9 @@ python3 scripts/winnow.py presets
 python3 scripts/winnow.py setup --model q8
 ```
 
-Short presets are `q8`, `nv4`, `e4b` and `e2b`. Each defaults to 8K text with MTP and
-reasoning off. Setup checks prerequisites, downloads verified weights and builds.
+Short presets are `q8`, `nv4`, `e4b` and `e2b`. Each defaults to 8K text,
+MTP off and reasoning off. Add `--mtp on` to download, serve and matching client
+commands to enable MTP. Setup checks prerequisites, downloads verified weights and builds.
 It does not install system packages. Existing valid downloads are reused.
 
 ### 3. Start and query

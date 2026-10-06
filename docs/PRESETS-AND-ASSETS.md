@@ -5,7 +5,9 @@ for short preset names, mode defaults, memory estimates and measured baselines.
 `q8`, `nv4`, `e4b` and `e2b` select the exact model and matching assistant/projector.
 The older model names and low-level preset names remain available as aliases.
 
-All unified presets default to 8K text with MTP and reasoning off. For 12B/E4B, override
+All unified presets default to 8K text, MTP off and reasoning off. Enable MTP
+explicitly with `--mtp on` on download, serve and matching client commands.
+For 12B/E4B, override
 `--context`, `--decision-context`, `--batch`, `--ubatch`, `--decision-parallel`
 and `--cache` as needed. Use `--vision on|off`, `--mtp on|off` and
 `--reasoning off|selective|always` explicitly (`on` aliases selective). Microbatch must not exceed batch. MTP requires
