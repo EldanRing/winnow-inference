@@ -1,6 +1,6 @@
 # Download and run Winnow
 
-Choose a short preset with `--model q8`, `nv4` or `e4b` (`--preset` is an alias).
+Choose a short preset with `--model q8`, `nv4`, `e4b` or `e2b` (`--preset` is an alias).
 Run `python3 scripts/winnow.py presets` to see defaults and memory guidance.
 The old model names remain accepted. Set context with `--context 4k`, `16k` or
 `65536`. Choose `--reasoning off|selective|always`; `on` remains an alias for
@@ -9,7 +9,8 @@ model-generated analysis before rescoring a decision with the model's
 frozen temperatures and blend. MTP uses the matching assistant to draft ordinary chat tokens. Native direct decisions
 generate no tokens, so MTP does not itself add decision reasoning.
 
-Model and assistant assets are published in the existing Winnow model repositories.
+12B/E4B model and assistant assets are published in the existing Winnow repositories.
+E2B payloads are private and require verified local reuse; see [the E2B guide](E2B.md).
 Exact sizes and SHA256 are checked; no other weights are substituted. Nothing in
 setup publishes files or uses a paid service.
 
@@ -31,6 +32,8 @@ or token limits. See [results and limits](REASONING-RESULTS.md).
 Routing runs in the decision client. `serve --reasoning selective` and
 `serve --reasoning always` prepare the same compatible server; choose routing on
 each `decide` call. Native `/v1/systemone` requests remain direct.
+Ordinary chat thinking uses `serve --native-chat-reasoning on|off` separately.
+It defaults to off; adaptive internal generation explicitly disables it.
 
 ## Supported choices
 
@@ -39,6 +42,7 @@ each `decide` call. Native `/v1/systemone` requests remain direct.
 | 12B Q8 | Text or vision | Text; vision needs more memory* | Text | Text |
 | 12B NVFP4 | Text or vision | Text or vision | Text | Text or vision (8K profile) |
 | E4B Q8 | Text or vision | Text or vision | Text | Text or vision (8K profile) |
+| E2B Q8, experimental | Text or vision | Text or vision | Text or vision* | Text or vision (8K/64K profiles) |
 
 Optional reasoning and MTP require Linux/CUDA and a compatible GPU. Direct serving
 also supports Apple Silicon Metal through a source build; optional modes have not
@@ -47,9 +51,11 @@ this release. Reasoning accepts one question and a text, object, or array state.
 Images require a supported vision profile. See [image reasoning](IMAGE-REASONING.md)
 for commands, explicit context contracts, and quality limits.
 *Q8 vision plus MTP exceeded the measured 16 GB profile; larger or custom
-configurations are unvalidated. Memory guidance is not a fit guarantee.
+configurations are unvalidated. E2B MTP-off profiles still need live validation;
+64K evidence covers fit and small requests only. Memory guidance is not a fit guarantee.
 
-All three presets default to **8K text, reasoning off, MTP off**. Context, native
+All four model selectors default to **8K text, reasoning off, MTP off**. E2B is
+Linux/CUDA only and pins its named profile settings. For 12B/E4B, context, native
 branches, batch, microbatch and cache can be overridden. MTP requires one chat
 slot and auto memory; reasoning requires one question with a text, object, or array state. Presets
 supply defaults. Image reasoning pins its runtime settings; custom image/context
@@ -61,8 +67,10 @@ available through `scripts/serve.py`.
 | `q8` — 12B Q8 | 8K, text, MTP/reasoning off | 12.8–14.8 GiB |
 | `nv4` — 12B NVFP4 | 8K, text, MTP/reasoning off | 8.6–10.6 GiB |
 | `e4b` — E4B Q8 | 8K, text, MTP/reasoning off | 8.4–10.4 GiB |
+| `e2b` — E2B Q8 | 8K, text, MTP/reasoning off | 5.5–7.5 GiB |
 
-These estimates assume q8 KV, four native branches and one chat slot. Context,
+12B/E4B estimates assume q8 KV and four native branches; E2B uses F16 KV and
+one native branch. All use one chat slot. Context,
 images, cache precision, batches, concurrency, hardware and other GPU workloads
 change usage. Setup warns about estimated capacity; it does not impose a blanket
 16 GB gate. Historical measured baselines on RTX 5070 Ti: E4B direct 8K text
@@ -107,7 +115,9 @@ For example, append `--context 16k` to a serve command; add `--batch 1024
 
 For vision, add `--vision on` to download, serve and reasoning `decide` commands,
 using a supported matrix cell. Image reasoning uses the 8K vision+MTP profile;
-changing context requires a [custom runtime contract](IMAGE-REASONING.md).
+changing context for E4B/NVFP4 requires a [custom runtime contract](IMAGE-REASONING.md).
+E2B also has a named 64K profile; pass the same `--context`, `--vision` and `--mtp`
+on its server and client commands.
 The projector is downloaded only for vision, and the assistant only for MTP.
 Targets/projectors live under `models/gguf/`; assistants under `models/assistants/`.
 Use `--model-dir PATH` on download and serve to store them elsewhere.
@@ -150,9 +160,10 @@ python3 scripts/winnow.py download --model e4b --reasoning selective --mtp on \
 
 Files are verified before copying and again before installation. Existing correct
 files are reused; corrupt files are not overwritten. `--offline` fails clearly
-when an asset is missing. Without it, missing files use the recorded release URL;
+when an asset is missing. Without it, published files use the recorded release URL;
 interrupted HTTP downloads resume. A missing release file reports its
-URL/status and stops. The same asset options work with `scripts/setup.py`.
+URL/status and stops. Pending/private assets never trigger a speculative download.
+The same asset options work with `scripts/setup.py`.
 
 ## Thin Linux runtime archive
 

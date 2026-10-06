@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Published release assets; every download requires exact size/SHA256.",
+  "status": "Artifact availability is explicit per file; every asset requires exact size/SHA256.",
   "models": {
     "12b-q8": {
       "alias": "Winnow-12B",
@@ -78,6 +78,35 @@
         "sha256": "4e3c9d335b248ced9bd3e0584547efca30dbf6cfd0debb810613f811a575162a",
         "url": "https://huggingface.co/EldanRing/Winnow-E4B/resolve/main/gguf/Gemma-4-E4B-IT-Assistant-BF16.gguf",
         "availability": "published"
+      }
+    },
+    "e2b-q8": {
+      "alias": "Winnow-E2B",
+      "policy": "e2b-raw99-blend50-v2",
+      "mtp_vision_preset": "e2b-q8-vision8k-mtp",
+      "model": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1",
+        "availability": "private_verified",
+        "repository": "EldanRing/Winnow-E2B",
+        "revision": "7439a194a1a948262115b02fb380daf4ecc77369",
+        "url": "https://huggingface.co/EldanRing/Winnow-E2B/resolve/7439a194a1a948262115b02fb380daf4ecc77369/gguf/Winnow-E2B-Q8_0.gguf"
+      },
+      "projector": {
+        "file": "gguf/mmproj-Winnow-E2B.gguf",
+        "bytes": 985653600,
+        "sha256": "7faa5282cff7250380c191bdea4e13a7b397ad851e2d883873cd9c323a5e192f",
+        "availability": "private_verified",
+        "repository": "EldanRing/Winnow-E2B",
+        "revision": "7439a194a1a948262115b02fb380daf4ecc77369",
+        "url": "https://huggingface.co/EldanRing/Winnow-E2B/resolve/7439a194a1a948262115b02fb380daf4ecc77369/gguf/mmproj-Winnow-E2B.gguf"
+      },
+      "assistant": {
+        "file": "assistants/Gemma-4-E2B-IT-Assistant-BF16.gguf",
+        "bytes": 170194016,
+        "sha256": "0772dcc50761a47a2da87151d3105ad2b82994d9dd1dae3ad3c5c0cd26086b16",
+        "availability": "local_conversion_only"
       }
     }
   }

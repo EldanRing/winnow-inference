@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from package_local_candidate import package
+from package_local_candidate import ROOT, package, sha
 
 
 class RuntimePackage(unittest.TestCase):
@@ -17,7 +17,7 @@ class RuntimePackage(unittest.TestCase):
             binary = Path(temporary) / "binary"
             binary.write_bytes(b"fixture")
             output = Path(temporary) / "candidate"
-            with patch("package_local_candidate.subprocess.check_output", return_value=""):
+            with patch("package_local_candidate.subprocess.check_output", side_effect=[sha(ROOT / "runtime.lock.json"), ""]):
                 receipt = package(binary, output)
             self.assertEqual(receipt["binary_sha256"], hashlib.sha256(b"fixture").hexdigest())
             for name, expected in receipt["files"].items():
@@ -42,8 +42,18 @@ class RuntimePackage(unittest.TestCase):
             binary = Path(temporary) / "binary"
             binary.write_bytes(b"fixture")
             output = Path(temporary) / "candidate"
-            with patch("package_local_candidate.subprocess.check_output", return_value="libbad => not found"):
-                with self.assertRaises(ValueError):
+            with patch("package_local_candidate.subprocess.check_output", side_effect=[sha(ROOT / "runtime.lock.json"), "libbad => not found"]):
+                with self.assertRaisesRegex(ValueError, "dependency is missing"):
+                    package(binary, output)
+            self.assertFalse(output.exists())
+
+    def test_previous_runtime_is_rejected_before_package_creation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            binary = Path(temporary) / "binary"
+            binary.write_bytes(b"old fixture")
+            output = Path(temporary) / "candidate"
+            with patch("package_local_candidate.subprocess.check_output", return_value="7a2ab005c30b8c4cc8d7e2f5e9512581e851c7d072e55959d7638f21f1866354"):
+                with self.assertRaisesRegex(ValueError, "runtime lock"):
                     package(binary, output)
             self.assertFalse(output.exists())
 

@@ -42,6 +42,9 @@ def package(binary, output):
     binary_strings = subprocess.check_output(["strings", str(binary)], text=True)
     if "/home/" in binary_strings or "/Users/" in binary_strings:
         raise ValueError("Binary contains private build paths; rebuild with --sanitize-build-paths")
+    runtime_hash = sha(ROOT / "runtime.lock.json")
+    if runtime_hash not in binary_strings.splitlines():
+        raise ValueError("Binary does not embed this package's runtime lock; rebuild from the matching source")
     linked = subprocess.check_output(["ldd", str(binary)], text=True)
     if "not found" in linked:
         raise ValueError("A runtime dependency is missing")
@@ -66,14 +69,15 @@ def package(binary, output):
         "# Winnow Linux/CUDA runtime\n\n"
         "Start with [the quickstart and supported mode matrix](docs/QUICKSTART.md).\n\n"
         "Use `bin/winnow download`, `bin/winnow serve` and `bin/winnow decide`.\n"
-        "Select `--model q8`, `nv4` or `e4b`; choose `--reasoning off|selective|always`,\n"
+        "Select `--model q8`, `nv4`, `e4b` or `e2b`; choose `--reasoning off|selective|always`,\n"
         "with `on` retained as an alias for selective. Routing happens in the client.\n"
         "`--mtp on|off` and `--vision on|off` explicitly. Defaults are off, context 8K.\n"
-        "Use `--context 16k` to override, and `bin/winnow presets` for memory guidance.\n\n"
+        "Use `bin/winnow presets` for context and memory guidance. E2B has explicit 8K/64K profiles.\n"
+        "Ordinary chat thinking uses `--native-chat-reasoning on|off` independently.\n\n"
         "Model weights are separate. This archive requires compatible existing Linux/CUDA\n"
-        "libraries listed in candidate-manifest.json. Planned asset URLs may be unavailable\n"
-        "before publication; verified local reuse is supported. Source setup.py is a separate\n"
-        "source-build workflow. This private candidate has not been published.\n"
+        "libraries listed in candidate-manifest.json. E2B payloads are private; use verified\n"
+        "local assets as described in [the E2B guide](docs/E2B.md). Source setup.py is a separate\n"
+        "source-build workflow.\n"
     )
     shutil.copy2(binary, output / "bin/winnow-server")
     for name, script, extra in [("winnow", "winnow.py", []), ("winnow-serve", "serve.py", ['--server', 'SERVER']),
@@ -91,7 +95,8 @@ def package(binary, output):
         path.chmod(0o755)
     receipt = {"status": "Private local review candidate; publication held",
                "platform": "Linux x86_64/CUDA, tested RTX5070Ti SM120; not a portable/Mac claim",
-               "binary_sha256": sha(binary), "dependencies": dependencies,
+               "binary_sha256": sha(binary), "runtime_lock_sha256": runtime_hash,
+               "dependencies": dependencies,
                "private_build_path_scan": "Passed; no tested-host private build prefix in binary strings",
                "dependency_mode": "Requires the recorded runtime libraries already installed on the target host. Libraries/weights/build tools are not silently bundled or installed.",
                "files": {str(path.relative_to(output)): {"bytes": path.stat().st_size, "sha256": sha(path)}

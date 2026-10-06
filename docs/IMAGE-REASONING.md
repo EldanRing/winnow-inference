@@ -20,7 +20,9 @@ Use `nv4` for NVFP4 or `always` for every-request reasoning. Supply one question
 and `winnow.images`, an ordered list of up to 16 base64 image data URLs. Remote
 URLs, filesystem paths and malformed base64 are rejected. The native decoder
 accepts still images; its image/microbatch and 32 MiB request limits also apply.
-Q8 vision+MTP and MTP-off image reasoning have no built-in client preset.
+12B Q8 vision+MTP has no supported built-in reasoning preset.
+E2B has experimental 8K/64K text/vision profiles with MTP on or off;
+see [E2B commands and validation limits](E2B.md).
 
 Every phase receives the same image bytes in the same order, before the state.
 Images are not removed when reasoning is added. Native inspection counts image
@@ -61,11 +63,16 @@ CLI offers `--policy-manifest PATH --runtime-profile PATH`. Use the model's own
 verified launcher. A 64K contract declares capacity and settings; it does not
 validate policy quality at 64K.
 
-The local `e2b-canonical-v2` prompt format preserves native candidate semantics:
+The `e2b-canonical-v2` prompt format preserves native candidate semantics:
 choice and Boolean keys name the option, non-null values describe it, and null
 score values use their numeric index. Options retain native candidate order.
 This format has distinct prompt serialization from historical E2B experiments;
 it does not inherit their quality measurements.
+
+Internal adaptive generation explicitly sends
+`chat_template_kwargs.enable_thinking=false`, independently of the server's
+ordinary-chat thinking default. `reasoning_effort:none` alone is insufficient
+on the pinned Gemma 4 template.
 
 For direct scoring with the same checks, use `reasoning="off"` and the runtime
 profile, without a policy. The legacy direct API without a profile retains its

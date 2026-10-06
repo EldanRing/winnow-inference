@@ -20,7 +20,9 @@ from adaptive_policy import DecisionPipeline, load_policy, softmax
 from test_adaptive_pipeline import FakeTransport, body, generation, identity, native
 
 
-POLICIES = tuple(json.loads((ROOT / "manifests/adaptive-v1.json").read_text())["policies"])
+# Released policies keep their original implicit text-runtime contract. E2B's
+# explicit profile matrix is exercised in test_e2b_release.
+POLICIES = ("q8-fixed50-v1", "nvfp4-entropy-v1", "e4b-calibrated50-v1", "e4b-calibrated75-g95-v1")
 
 
 def probabilities(answer):
@@ -173,7 +175,7 @@ class ReasoningModes(unittest.TestCase):
             self.assertEqual(path.read_bytes(), original)
 
     def test_modes_reuse_identical_server_profile_and_required_assets(self):
-        for model in assets.MODELS:
+        for model in ("12b-q8", "12b-nvfp4", "e4b-q8"):
             for mtp in ("on", "off"):
                 commands = []
                 for mode in ("on", "selective", "always"):

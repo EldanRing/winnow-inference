@@ -316,6 +316,10 @@ class HTTPImageTransport(unittest.TestCase):
                 with self.assertRaises(RequestCancelled if cancel else TimeoutError):
                     transport.post("/v1/chat/completions", {}, 1 if cancel else 0.02)
                 if cancel: thread.join(1)
+                # Caller return can precede worker cleanup; wait for backend
+                # ownership to be released before the next same-origin case.
+                self.assertTrue(transport.lock.acquire(timeout=1))
+                transport.lock.release()
             self.assertTrue(closed.is_set())
             self.assertLess(time.monotonic() - before, 1)
 

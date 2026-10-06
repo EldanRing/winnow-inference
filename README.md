@@ -1,4 +1,4 @@
-# Winnow-12B inference
+# Winnow inference
 
 A native llama.cpp server for local typed decisions and regular chat, sharing one
 loaded model. `/v1/systemone` evaluates `noul`, `choice`, and `score` questions
@@ -15,13 +15,11 @@ model-specific policies. [Image reasoning](docs/IMAGE-REASONING.md) uses an expl
 vision runtime contract; text-policy results do not validate image quality.
 See [the adaptive contract and limits](docs/ADAPTIVE.md).
 
-**E4B adaptive policy update:** the opt-in E4B client now uses the tested
-`e4b-calibrated75-g95-v1` policy. On 288 text decisions it matched 198 labels
-versus 185 with the previous E4B policy, at higher reasoning cost (resident
-mean 376 versus 263 ms). The previous E4B policy remains available by ID;
-12B Q8 and NVFP4 policies, model weights, and the server binary are unchanged.
-Direct decisions remain the default. See [results and limits](docs/REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost)
-and [upgrade instructions](docs/RELEASE.md).
+**Winnow-E2B:** experimental Linux/CUDA support includes 8K/64K F16-KV
+profiles, optional MTP4 and image-aware decisions. Native chat thinking has a
+separate control. Verified local E2B assets are required while the model repository remains
+private. [E2B setup, evidence and limits](docs/E2B.md) · [Upgrade instructions](docs/RELEASE.md).
+The existing 12B/E4B policies and defaults are preserved.
 
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the
 GPU. Winnow-12B is a fine-tune of Gemma 4 12B; the same loaded model serves typed
@@ -80,7 +78,7 @@ Direct decisions remain the default.
 
 [Choose direct decisions, reasoning and MTP](docs/QUICKSTART.md) with one model selector
 and explicit on/off switches. The guide covers verified downloads, source setup,
-the thin runtime, and supported combinations for 12B Q8, 12B NVFP4 and E4B Q8.
+the thin runtime, and supported combinations for 12B Q8, 12B NVFP4, E4B Q8 and E2B Q8.
 
 
 Supported: **Linux + NVIDIA GPU** (the measured profile uses a 16 GB RTX 5070 Ti)
@@ -121,7 +119,7 @@ python3 scripts/winnow.py presets
 python3 scripts/winnow.py setup --model q8
 ```
 
-Short presets are `q8`, `nv4` and `e4b`. Each defaults to 8K text with MTP and
+Short presets are `q8`, `nv4`, `e4b` and `e2b`. Each defaults to 8K text with MTP and
 reasoning off. Setup checks prerequisites, downloads verified weights and builds.
 It does not install system packages. Existing valid downloads are reused.
 

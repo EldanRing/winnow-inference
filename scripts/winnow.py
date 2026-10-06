@@ -7,7 +7,7 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
-from assets import MODELS, MODEL_ALIASES, ROOT, acquire, selection
+from assets import MODELS, MODEL_ALIASES, ROOT, acquire, selection, canonical_model, decision_preset
 from launch_options import DEFAULT_CONTEXT, context_size, preset_list, memory_note
 from adaptive_policy import REASONING_CHOICES, normalize_reasoning
 
@@ -15,12 +15,15 @@ from adaptive_policy import REASONING_CHOICES, normalize_reasoning
 def serve_command(a):
     spec, _ = selection(a.model, a.reasoning, a.mtp, a.vision)
     reasoning = normalize_reasoning(a.reasoning)
-    if (reasoning != 'off' or a.mtp == 'on') and platform.system() != 'Linux':
+    e2b = canonical_model(a.model) == 'e2b-q8'
+    if (reasoning != 'off' or a.mtp == 'on' or e2b) and platform.system() != 'Linux':
         raise ValueError('Optional reasoning/MTP profiles are supported only on Linux/CUDA')
     args = [sys.executable, str(ROOT / 'scripts/serve.py'), '--model-dir', str(a.model_dir),
             '--model', str(a.model_dir / spec['model']['file']), '--alias', spec['alias'],
             '--target', a.model, '--context', str(a.context)]
-    if a.vision == 'on' and a.mtp == 'on':
+    if e2b:
+        args += ['--preset', decision_preset(a.model, a.context, a.vision, a.mtp), '--mtp', a.mtp]
+    elif a.vision == 'on' and a.mtp == 'on':
         if reasoning != 'off' and a.context != 8192:
             raise ValueError('Image reasoning presets pin 8K; custom contexts require an explicit operator runtime contract')
         args += ['--preset', spec['mtp_vision_preset']]
@@ -82,10 +85,14 @@ def main():
             command = [sys.executable, str(ROOT / 'scripts/decision_client.py'), '--model', spec['alias'], '--target', a.model]
             if a.reasoning != 'off':
                 command += ['--reasoning', a.reasoning, '--policy', spec['policy'], '--mtp', a.mtp]
-                if a.vision == 'on':
+                if a.vision == 'on' and canonical_model(a.model) != 'e2b-q8':
                     if a.context != 8192:
                         raise ValueError('Use decision_client.py with an explicit runtime profile for custom image reasoning contexts')
                     command += ['--runtime-profile', spec['mtp_vision_preset']]
+            if canonical_model(a.model) == 'e2b-q8':
+                command += ['--runtime-profile', decision_preset(a.model, a.context, a.vision, a.mtp)]
+                if a.reasoning == 'off':
+                    command += ['--mtp', a.mtp]
             subprocess.run(command + extra, check=True)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         p.exit(1, 'Winnow: ' + str(error) + '\n')

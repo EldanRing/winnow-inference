@@ -41,12 +41,14 @@ def load_policy(policy_id, policy_manifest=None):
         value = policy[key]
         if type(value) not in (int, float) or not math.isfinite(value) or (value <= 0 if "temperature" in key else not 0 <= value <= 1):
             raise ValueError("Invalid policy parameter: " + key)
-    generation = manifest["generation"]
+    # A model-specific recipe must not replace the released models' generation contract.
+    generation = {**manifest["generation"], **definition.get("generation", {})}
     if (generation.get("max_tokens") != -1 or generation.get("ignore_eos") is not False
             or generation.get("temperature") != 0 or generation.get("seed") != 314159
             or generation.get("reasoning_effort") != "none"
             or generation.get("prompt_format", "bounded-v1") not in {"bounded-v1", "e2b-canonical-v2"}):
         raise ValueError("Unsupported reasoning generation contract")
+    manifest["generation"] = generation
     return manifest, manifest["policies"][policy_id]
 
 
@@ -187,8 +189,8 @@ class DecisionPipeline:
         if policy_manifest is not None and not policy_id:
             raise ValueError("A policy manifest requires a policy id")
         self.profile = load_profile(runtime_profile) if runtime_profile is not None else None
-        if policy_manifest is not None and self.profile is None:
-            raise ValueError("A local policy requires an explicit runtime profile")
+        if (policy_manifest is not None or (self.definition and self.definition.get("runtime_contract_required"))) and self.profile is None:
+            raise ValueError("This policy requires an explicit runtime profile")
         if self.profile:
             expected = self.profile["runtime"]
             if expected["resident_mtp"] is not self.mtp:
@@ -357,7 +359,8 @@ class DecisionPipeline:
                            + [{"type": "image_url", "image_url": {"url": url}} for url in images]
                            + [{"type": "text", "text": prompt}])
             generation.update(model=alias, messages=[{"role": "user", "content": content}],
-                              cache_prompt=False, verbose=True, return_tokens=True, stream=False)
+                              cache_prompt=False, verbose=True, return_tokens=True, stream=False,
+                              chat_template_kwargs={"enable_thinking": False})
             try:
                 result = self._post("/v1/chat/completions", generation, seconds)
                 if not isinstance(result, dict):

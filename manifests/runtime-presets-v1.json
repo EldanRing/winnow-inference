@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Private review only; Linux/CUDA RTX5070Ti SM120; exact8K profiles",
+  "status": "Pinned Linux/CUDA runtime profiles. Status describes profile evidence, not download availability.",
   "presets": {
     "12b-q8-vision8k-mtp": {
       "status": "blocked",
@@ -205,6 +205,358 @@
         "pipeline": "optimized"
       },
       "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately."
+    },
+    "e2b-q8-text8k-direct": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": null,
+      "projector": null,
+      "text_only": true,
+      "resident_mtp": false,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-text8k-mtp": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": {
+        "file": "Gemma-4-E2B-IT-Assistant-BF16.gguf",
+        "bytes": 170194016,
+        "sha256": "0772dcc50761a47a2da87151d3105ad2b82994d9dd1dae3ad3c5c0cd26086b16",
+        "repository": "google/gemma-4-E2B-it-assistant",
+        "revision": "2d874ef7d29f9a30599a1e4b3c1cbc9595f005df",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-E2B-it-assistant/blob/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training.",
+        "converter_repository": "https://github.com/ggml-org/llama.cpp",
+        "converter_revision": "911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 157565344,
+            "sha256": "93682eb1c97639d18f007704dc880bd74cbe530adaf7b1bb561213863fdad2a6",
+            "url": "https://huggingface.co/google/gemma-4-E2B-it-assistant/resolve/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-E2B-Q8_0.gguf"
+        ],
+        "availability": "local_conversion_only"
+      },
+      "projector": null,
+      "text_only": true,
+      "resident_mtp": true,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-vision8k-direct": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": null,
+      "projector": {
+        "file": "gguf/mmproj-Winnow-E2B.gguf",
+        "bytes": 985653600,
+        "sha256": "7faa5282cff7250380c191bdea4e13a7b397ad851e2d883873cd9c323a5e192f"
+      },
+      "text_only": false,
+      "resident_mtp": false,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-vision8k-mtp": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": {
+        "file": "Gemma-4-E2B-IT-Assistant-BF16.gguf",
+        "bytes": 170194016,
+        "sha256": "0772dcc50761a47a2da87151d3105ad2b82994d9dd1dae3ad3c5c0cd26086b16",
+        "repository": "google/gemma-4-E2B-it-assistant",
+        "revision": "2d874ef7d29f9a30599a1e4b3c1cbc9595f005df",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-E2B-it-assistant/blob/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training.",
+        "converter_repository": "https://github.com/ggml-org/llama.cpp",
+        "converter_revision": "911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 157565344,
+            "sha256": "93682eb1c97639d18f007704dc880bd74cbe530adaf7b1bb561213863fdad2a6",
+            "url": "https://huggingface.co/google/gemma-4-E2B-it-assistant/resolve/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-E2B-Q8_0.gguf"
+        ],
+        "availability": "local_conversion_only"
+      },
+      "projector": {
+        "file": "gguf/mmproj-Winnow-E2B.gguf",
+        "bytes": 985653600,
+        "sha256": "7faa5282cff7250380c191bdea4e13a7b397ad851e2d883873cd9c323a5e192f"
+      },
+      "text_only": false,
+      "resident_mtp": true,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 8192,
+        "decision_context": 8192,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-text64k-direct": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": null,
+      "projector": null,
+      "text_only": true,
+      "resident_mtp": false,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 65536,
+        "decision_context": 65536,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-text64k-mtp": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": {
+        "file": "Gemma-4-E2B-IT-Assistant-BF16.gguf",
+        "bytes": 170194016,
+        "sha256": "0772dcc50761a47a2da87151d3105ad2b82994d9dd1dae3ad3c5c0cd26086b16",
+        "repository": "google/gemma-4-E2B-it-assistant",
+        "revision": "2d874ef7d29f9a30599a1e4b3c1cbc9595f005df",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-E2B-it-assistant/blob/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training.",
+        "converter_repository": "https://github.com/ggml-org/llama.cpp",
+        "converter_revision": "911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 157565344,
+            "sha256": "93682eb1c97639d18f007704dc880bd74cbe530adaf7b1bb561213863fdad2a6",
+            "url": "https://huggingface.co/google/gemma-4-E2B-it-assistant/resolve/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-E2B-Q8_0.gguf"
+        ],
+        "availability": "local_conversion_only"
+      },
+      "projector": null,
+      "text_only": true,
+      "resident_mtp": true,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 65536,
+        "decision_context": 65536,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-vision64k-direct": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": null,
+      "projector": {
+        "file": "gguf/mmproj-Winnow-E2B.gguf",
+        "bytes": 985653600,
+        "sha256": "7faa5282cff7250380c191bdea4e13a7b397ad851e2d883873cd9c323a5e192f"
+      },
+      "text_only": false,
+      "resident_mtp": false,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 65536,
+        "decision_context": 65536,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+    },
+    "e2b-q8-vision64k-mtp": {
+      "status": "experimental",
+      "decision_profile": true,
+      "alias": "Winnow-E2B",
+      "target": {
+        "file": "gguf/Winnow-E2B-Q8_0.gguf",
+        "bytes": 4954594336,
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1"
+      },
+      "assistant": {
+        "file": "Gemma-4-E2B-IT-Assistant-BF16.gguf",
+        "bytes": 170194016,
+        "sha256": "0772dcc50761a47a2da87151d3105ad2b82994d9dd1dae3ad3c5c0cd26086b16",
+        "repository": "google/gemma-4-E2B-it-assistant",
+        "revision": "2d874ef7d29f9a30599a1e4b3c1cbc9595f005df",
+        "license": "Apache-2.0",
+        "upstream_card": "https://huggingface.co/google/gemma-4-E2B-it-assistant/blob/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/README.md",
+        "changes": "CPU conversion from official BF16 safetensors to BF16 GGUF; no training.",
+        "converter_repository": "https://github.com/ggml-org/llama.cpp",
+        "converter_revision": "911f6cdc8ab8a530b2bee09ee61471a6f3178eeb",
+        "converter_sha256": "e9a1da876330bbce9687541ab31736542a01b4ac43c6686126514a50f122fb7f",
+        "upstream_weights": [
+          {
+            "file": "model.safetensors",
+            "bytes": 157565344,
+            "sha256": "93682eb1c97639d18f007704dc880bd74cbe530adaf7b1bb561213863fdad2a6",
+            "url": "https://huggingface.co/google/gemma-4-E2B-it-assistant/resolve/2d874ef7d29f9a30599a1e4b3c1cbc9595f005df/model.safetensors"
+          }
+        ],
+        "compatible_targets": [
+          "Winnow-E2B-Q8_0.gguf"
+        ],
+        "availability": "local_conversion_only"
+      },
+      "projector": {
+        "file": "gguf/mmproj-Winnow-E2B.gguf",
+        "bytes": 985653600,
+        "sha256": "7faa5282cff7250380c191bdea4e13a7b397ad851e2d883873cd9c323a5e192f"
+      },
+      "text_only": false,
+      "resident_mtp": true,
+      "backend_sampling": "on",
+      "settings": {
+        "context": 65536,
+        "decision_context": 65536,
+        "cache": "f16",
+        "memory": "auto",
+        "decision_parallel": 1,
+        "chat_parallel": 1,
+        "batch": 1024,
+        "ubatch": 1024,
+        "head": "selected",
+        "pipeline": "optimized"
+      },
+      "native_seconds": 45,
+      "generation_seconds": 180,
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
     }
   }
 }

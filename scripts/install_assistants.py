@@ -59,7 +59,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--assets',type=Path,required=True,help='Unpacked assistant-assets-v1 directory')
     p.add_argument('--model-dir',type=Path,default=ROOT/'models/assistants')
-    p.add_argument('--assistant',choices=['12b','e4b'],action='append',help='Default: both exact assistants')
+    p.add_argument('--assistant',choices=['12b','e4b','e2b'],action='append',help='Default: 12B and E4B; select E2B explicitly')
     a=p.parse_args()
     try:print(json.dumps(install(a.assets,a.model_dir,a.assistant or ['12b','e4b']),indent=2))
     except (ValueError,OSError) as error:p.exit(1,'Assistant install failed: '+str(error)+'\n')

@@ -1,0 +1,987 @@
+{
+  "schema_version": 1,
+  "scope": "Historical original-prompt experiments. The current canonical-v2 option serialization is different and has no quality validation from these measurements.",
+  "historical_profile": {
+    "context": 8192,
+    "target_kv": "f16",
+    "draft_kv": "q8_0",
+    "mtp_draft_length": 4,
+    "backend_temperature_sampling": true,
+    "runtime_lock_sha256": "9b20caf5c6032f6274350c8d20b1d90e5cbc5b7dfa468ca85c77e198e24845df",
+    "binary_sha256": "7c3b4f65e8d758a0fdb93da248a28339d327a2c3788f81a2bb3b8476d9386be6"
+  },
+  "source_receipts": {
+    "E2B-QUALITY-REPORT.md": "1c45e6d0123e761ac3064bed5ecb57e2492956e4ec985d3f5d984f9fa566d6da",
+    "E2B-FULL-EXTERNAL-REPORT.md": "68e4ba9b40faae43db1258830e4b7bde4160af0f700e9428ca50a61154bf01cf",
+    "e2b-external-primary-analysis.json": "0a2a8edb8ffd5cde1608669e2f2a35db56555bdf891b6f2403df3e2655657014",
+    "e2b-external-freeze.json": "e90a928ee17c58234ef02377dae1e7a628b9111869e21bb833a91a6db923ee31"
+  },
+  "holdout": {
+    "source": "E2B-QUALITY-REPORT.md; reported aggregate values, rounded as in that report",
+    "selection_cases": 288,
+    "holdout_cases": 288,
+    "source_cases": {
+      "LogiQA2": 96,
+      "PAWS": 96,
+      "HelpSteer2": 96
+    },
+    "exposure": "Selection/holdout prompt groups are disjoint. HelpSteer2 holdout has 74 previously cross-model-scored and 22 unmatched cases. Public-source pretraining exposure is unknown.",
+    "selection": "651 shared gate/weight cells plus fixed local refinement; two finalists frozen before holdout result access.",
+    "policies": {
+      "direct": {
+        "agree": 149,
+        "per_source": [
+          38,
+          76,
+          35
+        ],
+        "nll": 1.3591,
+        "brier": 0.6561,
+        "rating_mae": 0.9663,
+        "routed": 0,
+        "mean_serial_seconds": 0.032
+      },
+      "transferred_80_50": {
+        "agree": 155,
+        "per_source": [
+          48,
+          76,
+          31
+        ],
+        "nll": 1.3638,
+        "brier": 0.6547,
+        "rating_mae": 1.0401,
+        "routed": 147,
+        "mean_serial_seconds": 1.066
+      },
+      "accuracy_finalist": {
+        "agree": 158,
+        "per_source": [
+          52,
+          75,
+          31
+        ],
+        "nll": 1.3424,
+        "brier": 0.6283,
+        "rating_mae": 1.0348,
+        "routed": 252,
+        "mean_serial_seconds": 1.677
+      },
+      "probability_finalist": {
+        "gate": 0.99,
+        "weight": 0.425,
+        "agree": 156,
+        "per_source": [
+          48,
+          76,
+          32
+        ],
+        "nll": 1.3177,
+        "brier": 0.6194,
+        "rating_mae": 1.0215,
+        "routed": 252,
+        "mean_serial_seconds": 1.677
+      }
+    },
+    "accuracy_finalist_vs_transferred": {
+      "fixes": 9,
+      "regressions": 6,
+      "per_source_fixes_regressions": [
+        [
+          6,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "bootstrap_95pct": {
+        "top_one_pp": [
+          -1.74,
+          3.82
+        ],
+        "nll": [
+          -0.0766,
+          0.032
+        ],
+        "brier": [
+          -0.0572,
+          0.0031
+        ],
+        "rating_mae": [
+          -0.0235,
+          0.0127
+        ],
+        "mean_serial_seconds": [
+          0.514,
+          0.722
+        ]
+      }
+    },
+    "interval_method": "1000-draw source-stratified paired group bootstrap preserving rating response pairs; does not account for pretraining or exposure uncertainty.",
+    "live_parity": {
+      "decisions": 144,
+      "errors": 0,
+      "route_completion_fallback_generation_mismatches": 0,
+      "maximum_probability_delta": 0
+    }
+  },
+  "exposed_full_panels": {
+    "jevbench-public": {
+      "source_sha256": "bd304bc512d70bcbd9ff0b7d039d241b86aa0072ae5533c3c8d493c170aeb4d0",
+      "paired_sha256": "1362aa093415145a0f1a1fe9ddb876cddc51ec1344e4c6099306dc67c8e5bcae",
+      "target_semantics": {
+        "verified_label": 231
+      },
+      "overall": {
+        "direct": {
+          "n": 231,
+          "correct_or_teacher_agree": 175,
+          "rate": 0.7575757575757576,
+          "nll_or_teacher_cross_entropy": 0.6548821957788398,
+          "brier_or_teacher_brier": 0.3384088069425174,
+          "score_expected_level_mae": 0.1816342739862008,
+          "routed": 0,
+          "completed": 0,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 231,
+            "mean": 0.05068338187476942,
+            "median": 0.02205569203943014,
+            "p95": 0.16911011101910844,
+            "p99": 0.2219500399660319,
+            "max": 0.2542650420218706,
+            "sum": 11.707861213071737
+          }
+        },
+        "transferred_80_50": {
+          "n": 231,
+          "correct_or_teacher_agree": 193,
+          "rate": 0.8354978354978355,
+          "nll_or_teacher_cross_entropy": 0.5413151359965933,
+          "brier_or_teacher_brier": 0.265156226798331,
+          "score_expected_level_mae": 0.09169969145058886,
+          "routed": 84,
+          "completed": 84,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 231,
+            "mean": 1.0366971337725812,
+            "median": 0.027425521053373814,
+            "p95": 4.144657428958453,
+            "p99": 6.02930367301451,
+            "max": 7.353676613012794,
+            "sum": 239.47703790146625
+          }
+        },
+        "accuracy_finalist": {
+          "n": 231,
+          "correct_or_teacher_agree": 203,
+          "rate": 0.8787878787878788,
+          "nll_or_teacher_cross_entropy": 0.4433104727261114,
+          "brier_or_teacher_brier": 0.21135395116700803,
+          "score_expected_level_mae": 0.08733389277501005,
+          "routed": 131,
+          "completed": 131,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 231,
+            "mean": 1.368280356954249,
+            "median": 0.9070683889440261,
+            "p95": 4.144657428958453,
+            "p99": 6.02930367301451,
+            "max": 7.353676613012794,
+            "sum": 316.0727624564315
+          }
+        }
+      },
+      "by_type": {
+        "choice": {
+          "direct": {
+            "n": 139,
+            "correct_or_teacher_agree": 100,
+            "rate": 0.7194244604316546,
+            "nll_or_teacher_cross_entropy": 0.8075315805861728,
+            "brier_or_teacher_brier": 0.39522492072947685,
+            "score_expected_level_mae": null,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 139,
+              "mean": 0.05668748890530492,
+              "median": 0.02218033600365743,
+              "p95": 0.16966726299142465,
+              "p99": 0.22972076496807858,
+              "max": 0.2542650420218706,
+              "sum": 7.879560957837384
+            }
+          },
+          "transferred_80_50": {
+            "n": 139,
+            "correct_or_teacher_agree": 112,
+            "rate": 0.8057553956834532,
+            "nll_or_teacher_cross_entropy": 0.6726301578441946,
+            "brier_or_teacher_brier": 0.31384339808663003,
+            "score_expected_level_mae": null,
+            "routed": 48,
+            "completed": 48,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 139,
+              "mean": 1.1262967446077743,
+              "median": 0.024674114014487714,
+              "p95": 4.45060507504968,
+              "p99": 6.281338216969743,
+              "max": 7.353676613012794,
+              "sum": 156.55524750048062
+            }
+          },
+          "accuracy_finalist": {
+            "n": 139,
+            "correct_or_teacher_agree": 119,
+            "rate": 0.8561151079136691,
+            "nll_or_teacher_cross_entropy": 0.5396015160770917,
+            "brier_or_teacher_brier": 0.24895584375003005,
+            "score_expected_level_mae": null,
+            "routed": 75,
+            "completed": 75,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 139,
+              "mean": 1.4548014982351396,
+              "median": 0.9627835070132278,
+              "p95": 4.45060507504968,
+              "p99": 6.281338216969743,
+              "max": 7.353676613012794,
+              "sum": 202.21740825468441
+            }
+          }
+        },
+        "noul": {
+          "direct": {
+            "n": 74,
+            "correct_or_teacher_agree": 61,
+            "rate": 0.8243243243243243,
+            "nll_or_teacher_cross_entropy": 0.43519757844670776,
+            "brier_or_teacher_brier": 0.26491784130498336,
+            "score_expected_level_mae": null,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 74,
+              "mean": 0.03909072041986636,
+              "median": 0.024190427968278527,
+              "p95": 0.15327729104319587,
+              "p99": 0.21508848702069372,
+              "max": 0.22060642403084785,
+              "sum": 2.8927133110701106
+            }
+          },
+          "transferred_80_50": {
+            "n": 74,
+            "correct_or_teacher_agree": 64,
+            "rate": 0.8648648648648649,
+            "nll_or_teacher_cross_entropy": 0.3717832403980748,
+            "brier_or_teacher_brier": 0.21289592507840396,
+            "score_expected_level_mae": null,
+            "routed": 29,
+            "completed": 29,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 74,
+              "mean": 0.8299342448637519,
+              "median": 0.029287891986314207,
+              "p95": 3.0512516130693257,
+              "p99": 4.597655316989403,
+              "max": 5.0244947809842415,
+              "sum": 61.41513411991764
+            }
+          },
+          "accuracy_finalist": {
+            "n": 74,
+            "correct_or_teacher_agree": 67,
+            "rate": 0.9054054054054054,
+            "nll_or_teacher_cross_entropy": 0.3167983063049375,
+            "brier_or_teacher_brier": 0.16699367337577914,
+            "score_expected_level_mae": null,
+            "routed": 45,
+            "completed": 45,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 74,
+              "mean": 1.1743794652394246,
+              "median": 0.7692571894440334,
+              "p95": 3.4890609600697644,
+              "p99": 4.597655316989403,
+              "max": 5.0244947809842415,
+              "sum": 86.90408042771742
+            }
+          }
+        },
+        "score": {
+          "direct": {
+            "n": 18,
+            "correct_or_teacher_agree": 14,
+            "rate": 0.7777777777777778,
+            "nll_or_teacher_cross_entropy": 0.3792375954654199,
+            "brier_or_teacher_brier": 0.20179167587530403,
+            "score_expected_level_mae": 0.1816342739862008,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 18,
+              "mean": 0.05197705245356903,
+              "median": 0.020353982981760055,
+              "p95": 0.21539529802976176,
+              "p99": 0.21539529802976176,
+              "max": 0.21554217900848016,
+              "sum": 0.9355869441642426
+            }
+          },
+          "transferred_80_50": {
+            "n": 18,
+            "correct_or_teacher_agree": 17,
+            "rate": 0.9444444444444444,
+            "nll_or_teacher_cross_entropy": 0.22423581585624777,
+            "brier_or_teacher_brier": 0.10403097780949976,
+            "score_expected_level_mae": 0.09169969145058886,
+            "routed": 7,
+            "completed": 7,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 18,
+              "mean": 1.1948142378371105,
+              "median": 0.020479899481870234,
+              "p95": 3.806388360040728,
+              "p99": 3.806388360040728,
+              "max": 4.296254418964963,
+              "sum": 21.50665628106799
+            }
+          },
+          "accuracy_finalist": {
+            "n": 18,
+            "correct_or_teacher_agree": 17,
+            "rate": 0.9444444444444444,
+            "nll_or_teacher_cross_entropy": 0.21983521102503334,
+            "brier_or_teacher_brier": 0.10335381158427898,
+            "score_expected_level_mae": 0.08733389277501005,
+            "routed": 11,
+            "completed": 11,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 18,
+              "mean": 1.4972929874460936,
+              "median": 1.355608771002153,
+              "p95": 3.806388360040728,
+              "p99": 3.806388360040728,
+              "max": 4.296254418964963,
+              "sum": 26.951273774029687
+            }
+          }
+        }
+      },
+      "accuracy_finalist_vs_transferred": {
+        "fixes_vs_transferred": 10,
+        "regressions_vs_transferred": 0,
+        "bootstrap_95pct": {
+          "rate_pp": {
+            "p2_5": 1.7316017316017316,
+            "p97_5": 7.359307359307359
+          },
+          "nll": {
+            "p2_5": -0.1773561273238763,
+            "p97_5": -0.035798650024095185
+          },
+          "brier": {
+            "p2_5": -0.08959450600714315,
+            "p97_5": -0.023640013511901373
+          },
+          "score_mae": {
+            "p2_5": -0.010864146311468283,
+            "p97_5": -0.00028170833386504453
+          },
+          "latency_seconds": {
+            "p2_5": 0.23810463933651113,
+            "p97_5": 0.4332659292124006
+          }
+        }
+      }
+    },
+    "kev-v9-clean": {
+      "source_sha256": "4ca4b28a171d6130f00e078316e9cdfcdedd0933a1b5fb967517c2e20244ad90",
+      "paired_sha256": "c3735d851b8a49f9dc736a8c2bd6a408f9e8a3d85a083b804a0124e9e4a1fa94",
+      "target_semantics": {
+        "verified_label": 1046
+      },
+      "overall": {
+        "direct": {
+          "n": 1046,
+          "correct_or_teacher_agree": 728,
+          "rate": 0.6959847036328872,
+          "nll_or_teacher_cross_entropy": 0.9841937846927967,
+          "brier_or_teacher_brier": 0.44164586585817817,
+          "score_expected_level_mae": 0.297378528794924,
+          "routed": 0,
+          "completed": 0,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 1046,
+            "mean": 0.02272880363853935,
+            "median": 0.02164827549131587,
+            "p95": 0.029965630965307355,
+            "p99": 0.036579097039066255,
+            "max": 0.06448874605121091,
+            "sum": 23.77432860591216
+          }
+        },
+        "transferred_80_50": {
+          "n": 1046,
+          "correct_or_teacher_agree": 815,
+          "rate": 0.7791586998087954,
+          "nll_or_teacher_cross_entropy": 0.8522779464671018,
+          "brier_or_teacher_brier": 0.37027169647874525,
+          "score_expected_level_mae": 0.22632921040822043,
+          "routed": 325,
+          "completed": 323,
+          "fallbacks": 2,
+          "serial_api_seconds": {
+            "n": 1046,
+            "mean": 0.7723621068063573,
+            "median": 0.02243861649185419,
+            "p95": 3.466293593053706,
+            "p99": 7.042965180997271,
+            "max": 12.926318846992217,
+            "sum": 807.8907637194498
+          }
+        },
+        "accuracy_finalist": {
+          "n": 1046,
+          "correct_or_teacher_agree": 851,
+          "rate": 0.8135755258126195,
+          "nll_or_teacher_cross_entropy": 0.7439440288222531,
+          "brier_or_teacher_brier": 0.3113648971845476,
+          "score_expected_level_mae": 0.1636530071709598,
+          "routed": 676,
+          "completed": 674,
+          "fallbacks": 2,
+          "serial_api_seconds": {
+            "n": 1046,
+            "mean": 1.233389146376582,
+            "median": 1.0455858404748142,
+            "p95": 3.5665363029693253,
+            "p99": 7.042965180997271,
+            "max": 12.926318846992217,
+            "sum": 1290.1250471099047
+          }
+        }
+      },
+      "by_type": {
+        "choice": {
+          "direct": {
+            "n": 576,
+            "correct_or_teacher_agree": 343,
+            "rate": 0.5954861111111112,
+            "nll_or_teacher_cross_entropy": 1.344966949626335,
+            "brier_or_teacher_brier": 0.5692832548094673,
+            "score_expected_level_mae": null,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 576,
+              "mean": 0.023859265316079674,
+              "median": 0.022777803969802335,
+              "p95": 0.03248250501928851,
+              "p99": 0.04152873402927071,
+              "max": 0.06448874605121091,
+              "sum": 13.742936822061893
+            }
+          },
+          "transferred_80_50": {
+            "n": 576,
+            "correct_or_teacher_agree": 413,
+            "rate": 0.7170138888888888,
+            "nll_or_teacher_cross_entropy": 1.1380600677295323,
+            "brier_or_teacher_brier": 0.46504721673931,
+            "score_expected_level_mae": null,
+            "routed": 250,
+            "completed": 249,
+            "fallbacks": 1,
+            "serial_api_seconds": {
+              "n": 576,
+              "mean": 1.222316137913064,
+              "median": 0.026308826520107687,
+              "p95": 4.927163486951031,
+              "p99": 8.593527288991027,
+              "max": 12.926318846992217,
+              "sum": 704.0540954379248
+            }
+          },
+          "accuracy_finalist": {
+            "n": 576,
+            "correct_or_teacher_agree": 433,
+            "rate": 0.7517361111111112,
+            "nll_or_teacher_cross_entropy": 1.0180419544357229,
+            "brier_or_teacher_brier": 0.405391147268223,
+            "score_expected_level_mae": null,
+            "routed": 417,
+            "completed": 416,
+            "fallbacks": 1,
+            "serial_api_seconds": {
+              "n": 576,
+              "mean": 1.7244559826189692,
+              "median": 1.552870040468406,
+              "p95": 4.927163486951031,
+              "p99": 8.593527288991027,
+              "max": 12.926318846992217,
+              "sum": 993.2866459885263
+            }
+          }
+        },
+        "noul": {
+          "direct": {
+            "n": 370,
+            "correct_or_teacher_agree": 311,
+            "rate": 0.8405405405405405,
+            "nll_or_teacher_cross_entropy": 0.5029575433062489,
+            "brier_or_teacher_brier": 0.2629504138741171,
+            "score_expected_level_mae": null,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 370,
+              "mean": 0.021399330252284385,
+              "median": 0.020611643500160426,
+              "p95": 0.027540613955352455,
+              "p99": 0.028588318964466453,
+              "max": 0.029965630965307355,
+              "sum": 7.917752193345223
+            }
+          },
+          "transferred_80_50": {
+            "n": 370,
+            "correct_or_teacher_agree": 315,
+            "rate": 0.8513513513513513,
+            "nll_or_teacher_cross_entropy": 0.49062144921610235,
+            "brier_or_teacher_brier": 0.2513388599267001,
+            "score_expected_level_mae": null,
+            "routed": 49,
+            "completed": 49,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 370,
+              "mean": 0.1638454685492655,
+              "median": 0.02084615101921372,
+              "p95": 1.0810138910310343,
+              "p99": 1.4785625930526294,
+              "max": 3.0309378629899584,
+              "sum": 60.622823363228235
+            }
+          },
+          "accuracy_finalist": {
+            "n": 370,
+            "correct_or_teacher_agree": 321,
+            "rate": 0.8675675675675676,
+            "nll_or_teacher_cross_entropy": 0.44608433300775163,
+            "brier_or_teacher_brier": 0.21615934481882615,
+            "score_expected_level_mae": null,
+            "routed": 196,
+            "completed": 196,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 370,
+              "mean": 0.5808176197435682,
+              "median": 0.6673442390165292,
+              "p95": 1.4428534689941444,
+              "p99": 1.9427160779596306,
+              "max": 3.0309378629899584,
+              "sum": 214.90251930512022
+            }
+          }
+        },
+        "score": {
+          "direct": {
+            "n": 100,
+            "correct_or_teacher_agree": 74,
+            "rate": 0.74,
+            "nll_or_teacher_cross_entropy": 0.6867144478058433,
+            "brier_or_teacher_brier": 0.36762767783977907,
+            "score_expected_level_mae": 0.297378528794924,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 100,
+              "mean": 0.02113639590505045,
+              "median": 0.02108840600703843,
+              "p95": 0.0220009179902263,
+              "p99": 0.02294088003691286,
+              "max": 0.023089889029506594,
+              "sum": 2.113639590505045
+            }
+          },
+          "transferred_80_50": {
+            "n": 100,
+            "correct_or_teacher_agree": 87,
+            "rate": 0.87,
+            "nll_or_teacher_cross_entropy": 0.5443019678242003,
+            "brier_or_teacher_brier": 0.26441619502045965,
+            "score_expected_level_mae": 0.22632921040822043,
+            "routed": 26,
+            "completed": 25,
+            "fallbacks": 1,
+            "serial_api_seconds": {
+              "n": 100,
+              "mean": 0.43213844918296673,
+              "median": 0.021293220022926107,
+              "p95": 1.4662308699334972,
+              "p99": 2.52001655503409,
+              "max": 12.458845989021938,
+              "sum": 43.21384491829667
+            }
+          },
+          "accuracy_finalist": {
+            "n": 100,
+            "correct_or_teacher_agree": 97,
+            "rate": 0.97,
+            "nll_or_teacher_cross_entropy": 0.26722085180232186,
+            "brier_or_teacher_brier": 0.12203424045574632,
+            "score_expected_level_mae": 0.1636530071709598,
+            "routed": 63,
+            "completed": 62,
+            "fallbacks": 1,
+            "serial_api_seconds": {
+              "n": 100,
+              "mean": 0.8193588181625819,
+              "median": 0.8340467689849902,
+              "p95": 1.691113028966356,
+              "p99": 2.52001655503409,
+              "max": 12.458845989021938,
+              "sum": 81.93588181625819
+            }
+          }
+        }
+      },
+      "accuracy_finalist_vs_transferred": {
+        "fixes_vs_transferred": 57,
+        "regressions_vs_transferred": 21,
+        "bootstrap_95pct": {
+          "rate_pp": {
+            "p2_5": 1.8164435946462716,
+            "p97_5": 4.97131931166348
+          },
+          "nll": {
+            "p2_5": -0.14596021878925353,
+            "p97_5": -0.07205457833544354
+          },
+          "brier": {
+            "p2_5": -0.07659260207681826,
+            "p97_5": -0.041350277195009354
+          },
+          "score_mae": {
+            "p2_5": -0.10171275320103096,
+            "p97_5": -0.026029160349762916
+          },
+          "latency_seconds": {
+            "p2_5": 0.41503215281169925,
+            "p97_5": 0.5067910566996341
+          }
+        }
+      }
+    },
+    "typed-decisions": {
+      "source_sha256": "143541319ddc4445ba67098c0af0480646e8124d682365d649b8e5947298cc0d",
+      "paired_sha256": "7c2ecc8efca529f475a11cfd89f689cb052c18b8ccbf23cba132178ec80cf981",
+      "target_semantics": {
+        "hard_teacher_label": 2000
+      },
+      "overall": {
+        "direct": {
+          "n": 2000,
+          "correct_or_teacher_agree": 1237,
+          "rate": 0.6185,
+          "nll_or_teacher_cross_entropy": 0.98012896186682,
+          "brier_or_teacher_brier": 0.5366594455578602,
+          "score_expected_level_mae": 0.5718142114825938,
+          "routed": 0,
+          "completed": 0,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 2000,
+            "mean": 0.028902096873498522,
+            "median": 0.029385077010374516,
+            "p95": 0.035461629973724484,
+            "p99": 0.03996694891247898,
+            "max": 0.04350369598250836,
+            "sum": 57.80419374699704
+          }
+        },
+        "transferred_80_50": {
+          "n": 2000,
+          "correct_or_teacher_agree": 1340,
+          "rate": 0.67,
+          "nll_or_teacher_cross_entropy": 0.926455341671373,
+          "brier_or_teacher_brier": 0.5029863627588178,
+          "score_expected_level_mae": 0.5074742189017151,
+          "routed": 977,
+          "completed": 977,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 2000,
+            "mean": 1.1489456579105173,
+            "median": 0.03751479397760704,
+            "p95": 2.9706930649699643,
+            "p99": 3.6863487160298973,
+            "max": 8.61636967305094,
+            "sum": 2297.8913158210344
+          }
+        },
+        "accuracy_finalist": {
+          "n": 2000,
+          "correct_or_teacher_agree": 1365,
+          "rate": 0.6825,
+          "nll_or_teacher_cross_entropy": 0.8821582687252657,
+          "brier_or_teacher_brier": 0.4699970802405581,
+          "score_expected_level_mae": 0.48607930491573853,
+          "routed": 1777,
+          "completed": 1777,
+          "fallbacks": 0,
+          "serial_api_seconds": {
+            "n": 2000,
+            "mean": 1.9814804784360167,
+            "median": 2.1316814486053772,
+            "p95": 3.052941601956263,
+            "p99": 3.806383981136605,
+            "max": 8.61636967305094,
+            "sum": 3962.9609568720334
+          }
+        }
+      },
+      "by_type": {
+        "choice": {
+          "direct": {
+            "n": 600,
+            "correct_or_teacher_agree": 358,
+            "rate": 0.5966666666666667,
+            "nll_or_teacher_cross_entropy": 1.0383454926500515,
+            "brier_or_teacher_brier": 0.5461734111343014,
+            "score_expected_level_mae": null,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 600,
+              "mean": 0.029384110411144016,
+              "median": 0.030049488006625324,
+              "p95": 0.03731272998265922,
+              "p99": 0.04189296194817871,
+              "max": 0.04350369598250836,
+              "sum": 17.63046624668641
+            }
+          },
+          "transferred_80_50": {
+            "n": 600,
+            "correct_or_teacher_agree": 392,
+            "rate": 0.6533333333333333,
+            "nll_or_teacher_cross_entropy": 0.9763971383539943,
+            "brier_or_teacher_brier": 0.5157022542407106,
+            "score_expected_level_mae": null,
+            "routed": 284,
+            "completed": 284,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 600,
+              "mean": 1.262788215224379,
+              "median": 0.03690518351504579,
+              "p95": 3.370921855967026,
+              "p99": 4.598985875141807,
+              "max": 8.61636967305094,
+              "sum": 757.6729291346273
+            }
+          },
+          "accuracy_finalist": {
+            "n": 600,
+            "correct_or_teacher_agree": 393,
+            "rate": 0.655,
+            "nll_or_teacher_cross_entropy": 0.9558431778730259,
+            "brier_or_teacher_brier": 0.4973719628971465,
+            "score_expected_level_mae": null,
+            "routed": 525,
+            "completed": 525,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 600,
+              "mean": 2.193048892773901,
+              "median": 2.364231638464844,
+              "p95": 3.552925248979591,
+              "p99": 5.492452538921498,
+              "max": 8.61636967305094,
+              "sum": 1315.8293356643408
+            }
+          }
+        },
+        "noul": {
+          "direct": {
+            "n": 600,
+            "correct_or_teacher_agree": 438,
+            "rate": 0.73,
+            "nll_or_teacher_cross_entropy": 0.781763055105711,
+            "brier_or_teacher_brier": 0.4553453509151658,
+            "score_expected_level_mae": null,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 600,
+              "mean": 0.0282617121982427,
+              "median": 0.0289901330252178,
+              "p95": 0.03295652393717319,
+              "p99": 0.03837121103424579,
+              "max": 0.041597606032155454,
+              "sum": 16.95702731894562
+            }
+          },
+          "transferred_80_50": {
+            "n": 600,
+            "correct_or_teacher_agree": 460,
+            "rate": 0.7666666666666667,
+            "nll_or_teacher_cross_entropy": 0.7271172572636571,
+            "brier_or_teacher_brier": 0.40571145420822274,
+            "score_expected_level_mae": null,
+            "routed": 197,
+            "completed": 197,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 600,
+              "mean": 0.5886975531280041,
+              "median": 0.031034563027787954,
+              "p95": 2.2863514709752053,
+              "p99": 2.6245399030158296,
+              "max": 3.127277674037032,
+              "sum": 353.21853187680244
+            }
+          },
+          "accuracy_finalist": {
+            "n": 600,
+            "correct_or_teacher_agree": 476,
+            "rate": 0.7933333333333333,
+            "nll_or_teacher_cross_entropy": 0.6782093598018603,
+            "brier_or_teacher_brier": 0.360367007607702,
+            "score_expected_level_mae": null,
+            "routed": 468,
+            "completed": 468,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 600,
+              "mean": 1.4055259469962524,
+              "median": 1.5937284335377626,
+              "p95": 2.4905109219253063,
+              "p99": 2.7455740260193124,
+              "max": 3.127277674037032,
+              "sum": 843.3155681977514
+            }
+          }
+        },
+        "score": {
+          "direct": {
+            "n": 800,
+            "correct_or_teacher_agree": 441,
+            "rate": 0.55125,
+            "nll_or_teacher_cross_entropy": 1.085240993850228,
+            "brier_or_teacher_brier": 0.59050954235755,
+            "score_expected_level_mae": 0.5718142114825938,
+            "routed": 0,
+            "completed": 0,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 800,
+              "mean": 0.029020875226706266,
+              "median": 0.029965710535179824,
+              "p95": 0.034266718896105886,
+              "p99": 0.039398386026732624,
+              "max": 0.04285935591906309,
+              "sum": 23.216700181365013
+            }
+          },
+          "transferred_80_50": {
+            "n": 800,
+            "correct_or_teacher_agree": 488,
+            "rate": 0.61,
+            "nll_or_teacher_cross_entropy": 1.038502557465194,
+            "brier_or_teacher_brier": 0.5664056255603445,
+            "score_expected_level_mae": 0.5074742189017151,
+            "routed": 496,
+            "completed": 496,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 800,
+              "mean": 1.4837498185120057,
+              "median": 2.0629282416193746,
+              "p95": 2.8871656890260056,
+              "p99": 3.2066856221063063,
+              "max": 3.5422290889546275,
+              "sum": 1186.9998548096046
+            }
+          },
+          "accuracy_finalist": {
+            "n": 800,
+            "correct_or_teacher_agree": 496,
+            "rate": 0.62,
+            "nll_or_teacher_cross_entropy": 0.9798562685569995,
+            "brier_or_teacher_brier": 0.5316884727227589,
+            "score_expected_level_mae": 0.48607930491573853,
+            "routed": 784,
+            "completed": 784,
+            "fallbacks": 0,
+            "serial_api_seconds": {
+              "n": 800,
+              "mean": 2.2547700662624264,
+              "median": 2.2877171834988985,
+              "p95": 2.9585825389949605,
+              "p99": 3.2741150619694963,
+              "max": 3.5422290889546275,
+              "sum": 1803.8160530099412
+            }
+          }
+        }
+      },
+      "accuracy_finalist_vs_transferred": {
+        "fixes_vs_transferred": 78,
+        "regressions_vs_transferred": 53,
+        "bootstrap_95pct": {
+          "rate_pp": {
+            "p2_5": 0.15,
+            "p97_5": 2.4
+          },
+          "nll": {
+            "p2_5": -0.06971027150731644,
+            "p97_5": -0.01988763292213823
+          },
+          "brier": {
+            "p2_5": -0.045224322741340646,
+            "p97_5": -0.020643443802005446
+          },
+          "score_mae": {
+            "p2_5": -0.032504004476101106,
+            "p97_5": -0.00949117976173028
+          },
+          "latency_seconds": {
+            "p2_5": 0.7844359048125916,
+            "p97_5": 0.881776994763437
+          }
+        }
+      }
+    }
+  },
+  "timing_definition": "Serial API replay sums direct and routed generation/augmented costs including fallback. Excludes research inspection/checkpoint overhead; not concurrent throughput or deployed-service latency.",
+  "current_integration_scope": "64K startup/fit and small requests; canonical-v2 text/image behavior checks. No full-length 64K generation, independent image quality or current-prompt quality claim."
+}

@@ -145,6 +145,10 @@ use an [explicit vision runtime contract](IMAGE-REASONING.md) in adaptive mode.
 Ordinary native direct requests also support
 multiple questions.
 See [the adaptive contract and limits](ADAPTIVE.md).
+E2B uses separate [8K/64K F16 profiles](E2B.md), with optional MTP4 and vision.
+Its integrated decision client requires an exact runtime contract, including in
+off mode. Native chat thinking is controlled independently; adaptive internal
+generation always sends `chat_template_kwargs.enable_thinking=false`.
 Use merged weights. The tested launcher runs a single loaded
 model, not llama-server router mode. CPU-only and multi-GPU model sharding are
 not release profiles. No benchmark or runtime command calls a paid API.

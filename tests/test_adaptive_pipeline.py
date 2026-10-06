@@ -101,7 +101,7 @@ class AdaptivePipeline(unittest.TestCase):
     def test_e4b_release_policy_routes_and_blends_as_shipped(self):
         manifest, current = load_policy("e4b-calibrated75-g95-v1")
         _, legacy = load_policy("e4b-calibrated50-v1")
-        self.assertEqual(manifest["policy_set_version"], "adaptive-20261005-e4b-v2")
+        self.assertEqual(manifest["policy_set_version"], "adaptive-20261006-e2b-v3")
         self.assertEqual(current["target"], legacy["target"])
         self.assertEqual(current["source_selection_sha256"],
                          "41fedd8f22fb23e1d2046c22a8b460a86af8ad2c7032ec76ff1bb045d690356d")
@@ -109,7 +109,11 @@ class AdaptivePipeline(unittest.TestCase):
             "policy_id": "e4b-calibrated50-v1",
             "source_selection_sha256": legacy["source_selection_sha256"]})
         aggregate = json.loads((ROOT / "docs/reasoning-results.json").read_text())
-        self.assertEqual(aggregate["released_policy_contract"], manifest)
+        released = aggregate["released_policy_contract"]
+        self.assertEqual(released["policy_set_version"], "adaptive-20261005-e4b-v2")
+        self.assertEqual(released["generation"], manifest["generation"])
+        for identifier, definition in released["policies"].items():
+            self.assertEqual(definition, manifest["policies"][identifier])
         study = aggregate["e4b_staged_288_holdout"]
         self.assertEqual(study["current_policy_contract"]["source_selection_sha256"],
                          current["source_selection_sha256"])

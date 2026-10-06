@@ -10,7 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from assets import MODELS, MODEL_ALIASES, acquire, selection
+from assets import MODELS, MODEL_ALIASES, acquire, selection, canonical_model, decision_preset
 from launch_options import DEFAULT_CONTEXT, context_size, memory_note, memory_estimate
 from profiles import PROFILES, resolve_profile
 from verify_model import ROOT
@@ -107,6 +107,7 @@ def main():
     p.add_argument("--reasoning", choices=REASONING_CHOICES, default="off",
                    help="Client routing: off, selective, always; on aliases selective")
     p.add_argument("--mtp", choices=["off", "on"], default="off")
+    p.add_argument("--native-chat-reasoning", choices=["off", "on"], default="off")
     p.add_argument("--vision", choices=["off", "on"])
     p.add_argument("--asset-dir", type=Path, action="append", default=[])
     p.add_argument("--offline", action="store_true")
@@ -136,12 +137,14 @@ def main():
         if a.text_only and vision == "on":
             p.error("Choose --text-only or --vision on")
         selection(a.model, a.reasoning, a.mtp, vision)
+        if canonical_model(a.model) == "e2b-q8":
+            decision_preset(a.model, a.context, vision, a.mtp)
         selected = None
         if not a.download_only:
             selected, _ = resolve_profile(a.profile)
             print(f"Profile: {selected}", flush=True)
-            if selected == "apple-silicon" and (a.reasoning != "off" or a.mtp == "on"):
-                p.error("Optional reasoning/MTP requires Linux/CUDA")
+            if selected == "apple-silicon" and (a.reasoning != "off" or a.mtp == "on" or canonical_model(a.model) == "e2b-q8"):
+                p.error("E2B and optional reasoning/MTP profiles require Linux/CUDA")
             errors = prerequisites(selected, a.skip_build, a.cuda_compiler, a.model, a.context, vision, a.mtp, a.reasoning, a.gpu)
             if a.skip_build and not (ROOT / ".build/bin/winnow-server").is_file():
                 errors.append("No server found. Omit --skip-build to build it.")
@@ -171,12 +174,15 @@ def main():
         command = ["python3", "scripts/winnow.py", "serve", "--model", a.model,
                    "--reasoning", a.reasoning, "--mtp", a.mtp, "--vision", vision,
                    "--context", str(a.context), "--gpu", a.gpu]
+        if a.native_chat_reasoning != "off":
+            command += ["--native-chat-reasoning", a.native_chat_reasoning]
         if a.model_dir.resolve() != ROOT / "models":
             command.extend(["--model-dir", str(a.model_dir.resolve())])
         print("\nReady. Start the server from the repository directory:\n  " + shlex.join(command))
-        example = "examples/adaptive-decision.json" if a.reasoning != "off" else "examples/decisions.json"
+        example = "examples/adaptive-decision.json" if a.reasoning != "off" or canonical_model(a.model) == "e2b-q8" else "examples/decisions.json"
         client = ["python3", "scripts/winnow.py", "decide", "--model", a.model,
-                  "--reasoning", a.reasoning, "--mtp", a.mtp, "--input", example]
+                  "--reasoning", a.reasoning, "--mtp", a.mtp, "--vision", vision,
+                  "--context", str(a.context), "--input", example]
         print("In a second terminal, try:\n  " + shlex.join(client))
         return 0
     except KeyboardInterrupt:

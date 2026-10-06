@@ -25,6 +25,11 @@ numerical settings, accepted overrides and artifact verification.
 | `e4b-calibrated75-g95-v1` (E4B default when opted in) | max probability <0.95 | 1.2041180007310734 /3.4209273427377678 | 25/75 direct/reasoned |
 | `e4b-calibrated50-v1` (legacy) | max probability <0.8 | 1.2041180007310734 /3.4209273427377678 | 50/50 |
 | `q8-fixed50-v1` | max probability <0.8 | 1 /1 | 50/50 |
+| `e2b-raw99-blend50-v2` (experimental) | max probability <0.99 | 1 /1 | 50/50 |
+
+E2B requires an explicit runtime profile and uses a distinct canonical-v2 option
+serialization. Historical E2B measurements do not validate that prompt.
+See [E2B settings and evidence](E2B.md).
 
 Adaptive inputs must have **one named question and a text, object, or array state**.
 Null/scalar states and multiple questions are explicitly rejected. The
@@ -37,13 +42,17 @@ Choice insertion order is preserved; noul uses false/true; score uses
 numeric index order and retains expected score/legend. Ties choose the first
 candidate. Only state, that question, and any supplied images enter the reasoning prompt, never labels,
 benchmark metadata or caller result fields. The supported ordinary chat template
-is used, with reasoning effortnone; no separate thinking mode is claimed.
+is used with `reasoning_effort:"none"` and explicit
+`chat_template_kwargs.enable_thinking=false`. Ordinary native chat thinking is
+controlled separately by `--native-chat-reasoning on|off`.
 
 The default generation profile is temperature 0/seed 314159, max_tokens −1 within
 the selected context, EOS respected, one slot, matching official MTP4 and q8_0 KV.
-A 100-word instruction is a soft instruction, not an output bound. The default
+A 100-word instruction for the released 12B/E4B recipes is a soft instruction,
+not an output bound; E2B retains its distinct uncapped reasoning instruction. The default
 75-second hard client wall deadline closes the HTTP connection. Explicit runtime
 contracts pin their own context/cache settings and bounded phase deadlines.
+E2B profiles use F16 KV and a 180-second generation deadline.
 HTTP requests serialize by backend origin within the client process. Cancelled
 workers retain backend ownership until they exit, even when the caller has
 already returned; there is no process-wide SIGALRM. Native calls serialize with chat in

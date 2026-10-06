@@ -1,4 +1,13 @@
-# Reasoning modes and upgrades
+# E2B support and upgrades
+
+E2B adds exact artifact bindings, 8K/64K F16-KV runtime profiles, optional MTP4
+and text/image decisions. Its native compatibility patch admits width 1536
+while retaining target/assistant width and vocabulary checks. See [E2B setup
+and evidence limits](E2B.md). Model/projector payloads are verified in the private repository.
+
+The new runtime lock requires a matching rebuilt server. Older adaptive clients
+reject its changed identity; upgrade the client, manifests and binary together.
+12B/E4B model files, policy definitions and default settings are preserved.
 
 Choose `--reasoning off`, `selective`, or `always` in the CLI and Python client.
 Off remains the default; existing `on` commands retain selective routing.
@@ -9,7 +18,7 @@ claims. See [mode examples](QUICKSTART.md#reasoning-modes) and [Python/API usage
 
 The E4B study's aggregate evidence and selection/calibration provenance are now
 linked from [its results](REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost).
-Policy constants, model files, and the native server are unchanged by this client update.
+That earlier client update preserved policy constants, model files and the server.
 
 ## Upgrading
 
@@ -27,18 +36,20 @@ git worktree add --detach ../winnow-updated "$WINNOW_RELEASE_TAG"
 ```
 
 An extracted source archive can instead be unpacked into a new directory.
-From the new source directory, use your existing verified model directory and,
-for this client-only update, your existing matching server binary:
+From the new source directory, rebuild the server and reuse your existing verified
+model directory. For example:
 
 ```sh
+python3 scripts/build.py
 python3 scripts/winnow.py serve --model e4b --reasoning selective \
-  --model-dir /absolute/path/to/existing/models \
-  --server /absolute/path/to/existing/.build/bin/winnow-server
+  --model-dir /absolute/path/to/existing/models
 ```
 
 Retain your own model, MTP, context, numerical, port and authentication settings
-in that command. If the release changes `runtime.lock.json` or native patches,
-follow [source setup](QUICKSTART.md#source-setup) to rebuild instead.
+in that command. Follow [source setup](QUICKSTART.md#source-setup) for build
+prerequisites. Reusing the earlier 12B/E4B binary is not compatible with this
+runtime lock. The previous E2B private runtime has the same lock, but distributing
+it still requires its exact build and dependency receipt plus binary checks.
 
 For a downloaded runtime, verify the archive checksum and extract into a new
 directory. Run the new `bin/winnow` and reuse the old model directory with

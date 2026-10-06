@@ -86,7 +86,11 @@ class ReleaseUsability(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Missing verified local asset'):
                     assets.acquire('fixture', models, vision='off', offline=True)
                 fetch.side_effect = urllib.error.HTTPError(item['url'], 404, 'Not Found', {}, None)
-                with self.assertRaisesRegex(ValueError, 'HTTP 404.*planned.*No alternative'):
+                with self.assertRaisesRegex(ValueError, 'not published.*planned'):
+                    assets.acquire('fixture', models, vision='off')
+                fetch.assert_not_called()
+                item['availability'] = 'published'
+                with self.assertRaisesRegex(ValueError, 'HTTP 404.*published.*No alternative'):
                     assets.acquire('fixture', models, vision='off')
                 target.symlink_to(cache/'model.gguf')
                 with self.assertRaisesRegex(ValueError, 'escapes'):
@@ -104,7 +108,10 @@ class ReleaseUsability(unittest.TestCase):
                         command = winnow.serve_command(a)
                     self.assertEqual('--assistant' in command, mtp == 'on')
                     self.assertIn('/models/' + spec['model']['file'], command)
-                    self.assertEqual('--experimental-adaptive' in command, reasoning == 'on' or mtp == 'on')
+                    self.assertEqual('--experimental-adaptive' in command,
+                                     model != 'e2b-q8' and (reasoning == 'on' or mtp == 'on'))
+                    if model == 'e2b-q8':
+                        self.assertIn(assets.decision_preset(model, 8192, 'off', mtp), command)
         self.assertIn('projector', assets.selection('q8', 'off', 'on', 'on')[1])
         with self.assertRaises(ValueError): assets.selection('e4b-q8', 'on', 'off', 'on')
 

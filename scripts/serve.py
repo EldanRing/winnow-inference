@@ -30,7 +30,7 @@ def main():
         "--model-dir", type=Path, default=ROOT / "models", help="Directory populated by setup.py"
     )
     p.add_argument("--model", type=Path, help="Custom GGUF; defaults to the release in --model-dir")
-    p.add_argument("--preset", choices=list(RUNTIME_PRESETS), help="Exact Linux/CUDA 8K MTP artifact preset; direct decision API remains the default")
+    p.add_argument("--preset", choices=list(RUNTIME_PRESETS), help="Pinned Linux/CUDA artifact/settings profile; direct decision API remains the default")
     p.add_argument("--alias", default="Winnow-12B", help="Model name advertised by the server")
     p.add_argument("--mmproj", type=Path)
     p.add_argument("--text-only", action="store_true", help="Do not load a vision projector")
@@ -70,20 +70,28 @@ def main():
     )
     p.add_argument("--assistant", type=Path, help="Exact matching BF16 MTP GGUF for the opt-in profile")
     p.add_argument("--mtp", choices=["on", "off"], default="on",
-                   help="Adaptive profile drafting; on preserves the original profile. Named MTP presets require on.")
+                   help="Adaptive profile drafting; must match a named profile's MTP setting")
+    p.add_argument("--native-chat-reasoning", choices=["on", "off"], default="off",
+                   help="Default thinking for ordinary chat, independent of adaptive decision routing")
+    p.add_argument("--backend-sampling", choices=["on", "off"],
+                   help="E2B F16 profiles default to backend temperature sampling; others default off")
     p.add_argument("--api-key-file", type=Path, help="Backend authentication key file")
     p.add_argument("--http-threads", type=int, help="HTTP workers; does not change GPU inference slots")
     a, extra = p.parse_known_args()
     experimental = None
     serving = None
     if a.preset:
-        if a.mtp != "on":
-            p.error("Named MTP presets require --mtp on; use winnow.py for an MTP-off profile")
         serving = RUNTIME_PRESETS[a.preset]
+        if (a.mtp == "on") != serving.get("resident_mtp", True):
+            p.error("--mtp must match the named profile's drafting setting")
+        if a.mtp == "off" and a.assistant:
+            p.error("MTP off does not load an assistant")
         if serving["status"] != "validated":
-            print("Memory warning: Q8 vision + MTP exceeded the measured 16 GB profile; custom configurations are unvalidated.", file=sys.stderr, flush=True)
+            note = ("Q8 vision + MTP exceeded the measured 16 GB profile." if serving["status"] == "blocked"
+                    else "E2B profile is experimental; 64K evidence covers fit and small requests only.")
+            print("Profile note: " + note, file=sys.stderr, flush=True)
         if platform.system() != "Linux" or a.profile != "auto" or a.experimental_adaptive:
-            p.error("Named MTP presets require Linux/CUDA; choose one preset without --profile/--experimental-adaptive")
+            p.error("Named presets require Linux/CUDA; choose one preset without --profile/--experimental-adaptive")
         if a.text_only != serving["text_only"] and a.text_only:
             p.error("Vision preset requires its projector; use the explicit text preset for text only")
         a.text_only = serving["text_only"]
@@ -94,7 +102,12 @@ def main():
                 setattr(a, name, value)
         a.alias = serving["alias"]
         a.model = a.model or a.model_dir / serving["target"]["file"]
-        a.assistant = a.assistant or a.model_dir / "assistants" / serving["assistant"]["file"]
+        if a.mtp == "on":
+            a.assistant = a.assistant or a.model_dir / "assistants" / serving["assistant"]["file"]
+        if a.backend_sampling is None:
+            a.backend_sampling = serving.get("backend_sampling", "off")
+        if serving.get("decision_profile") and any(getattr(a, name) != value for name, value in serving["settings"].items()):
+            p.error("E2B named profiles require their exact settings; select the matching 8K/64K profile")
         if serving["projector"]:
             a.mmproj = a.mmproj or a.model_dir / serving["projector"]["file"]
         if any(flag not in {"--metrics", "--slots"} for flag in extra):
@@ -130,6 +143,9 @@ def main():
             setattr(a, name, value)
     a.batch = 2048 if a.batch is None else a.batch
     a.ubatch = 1024 if a.ubatch is None else a.ubatch
+    a.backend_sampling = a.backend_sampling or "off"
+    if a.backend_sampling == "on" and not (serving and serving["alias"] == "Winnow-E2B" and a.cache == "f16"):
+        p.error("Backend temperature sampling requires an E2B F16 named profile")
     if a.text_only and a.mmproj:
         p.error("Choose --text-only or --mmproj, not both")
     if a.model is None:
@@ -159,6 +175,8 @@ def main():
     for key in list(env):
         if key.startswith(("LLAMA_ARG_MODEL", "LLAMA_ARG_MMPROJ", "LLAMA_ARG_SPEC", "LLAMA_ARG_HF", "LLAMA_ARG_LORA")):
             env.pop(key)
+    for key in ("LLAMA_ARG_REASONING", "LLAMA_ARG_BACKEND_SAMPLING", "LLAMA_ARG_SAMPLERS"):
+        env.pop(key, None)
     env["WINNOW_MANAGED_LAUNCH"] = "1"
     # Stale experimental variables must not enable features in the normal launcher.
     for name in ["WINNOW_RESIDENT_MTP", "WINNOW_RESIDENT_NGRAM", "WINNOW_NATIVE_CHECKPOINT",
@@ -177,14 +195,17 @@ def main():
     if serving:
         try:
             verify(a.model, serving["target"])
-            verify(a.assistant, serving["assistant"])
+            if a.mtp == "on":
+                verify(a.assistant, serving["assistant"])
             if serving["projector"]:
                 verify(a.mmproj, serving["projector"])
         except (OSError, ValueError) as error:
             p.error(str(error))
-        env.update(WINNOW_RESIDENT_MTP="1", WINNOW_RESIDENT_VISION_MTP="0" if a.text_only else "1",
-                   WINNOW_TARGET_SHA256=serving["target"]["sha256"],
-                   WINNOW_ASSISTANT_SHA256=serving["assistant"]["sha256"])
+        env.update(WINNOW_RESIDENT_MTP="1" if a.mtp == "on" else "0",
+                   WINNOW_RESIDENT_VISION_MTP="1" if a.mtp == "on" and not a.text_only else "0",
+                   WINNOW_TARGET_SHA256=serving["target"]["sha256"])
+        if a.mtp == "on":
+            env["WINNOW_ASSISTANT_SHA256"] = serving["assistant"]["sha256"]
     if experimental:
         try:
             verify(a.model, experimental["target"])
@@ -250,7 +271,7 @@ def main():
         str(a.port),
         "--jinja",
         "--reasoning",
-        "off",
+        a.native_chat_reasoning,
         "--no-warmup",
         "--cache-ram",
         "0",
@@ -267,7 +288,9 @@ def main():
         if not 1 <= a.http_threads <= 256:
             p.error("HTTP workers must be1–256")
         args += ["--threads-http", str(a.http_threads)]
-    if (experimental and a.mtp == "on") or serving:
+    if a.backend_sampling == "on":
+        args += ["--backend-sampling", "--samplers", "temperature"]
+    if (experimental or serving) and a.mtp == "on":
         args += ["--spec-type", "draft-mtp", "--spec-draft-model", str(a.assistant.resolve()),
                  "--spec-draft-n-max", "4", "--spec-draft-n-min", "0", "--spec-draft-p-min", "0",
                  "--spec-draft-type-k", "q8_0", "--spec-draft-type-v", "q8_0",

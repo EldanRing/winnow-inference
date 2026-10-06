@@ -1,0 +1,11 @@
+--- a/tools/server/server-context.cpp
++++ b/tools/server/server-context.cpp
+@@ -1411,7 +1411,7 @@
+         params = params_base;
+ 
+         if (winnow_resident_spec && (!spec || !ctx_dft || !model_dft ||
+-                (llama_model_n_embd(model_tgt) != 3840 && llama_model_n_embd(model_tgt) != 2560) ||
++                (llama_model_n_embd(model_tgt) != 3840 && llama_model_n_embd(model_tgt) != 2560 && llama_model_n_embd(model_tgt) != 1536) ||
+                 llama_model_n_embd_out(model_dft) != llama_model_n_embd(model_tgt) ||
+                 llama_vocab_n_tokens(llama_model_get_vocab(model_tgt)) != 262144))
+             throw std::invalid_argument("Resident MTP target/assistant context unavailable or unsupported target shape");

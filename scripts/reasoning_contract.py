@@ -35,20 +35,23 @@ def load_profile(value):
     presets = json.loads((ROOT / "manifests/runtime-presets-v1.json").read_text())["presets"]
     if isinstance(value, str) and value in presets:
         preset = presets[value]
-        if preset["status"] != "validated" or preset["text_only"]:
-            raise ValueError("Unsupported image reasoning preset; choose a supported vision profile")
+        if (preset["status"] == "blocked" or (preset["status"] != "validated" and not preset.get("decision_profile"))
+                or (preset["text_only"] and not preset.get("decision_profile"))):
+            raise ValueError("Unsupported reasoning preset; choose a supported runtime profile")
         settings = preset["settings"]
+        mtp, vision = preset.get("resident_mtp", True), not preset["text_only"]
         expected = dict(runtime_sha256=hashlib.sha256((ROOT / "runtime.lock.json").read_bytes()).hexdigest(),
-                        target_sha256=preset["target"]["sha256"], assistant_sha256=preset["assistant"]["sha256"],
-                        resident_mtp=True, vision=True, context=settings["decision_context"],
+                        target_sha256=preset["target"]["sha256"], assistant_sha256=preset["assistant"]["sha256"] if mtp else None,
+                        resident_mtp=mtp, vision=vision, context=settings["decision_context"],
                         chat_context=settings["context"], cache_type=settings["cache"],
                         memory_setting=settings["memory"], parallel=settings["decision_parallel"],
                         **{k: settings[k] for k in ("chat_parallel", "head", "pipeline", "batch", "ubatch")})
         value = dict(schema_version=1, id=value, alias=preset["alias"], runtime=expected,
-                     max_images=16, native_seconds=30, generation_seconds=75,
+                     max_images=16 if vision else 0, native_seconds=preset.get("native_seconds", 30),
+                     generation_seconds=preset.get("generation_seconds", 75),
                      launcher_requirements={"no_context_shift": True,
-                                            "projector_sha256": preset["projector"]["sha256"],
-                                            "mtp_draft_n_max": 4})
+                                            "projector_sha256": preset["projector"]["sha256"] if vision else None,
+                                            "mtp_draft_n_max": 4 if mtp else None})
     profile = read_object(value)
     if type(profile.get("schema_version")) is not int or profile["schema_version"] != 1 or not all(isinstance(profile.get(k), str) and profile[k] for k in ("id", "alias")):
         raise ValueError("Invalid runtime profile version/id/alias")
