@@ -7,28 +7,41 @@ The older model names and low-level preset names remain available as aliases.
 
 ## Cache precision
 
-Use **F16 target KV cache for E2B**. Every named E2B text/vision, 8K/64K,
-MTP-on/off profile already selects F16. Keep the assistant's draft KV cache
-at **Q8_0**, as tested; its BF16 weights are a separate setting.
+**F16 is the default and recommended target K/V cache for every supported
+model**, on Linux/CUDA and Apple Silicon. Use `--cache q8_0` explicitly for
+quantized target cache. This changes cache precision, not model weight precision.
 
-| Launch path | Target KV default | Assistant draft KV with MTP |
+| Model/launch path | Target KV default | Retained draft cache flags with MTP |
 |---|---|---|
-| E2B Linux/CUDA profiles | F16, recommended | Q8_0 |
-| 12B Q8, 12B NVFP4 and E4B Linux/CUDA profiles | Q8_0, recorded release recipe | Q8_0 |
-| Apple Silicon direct profile | F16 | MTP is not part of this profile |
+| 12B Q8, 12B NVFP4, E4B and E2B Linux/CUDA | F16 | Q8_0 |
+| Apple Silicon direct | F16 | MTP is not part of this profile |
 
-The matched E2B cache confirmation changed only target KV: F16 scored 37/48
-versus 35/48 with Q8_0, with NLL 0.776 versus 0.853 and Brier 0.398 versus
-0.445. Mean client time was 0.891 versus 0.911 seconds; matched routed decode
-was 395.3 versus 355.5 tokens/s. Outputs and lengths changed. The owner chose
-F16 as the preferred E2B configuration, and the completed full-panel E2B run
-uses F16. See [E2B evidence](E2B.md).
+Assistant draft-cache flags stay Q8_0 and assistant weights stay BF16. In the
+pinned Gemma 4 assistant implementation, its attention shares the target K/V
+tensors: F16 target cache therefore means F16 attention cache for the assistant
+too. There is no separately allocated assistant K/V pool for these shared layers.
+No Q8-versus-F16 draft-flag benchmark has been run; the flags are retained from
+the tested launch recipe. Target weights
+remain their selected Q8/NVFP4 format; projector weights are unchanged.
 
-The recorded 12B/NVFP4/E4B release measurements use Q8_0 target KV; this E2B
-comparison does not establish a cache preference for those models. Their
-existing defaults and the Apple Silicon profile are retained. `--cache f16`
-is an explicit target-cache override for the configurable 12B/E4B launchers;
-it does not change weight quantization or the assistant draft cache.
+For example, choose quantized target cache explicitly on both the server and
+profile-checked client:
+
+```sh
+python3 scripts/winnow.py serve --model e2b --cache q8_0 --mtp on
+python3 scripts/winnow.py decide --model e2b --cache q8_0 --mtp on \
+  --reasoning selective --input examples/adaptive-decision.json
+```
+
+The server and client derive the same explicit cache contract. E2B's optional
+backend sampler is used with F16 target cache; selecting Q8_0 leaves that sampler
+off. Context, model identity, MTP4 and the assistant draft cache are preserved.
+
+Historical 12B/NVFP4/E4B benchmark receipts retain their measured Q8_0 target
+cache settings. The cache default change does not relabel those measurements.
+The E2B cache comparison and completed full-panel run use their recorded cache
+settings in [E2B evidence](E2B.md). F16 can increase memory use; existing memory
+figures remain tied to their original recipes.
 
 All unified presets default to 8K text, MTP off and reasoning off. Enable MTP
 explicitly with `--mtp on` on download, serve and matching client commands.
@@ -42,8 +55,8 @@ Image reasoning supports the E4B and NVFP4 8K vision+MTP presets; other contexts
 need an [explicit runtime contract](IMAGE-REASONING.md). Q8 vision plus MTP
 exceeded the measured 16 GB profile; custom/larger
 configurations are unvalidated. E2B adds experimental 8K/64K text/vision profiles
-with F16 KV, backend temperature sampling and MTP4 or explicit MTP off. Its named
-profiles pin numerical settings, and its assets currently require verified local
+with F16 target KV by default, backend temperature sampling and MTP4 or explicit MTP off. Its named
+profiles pin numerical settings except the explicit target-cache selection, and its assets currently require verified local
 reuse. See [E2B setup and limits](E2B.md). No silent MTP disable or context reduction occurs.
 
 Memory estimates are advisory, not admission guarantees. Context, images, cache,

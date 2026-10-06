@@ -44,7 +44,9 @@ python3 scripts/winnow.py serve --model q8 --vision on --context 64k --profile 5
 The [CUDA toolkit](https://developer.nvidia.com/cuda-downloads) must be installed
 separately. Blackwell requires CUDA 12.8 or newer. Setup checks the driver,
 compiler and supported GPU architecture before downloading weights. The 64K
-profile uses Q8 KV, four decision branches, one chat slot and exclusive scheduling.
+profile now defaults to F16 target KV, four decision branches, one chat slot
+and exclusive scheduling. Use `--cache q8_0` for the historical quantized-cache
+recipe; the recorded capacity measurements below retain that setting.
 
 Both paths download about 12.85 GB to `models/gguf/`, verify the release manifest,
 and compile the pinned runtime. You do not need `hf`, pip packages or an API key.
@@ -169,6 +171,11 @@ values are in [the manifest](../manifests/models.json). Do not apply a training
 adapter on top of an already merged Winnow model.
 
 ## Launch profiles
+
+F16 target K/V cache is the default and recommendation for every model on both
+platforms. The historical capacity-reproduction command below explicitly opts
+into Q8_0 target cache. Assistant draft cache remains Q8_0 when MTP is enabled.
+
 
 The following command reproduces the measured release profile: RTX 5070 Ti 16 GB,
 65,536 context positions, vision, four decision branches, one chat slot, Q8 KV,

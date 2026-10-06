@@ -30,7 +30,7 @@ def read_object(value):
     return result
 
 
-def load_profile(value):
+def load_profile(value, cache=None):
     """A path/dict is operator configuration; never take it from a decision request."""
     presets = json.loads((ROOT / "manifests/runtime-presets-v1.json").read_text())["presets"]
     if isinstance(value, str) and value in presets:
@@ -53,6 +53,12 @@ def load_profile(value):
                                             "projector_sha256": preset["projector"]["sha256"] if vision else None,
                                             "mtp_draft_n_max": 4 if mtp else None})
     profile = read_object(value)
+    if cache is not None:
+        if cache not in {"f16", "q8_0"}:
+            raise ValueError("Target cache must be f16 or q8_0")
+        if not isinstance(profile.get("runtime"), dict):
+            raise ValueError("Runtime profile must pin identity and cache fields")
+        profile["runtime"]["cache_type"] = cache
     if type(profile.get("schema_version")) is not int or profile["schema_version"] != 1 or not all(isinstance(profile.get(k), str) and profile[k] for k in ("id", "alias")):
         raise ValueError("Invalid runtime profile version/id/alias")
     expected = profile.get("runtime", {})

@@ -5,7 +5,7 @@ import platform
 PROFILES = {
     "5070ti-64k": {
         "context": 65536,
-        "cache": "q8_0",
+        "cache": "f16",
         "decision_parallel": 4,
         "chat_parallel": 1,
         "memory": "exclusive",

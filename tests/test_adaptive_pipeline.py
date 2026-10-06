@@ -370,7 +370,7 @@ class AdaptivePipeline(unittest.TestCase):
             self.assertEqual(result["environment"]["WINNOW_RESIDENT_MTP"], "1")
             self.assertEqual(result["environment"]["WINNOW_CONTEXT"], "8192")
             self.assertEqual(result["environment"]["WINNOW_MEMORY"], "auto")
-            self.assertEqual(result["environment"]["WINNOW_CACHE"], "q8_0")
+            self.assertEqual(result["environment"]["WINNOW_CACHE"], "f16")
             command = result["command"]
             self.assertEqual(command[command.index("--alias") + 1], "Winnow-E4B")
             self.assertEqual(command[command.index("--spec-draft-n-max") + 1], "4")

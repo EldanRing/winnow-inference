@@ -234,3 +234,7 @@ packaging.
 
 The code is MIT licensed. Model weights retain their own model terms. Nothing is
 published automatically by these scripts.
+
+Target K/V cache defaults to **F16 for all models**. Use `--cache q8_0` explicitly
+for quantized target cache. Assistant draft-cache flags remain Q8_0;
+Gemma 4 assistant attention shares target K/V tensors. Weight precision is independent. See [cache settings](docs/PRESETS-AND-ASSETS.md#cache-precision).

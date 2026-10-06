@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 from adaptive_policy import DecisionPipeline, REASONING_CHOICES
 from assets import MODELS, MODEL_ALIASES, selection
 from http_client import request_headers
-from reasoning_contract import BackendUnavailable, RequestCancelled
+from reasoning_contract import BackendUnavailable, RequestCancelled, load_profile
 
 
 class _BackendState:
@@ -201,6 +201,7 @@ def main():
     parser.add_argument("--policy", help="Versioned policy id; local policies require --policy-manifest and --runtime-profile")
     parser.add_argument("--policy-manifest", type=Path, help="Trusted local policy manifest (never request-controlled)")
     parser.add_argument("--runtime-profile", help="Supported vision preset name or trusted runtime-contract JSON path")
+    parser.add_argument("--cache", choices=["f16", "q8_0"], help="Expected target cache override for an explicit runtime profile")
     parser.add_argument("--mtp", choices=["on", "off"], default="on", help="Must match the adaptive server's MTP setting")
     args = parser.parse_args()
     try:
@@ -210,9 +211,10 @@ def main():
                 raise ValueError("Decision input must be an object")
             body["model"] = args.model
         target = selection(args.target)[0] if args.target else None
+        runtime_profile = load_profile(args.runtime_profile, cache=args.cache) if args.runtime_profile and args.cache else args.runtime_profile
         response = DecisionPipeline(HTTPTransport(args.base_url), args.mode, args.policy, args.mtp,
                                     target, reasoning=args.reasoning, policy_manifest=args.policy_manifest,
-                                    runtime_profile=args.runtime_profile).decide(body)
+                                    runtime_profile=runtime_profile).decide(body)
         note = response.get("winnow", {}).get("adaptive", {}).get("configuration_note")
         if note:
             print(note, file=sys.stderr)

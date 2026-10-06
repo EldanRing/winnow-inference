@@ -43,7 +43,7 @@
       "settings": {
         "context": 8192,
         "decision_context": 8192,
-        "cache": "q8_0",
+        "cache": "f16",
         "memory": "auto",
         "decision_parallel": 4,
         "chat_parallel": 1,
@@ -52,11 +52,12 @@
         "head": "selected",
         "pipeline": "optimized"
       },
-      "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately.",
-      "blocker": "RTX5070Ti16GB: native compute context allocation failed with cudaMalloc out of memory at the first native request. No silent MTP disable, context reduction or CPU offload. Use explicit Q8 text preset or original direct vision profile."
+      "scope": "F16 target KV is the current default. Historical GPU measurements used Q8_0 target KV; draft flags remain Q8_0; Gemma 4 assistant attention shares target KV.",
+      "blocker": "RTX5070Ti16GB: native compute context allocation failed with cudaMalloc out of memory at the first native request. No silent MTP disable, context reduction or CPU offload. Use explicit Q8 text preset or original direct vision profile.",
+      "historical_validation_target_cache": "q8_0"
     },
     "12b-q8-text8k-mtp": {
-      "status": "validated",
+      "status": "experimental",
       "alias": "Winnow-12B",
       "target": {
         "bytes": 12669646592,
@@ -92,7 +93,7 @@
       "settings": {
         "context": 8192,
         "decision_context": 8192,
-        "cache": "q8_0",
+        "cache": "f16",
         "memory": "auto",
         "decision_parallel": 4,
         "chat_parallel": 1,
@@ -101,10 +102,11 @@
         "head": "selected",
         "pipeline": "optimized"
       },
-      "scope": "Direct native text decisions and ordinary text chat; no vision projector or image support. Text-only adaptive calibration is separately explicit."
+      "scope": "F16 target KV is the current default. Historical GPU measurements used Q8_0 target KV; draft flags remain Q8_0; Gemma 4 assistant attention shares target KV.",
+      "historical_validation_target_cache": "q8_0"
     },
     "12b-nvfp4-vision8k-mtp": {
-      "status": "validated",
+      "status": "experimental",
       "alias": "Winnow-12B",
       "target": {
         "bytes": 8163448416,
@@ -144,7 +146,7 @@
       "settings": {
         "context": 8192,
         "decision_context": 8192,
-        "cache": "q8_0",
+        "cache": "f16",
         "memory": "auto",
         "decision_parallel": 4,
         "chat_parallel": 1,
@@ -153,10 +155,12 @@
         "head": "selected",
         "pipeline": "optimized"
       },
-      "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately."
+      "scope": "F16 target KV is the current default. Historical GPU measurements used Q8_0 target KV; draft flags remain Q8_0; Gemma 4 assistant attention shares target KV.",
+      "historical_validation_target_cache": "q8_0",
+      "decision_profile": true
     },
     "e4b-q8-vision8k-mtp": {
-      "status": "validated",
+      "status": "experimental",
       "alias": "Winnow-E4B",
       "target": {
         "bytes": 8005437472,
@@ -195,7 +199,7 @@
       "settings": {
         "context": 8192,
         "decision_context": 8192,
-        "cache": "q8_0",
+        "cache": "f16",
         "memory": "auto",
         "decision_parallel": 4,
         "chat_parallel": 1,
@@ -204,7 +208,9 @@
         "head": "selected",
         "pipeline": "optimized"
       },
-      "scope": "Direct native vision and ordinary chat; adaptive calibration supports text-only server profiles separately."
+      "scope": "F16 target KV is the current default. Historical GPU measurements used Q8_0 target KV; draft flags remain Q8_0; Gemma 4 assistant attention shares target KV.",
+      "historical_validation_target_cache": "q8_0",
+      "decision_profile": true
     },
     "e2b-q8-text8k-direct": {
       "status": "experimental",
@@ -234,7 +240,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-text8k-mtp": {
       "status": "experimental",
@@ -288,7 +294,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision8k-direct": {
       "status": "experimental",
@@ -322,7 +328,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision8k-mtp": {
       "status": "experimental",
@@ -380,7 +386,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-text64k-direct": {
       "status": "experimental",
@@ -410,7 +416,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-text64k-mtp": {
       "status": "experimental",
@@ -464,7 +470,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision64k-direct": {
       "status": "experimental",
@@ -498,7 +504,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision64k-mtp": {
       "status": "experimental",
@@ -556,7 +562,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft-cache flags and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     }
   }
 }

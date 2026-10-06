@@ -135,7 +135,8 @@ service because the selected projection/shared-context path does not support
 those variants in the default profile. This release has an explicit
 `scripts/serve.py --experimental-adaptive POLICY --assistant PATH --text-only`
 Linux/CUDA profile for the pinned matching resident-MTP4 artifacts. It defaults to
-8K contexts, selected head, optimized pipeline and q8_0 KV. Context and numerical
+8K contexts, selected head, optimized pipeline and F16 target KV.
+Use `--cache q8_0` explicitly for quantized target KV; MTP draft KV stays Q8_0. Context and numerical
 settings can be overridden; MTP still requires one chat slot and auto/mixed memory. The normal profile stays unchanged; other speculative combinations,
 vision, LoRA and model/assistant substitutions are excluded from this opt-in mode.
 The versioned adaptive client supports one question and a text, object, or array

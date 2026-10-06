@@ -50,12 +50,16 @@ is used with `reasoning_effort:"none"` and explicit
 controlled separately by `--native-chat-reasoning on|off`.
 
 The default generation profile is temperature 0/seed 314159, max_tokens −1 within
-the selected context, EOS respected, one slot, matching official MTP4 and q8_0 KV.
+the selected context, EOS respected, one slot, matching official MTP4, F16 target
+KV and retained Q8_0 assistant draft-cache flags. Gemma 4 assistant attention
+shares the target K/V tensors. `--cache q8_0` is an explicit target-cache option.
 A 100-word instruction for the released 12B/E4B recipes is a soft instruction,
 not an output bound; E2B retains its distinct uncapped reasoning instruction. The default
 75-second hard client wall deadline closes the HTTP connection. Explicit runtime
 contracts pin their own context/cache settings and bounded phase deadlines.
-E2B profiles use F16 KV and a 180-second generation deadline.
+E2B profiles default to F16 target KV and use a 180-second generation deadline.
+Historical Q8-cache receipts and the `measured_profile` flag retain their original
+cache definition; selecting the new F16 default does not relabel those results.
 HTTP requests serialize by backend origin within the client process. Cancelled
 workers retain backend ownership until they exit, even when the caller has
 already returned; there is no process-wide SIGALRM. Native calls serialize with chat in

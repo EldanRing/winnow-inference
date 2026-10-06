@@ -2554,6 +2554,14 @@
       "frozen_speed_gate_passed": false,
       "outputs_changed": true
     },
-    "other_linux_model_defaults": "Retain Q8_0 target/draft KV for12B Q8/NVFP4 andE4B recorded recipes; no matched F16 confirmation for them in this cache study."
+    "other_linux_model_defaults": "F16 target KV is now the owner-selected default for all models; historical12B/NVFP4/E4B Q8-cache benchmark receipts remain unchanged.",
+    "all_model_default_update": {
+      "target_kv": "f16",
+      "explicit_quantized_target_option": "q8_0",
+      "assistant_draft_kv": "q8_0",
+      "gpu_inference_for_this_change": false,
+      "historical_cache_receipts_relabelled": false
+    },
+    "effective_assistant_kv": "Pinned Gemma 4 MTP assistant shares target K/V tensors; draft-cache flags remainq8_0 but do not create a separate Q8 pool for these shared layers."
   }
 }

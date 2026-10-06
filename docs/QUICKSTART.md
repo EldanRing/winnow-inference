@@ -55,9 +55,10 @@ configurations are unvalidated. E2B has a recorded bounded MTP on/off check;
 Dani confirms his own 64K testing. Reported full-panel scores use 8K.
 
 All four model selectors default to **8K text, reasoning off, MTP off**.
-E2B is configured and recommended with **F16 target KV cache**; assistant draft KV
-remains Q8_0 when MTP is enabled. Other Linux model recipes retain their
-recorded Q8_0 target cache. See [cache precision](PRESETS-AND-ASSETS.md#cache-precision).
+All models are configured and recommended with **F16 target KV cache**; assistant
+draft-cache flags remain Q8_0 when MTP is enabled. Gemma 4 assistants share the
+target K/V tensors. Use `--cache q8_0` explicitly for
+quantized target cache. See [cache precision](PRESETS-AND-ASSETS.md#cache-precision).
 E2B is
 Linux/CUDA only and pins its named profile settings. For 12B/E4B, context, native
 branches, batch, microbatch and cache can be overridden. MTP requires one chat
@@ -73,8 +74,9 @@ available through `scripts/serve.py`.
 | `e4b` — E4B Q8 | 8K, text, MTP/reasoning off | 8.4–10.4 GiB |
 | `e2b` — E2B Q8 | 8K, text, MTP/reasoning off | 5.5–7.5 GiB |
 
-12B/E4B estimates assume q8 KV and four native branches; E2B uses F16 KV and
-one native branch. All use one chat slot. Context,
+All models now default to F16 target KV. These advisory memory ranges retain
+the earlier measured recipes; F16 memory use can differ. 12B/E4B use four native
+branches; E2B uses one. All use one chat slot. Context,
 images, cache precision, batches, concurrency, hardware and other GPU workloads
 change usage. Setup warns about estimated capacity; it does not impose a blanket
 16 GB gate. Historical measured baselines on RTX 5070 Ti: E4B direct 8K text

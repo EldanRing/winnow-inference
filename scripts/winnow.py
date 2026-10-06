@@ -31,6 +31,8 @@ def serve_command(a):
         args += ['--experimental-adaptive', spec['policy'], '--text-only', '--mtp', a.mtp]
     elif a.vision == 'off':
         args += ['--text-only']
+    if getattr(a, 'cache', None) is not None:
+        args += ['--cache', a.cache]
     if a.mtp == 'on':
         args += ['--assistant', str(a.model_dir / spec['assistant']['file'])]
     if a.vision == 'on':
@@ -47,6 +49,7 @@ def main():
     p.add_argument('action', choices=['download', 'serve', 'decide', 'presets', 'setup'])
     p.add_argument('--model', '--preset', choices=[*MODEL_ALIASES, *MODELS], default='q8', help='Short model preset; explicit mode/context flags override defaults')
     p.add_argument('--context', type=context_size, default=DEFAULT_CONTEXT, help='Tokens, e.g. 4k, 16k or 65536 (default: 8k)')
+    p.add_argument('--cache', choices=['f16', 'q8_0'], default='f16', help='Target K/V cache (default: f16); draft cache flags stay q8_0')
     p.add_argument('--model-dir', type=Path, default=ROOT / 'models')
     p.add_argument('--reasoning', choices=REASONING_CHOICES, default='off',
                    help='Client routing: off (default), selective, always; on aliases selective')
@@ -93,6 +96,8 @@ def main():
                 command += ['--runtime-profile', decision_preset(a.model, a.context, a.vision, a.mtp)]
                 if a.reasoning == 'off':
                     command += ['--mtp', a.mtp]
+            if a.cache and '--runtime-profile' in command:
+                command += ['--cache', a.cache]
             subprocess.run(command + extra, check=True)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         p.exit(1, 'Winnow: ' + str(error) + '\n')

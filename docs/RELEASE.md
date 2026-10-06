@@ -33,6 +33,16 @@ and its dependency receipt. No server rebuild is needed for this update.
 Source/runtime archive hashes and the review diff are supplied beside the local
 package. Extract into a separate directory and reuse verified assets.
 
+## Target cache default update
+
+F16 target K/V cache is now the default and recommendation for all supported
+models and platform profiles. Quantized target cache remains an explicit
+`--cache q8_0` option. Assistant draft-cache flags remain Q8_0 (Gemma 4 assistant attention shares
+the target K/V tensors); model/assistant/projector
+weight precision is unchanged. Existing historical Q8-cache measurements and
+reproduction commands retain their recorded settings. Native code and the sealed
+server binary are unchanged. See [cache precision](PRESETS-AND-ASSETS.md#cache-precision).
+
 ## Upgrading
 
 Keep your current installation and launch command until the new version works.

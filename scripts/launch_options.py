@@ -22,7 +22,7 @@ def context_size(value):
 def memory_estimate(model, context=DEFAULT_CONTEXT, vision='off', mtp='off', reasoning='off'):
     spec, kinds = selection(model, reasoning, mtp, vision)
     weights = sum(spec[k]['bytes'] for k in kinds) / 1024**3
-    # Coarse overhead allowance for default q8 KV / four native branches / one chat slot.
+    # Coarse historical Q8-KV overhead allowance; F16 use varies with runtime layout.
     # Deliberately a range: tensor layout, image tokens and allocator overhead vary.
     context_overhead = context / 8192 * (0.10 if canonical_model(model) in {'e4b-q8', 'e2b-q8'} else 0.18)
     overhead = 0.8 + context_overhead + (0.8 if mtp == 'on' else 0) + (0.4 if vision == 'on' else 0)
@@ -33,7 +33,7 @@ def memory_estimate(model, context=DEFAULT_CONTEXT, vision='off', mtp='off', rea
 def memory_note(model, context, vision, mtp, reasoning):
     lo, hi = memory_estimate(model, context, vision, mtp, reasoning)
     return (f'{model}: context {context}, vision {vision}, MTP {mtp}, reasoning {reasoning}; '
-            f'estimated GPU memory {lo:.1f}–{hi:.1f} GiB. Estimate only; image size, cache, '
+            f'historical memory guide {lo:.1f}–{hi:.1f} GiB; F16 target cache is the default. Image size, cache, '
             'batch, slots and hardware change usage; no fit guarantee.')
 
 
@@ -42,12 +42,12 @@ def preset_list():
              '------  -------  --------------  ------  ---  ---------  --------------------']
     for name in MODEL_ALIASES:
         lo, hi = memory_estimate(name)
-        cache = 'F16' if canonical_model(name) == 'e2b-q8' else 'Q8_0'
+        cache = 'F16'
         lines.append(f'{name:6}  8K       {cache:14}  off     off  off        {lo:.1f}–{hi:.1f} GiB')
     lines += ['', 'All presets are defaults; override --context (e.g. 4k, 16k, 65536),',
               '--vision on|off, --mtp on|off and --reasoning off|selective|always (on aliases selective).',
-              '12B/E4B estimates assume q8 KV and four native branches; E2B uses F16 KV and one native branch.',
-              'F16 target KV is recommended for E2B. Assistant draft KV stays Q8_0 for every MTP recipe.',
+              'All models default to F16 target KV. Listed memory ranges are historical guidance; F16 usage can differ.',
+              'F16 target KV is recommended for every model. Use --cache q8_0 explicitly for quantized target KV; draft cache flags stay Q8_0; Gemma 4 assistant attention shares target KV.',
               'Apple Silicon direct launch profiles use F16 target KV; the table describes Linux/CUDA recipes.',
               'All use one chat slot; estimates are not fit guarantees.',
               'Measured historical baselines on RTX 5070 Ti (different modes):']

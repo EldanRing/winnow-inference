@@ -50,16 +50,21 @@ send `"chat_template_kwargs":{"enable_thinking":false}`. On this pinned runtime,
 `reasoning_effort:"none"` alone did not disable thinking. Internal adaptive
 generation always sends the explicit false template setting.
 
-E2B profiles pin 8K or 64K context, F16 target KV, backend temperature sampling,
+E2B profiles pin 8K or 64K context, default F16 target KV, backend temperature sampling,
 one native branch, one chat slot, batch/microbatch 1024, auto memory and disabled
-context shifting. MTP uses the exact assistant, Q8 draft KV and draft length 4.
+context shifting. MTP uses the exact assistant, retained Q8 draft-cache flags and draft length 4.
+The pinned Gemma 4 assistant shares the target K/V tensors, so its effective
+attention cache follows the selected target-cache precision.
 `--mtp off` omits the assistant; CPU contract checks and the recorded bounded
 MTP on/off check cover this setting. `--vision off` omits the projector.
 The default E2B command uses 8K text, MTP off and decision reasoning off.
 The examples above explicitly enable MTP with `--mtp on` on every command.
 
 The server and client must use matching context, vision and MTP settings.
-Named E2B profiles reject numerical overrides that break their contract.
+Named E2B profiles reject numerical overrides that break their contract;
+`--cache q8_0` is an explicit target-cache alternative and must also be selected
+on the profile-checked client. It retains Q8_0 assistant draft-cache flags and leaves
+F16-only backend sampling off.
 Other capacities require an explicit operator profile. Backend sampling can be
 disabled explicitly with `--backend-sampling off`; historical measurements then
 do not describe that configuration. The launcher verifies projector bytes and

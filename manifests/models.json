@@ -37,5 +37,10 @@
       "vision": true
     }
   },
-  "model_revision": "b2b14213dfa252e6d6b543c8b334762e51772d29"
+  "model_revision": "b2b14213dfa252e6d6b543c8b334762e51772d29",
+  "default_target_cache": "f16",
+  "explicit_target_cache_options": [
+    "f16",
+    "q8_0"
+  ]
 }
