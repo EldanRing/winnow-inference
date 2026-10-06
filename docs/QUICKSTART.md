@@ -51,8 +51,8 @@ this release. Reasoning accepts one question and a text, object, or array state.
 Images require a supported vision profile. See [image reasoning](IMAGE-REASONING.md)
 for commands, explicit context contracts, and quality limits.
 *Q8 vision plus MTP exceeded the measured 16 GB profile; larger or custom
-configurations are unvalidated. E2B MTP-off profiles still need live validation;
-64K evidence covers fit and small requests only. Memory guidance is not a fit guarantee.
+configurations are unvalidated. E2B has a recorded bounded MTP on/off check;
+Dani confirms his own 64K testing. Reported full-panel scores use 8K.
 
 All four model selectors default to **8K text, reasoning off, MTP off**. E2B is
 Linux/CUDA only and pins its named profile settings. For 12B/E4B, context, native

@@ -234,7 +234,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-text8k-mtp": {
       "status": "experimental",
@@ -288,7 +288,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision8k-direct": {
       "status": "experimental",
@@ -322,7 +322,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision8k-mtp": {
       "status": "experimental",
@@ -380,7 +380,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-text64k-direct": {
       "status": "experimental",
@@ -410,7 +410,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-text64k-mtp": {
       "status": "experimental",
@@ -464,7 +464,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision64k-direct": {
       "status": "experimental",
@@ -498,7 +498,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     },
     "e2b-q8-vision64k-mtp": {
       "status": "experimental",
@@ -556,7 +556,7 @@
       },
       "native_seconds": 45,
       "generation_seconds": 180,
-      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. 64K fit and small-request checks do not establish full-context generation or quality. MTP-off profiles require separate live validation."
+      "scope": "F16 target KV; backend temperature sampling; Q8 draft KV and length 4 when MTP is enabled. Dani confirms his own 64K testing; recorded full-panel scores use 8K. A bounded MTP on/off check is recorded separately."
     }
   }
 }
