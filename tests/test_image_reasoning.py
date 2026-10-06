@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from adaptive_policy import DecisionPipeline, keys_for, load_policy, softmax
+from adaptive_policy import DecisionPipeline, keys_for, load_policy, rendered_options, softmax
 from reasoning_contract import ContextLimitError, RequestCancelled, load_profile
 from decision_client import HTTPTransport
 import assets
@@ -52,6 +52,49 @@ def complete_generation():
 
 
 class ImageReasoning(unittest.TestCase):
+    def test_local_prompt_preserves_native_candidate_keys_descriptions_and_order(self):
+        cases = [
+            ({"type": "choice", "criteria": {"red": None, "blue": None}}, ["red", "blue"]),
+            ({"type": "choice", "criteria": {"z-last": "Warm color", "a-first": "Cool color"}},
+             ["z-last: Warm color", "a-first: Cool color"]),
+            ({"type": "choice", "criteria": {"plain": None, "named": "", "object": {"rgb": [1, 2]}, "array": ["red", "blue"]}},
+             ["plain", "named: ", 'object: {"rgb":[1,2]}', 'array: ["red","blue"]']),
+            ({"type": "noul"}, ["false", "true"]),
+            ({"type": "noul", "criteria": {"true": "Same meaning", "false": "Different meaning"}},
+             ["false: Different meaning", "true: Same meaning"]),
+            ({"type": "noul", "criteria": {"true": {"answer": "yes"}}}, ["false", 'true: {"answer":"yes"}']),
+            ({"type": "score", "criteria": [None, "high", {"rating": 2}, ["top"]]},
+             ["0", "high", '{"rating":2}', '["top"]']),
+            ({"type": "choice", "criteria": {f"candidate-{i}": None for i in range(64)}},
+             [f"candidate-{i}" for i in range(64)]),
+        ]
+        manifest, _ = load_policy(POLICY)
+        manifest["generation"]["prompt_format"] = "e2b-canonical-v2"
+        for question, expected in cases:
+            for images in (False, True):
+                question = dict(question, instructions="Select the best candidate by its name and description.")
+                keys = keys_for(question)
+                self.assertEqual(rendered_options(question, keys), expected)
+                request = image_body() if images else body()
+                request["questions"] = {"unusual/id": question}
+                logits = [0] * len(keys)
+                transport = FakeTransport([inspection(images=images), native(request, logits, POLICY), complete_generation(),
+                                           inspection(images=images), native(request, logits, POLICY)])
+                output = DecisionPipeline(transport, reasoning="always", policy_id=POLICY,
+                                          policy_manifest=manifest, runtime_profile=profile()).decide(request)
+                self.assertTrue(output["winnow"]["adaptive"]["completed_blend"])
+                content = transport.calls[2][1]["messages"][0]["content"]
+                prompt = content[-1]["text"] if images else content
+                expected_lines = "\n".join(f"{i+1}. {json.dumps(v, ensure_ascii=False)}" for i, v in enumerate(expected))
+                self.assertEqual(prompt.split("\nOptions (in candidate order):\n")[1], expected_lines)
+                self.assertEqual(transport.calls[1][1]["questions"], request["questions"])
+                self.assertEqual(transport.calls[4][1]["questions"], request["questions"])
+        # The old staged private format is rejected so it cannot silently retain the defect.
+        manifest["generation"]["prompt_format"] = "e2b-v1"
+        with self.assertRaises(ValueError):
+            DecisionPipeline(FakeTransport([]), reasoning="always", policy_id=POLICY,
+                             policy_manifest=manifest, runtime_profile=profile())
+
     def test_every_policy_and_kind_preserves_images_positions_and_calibrated_math(self):
         for policy in json.loads((ROOT / "manifests/adaptive-v1.json").read_text())["policies"]:
             for kind in ("choice", "noul", "score"):

@@ -45,7 +45,7 @@ def load_policy(policy_id, policy_manifest=None):
     if (generation.get("max_tokens") != -1 or generation.get("ignore_eos") is not False
             or generation.get("temperature") != 0 or generation.get("seed") != 314159
             or generation.get("reasoning_effort") != "none"
-            or generation.get("prompt_format", "bounded-v1") not in {"bounded-v1", "e2b-v1"}):
+            or generation.get("prompt_format", "bounded-v1") not in {"bounded-v1", "e2b-canonical-v2"}):
         raise ValueError("Unsupported reasoning generation contract")
     return manifest, manifest["policies"][policy_id]
 
@@ -72,6 +72,23 @@ def keys_for(question):
     if not 2 <= len(keys) <= 64:
         raise ValueError("Expected 2–64 candidates")
     return keys
+
+
+def rendered_options(question, keys):
+    """Match native/protocol.h: keys name choice/noul options, values describe them."""
+    criteria = question.get("criteria")
+    values = ([criteria.get(key) for key in keys] if isinstance(criteria, dict)
+              else criteria if isinstance(criteria, list) else [None] * len(keys))
+    options = []
+    for key, value in zip(keys, values):
+        if value is None:
+            options.append(key)
+            continue
+        if not isinstance(value, (str, dict, list)):
+            raise ValueError("Invalid criterion description")
+        description = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+        options.append(description if question["type"] == "score" else key + ": " + description)
+    return options
 
 
 def softmax(logits, temperature):
@@ -315,15 +332,14 @@ class DecisionPipeline:
                 INSTRUCTION + "\nTask state:\n" + json.dumps(body["state"], separators=(",", ":"))
                 + "\nDecision question:\n" + json.dumps(question, separators=(",", ":"))
             )
-            if prompt_format == "e2b-v1":
-                criteria = question.get("criteria")
-                descriptions = ([criteria.get(key) for key in keys] if isinstance(criteria, dict)
-                                else criteria if isinstance(criteria, list) else [None] * len(keys))
+            if prompt_format == "e2b-canonical-v2":
+                descriptions = rendered_options(question, keys)
                 prompt = ("Analyze the task state and question. Work through the relevant rules and facts, "
                           "including intermediate steps when useful. Explain your reasoning as context for "
                           "a separate decision scorer.\nState:\n" + json.dumps(body["state"], ensure_ascii=False, separators=(",", ":"))
                           + "\nQuestion:\n" + json.dumps(question.get("instructions"), ensure_ascii=False, separators=(",", ":"))
-                          + "\nOptions:\n" + "\n".join(f"{chr(65+i)}: {json.dumps(v, ensure_ascii=False)}" for i, v in enumerate(descriptions)))
+                          + "\nOptions (in candidate order):\n" + "\n".join(
+                              f"{i+1}. {json.dumps(value, ensure_ascii=False)}" for i, value in enumerate(descriptions)))
             if self.profile:
                 # Escape token markers inside user data, as the native state compiler does.
                 prompt = prompt.replace("<", "\\u003c")

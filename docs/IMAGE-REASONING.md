@@ -61,6 +61,12 @@ CLI offers `--policy-manifest PATH --runtime-profile PATH`. Use the model's own
 verified launcher. A 64K contract declares capacity and settings; it does not
 validate policy quality at 64K.
 
+The local `e2b-canonical-v2` prompt format preserves native candidate semantics:
+choice and Boolean keys name the option, non-null values describe it, and null
+score values use their numeric index. Options retain native candidate order.
+This format has distinct prompt serialization from historical E2B experiments;
+it does not inherit their quality measurements.
+
 For direct scoring with the same checks, use `reasoning="off"` and the runtime
 profile, without a policy. The legacy direct API without a profile retains its
 existing request/response behavior.
