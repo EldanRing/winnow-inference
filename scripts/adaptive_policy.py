@@ -5,7 +5,10 @@ import hashlib
 import http.client
 import json
 import math
+import threading
 from pathlib import Path
+from reasoning_contract import (ContextLimitError, RequestCancelled, check_inspection,
+                                load_profile, read_object, validate_images)
 
 ROOT = Path(__file__).resolve().parents[1]
 REASONING_CHOICES = ("off", "selective", "always", "on")
@@ -26,10 +29,24 @@ INSTRUCTION = (
 )
 
 
-def load_policy(policy_id):
-    manifest = json.loads((ROOT / "manifests/adaptive-v1.json").read_text())
+def load_policy(policy_id, policy_manifest=None):
+    manifest = read_object(policy_manifest or ROOT / "manifests/adaptive-v1.json")
     if manifest.get("schema_version") != 1 or policy_id not in manifest["policies"]:
         raise ValueError("Unknown adaptive policy/version")
+    definition = manifest["policies"][policy_id]
+    policy = definition["policy"]
+    if definition["id"] != policy_id or policy["gate"] not in {"raw_maxP", "normalized_entropy"}:
+        raise ValueError("Invalid policy identity/gate")
+    for key in ("direct_temperature", "augmented_temperature", "weight", "threshold"):
+        value = policy[key]
+        if type(value) not in (int, float) or not math.isfinite(value) or (value <= 0 if "temperature" in key else not 0 <= value <= 1):
+            raise ValueError("Invalid policy parameter: " + key)
+    generation = manifest["generation"]
+    if (generation.get("max_tokens") != -1 or generation.get("ignore_eos") is not False
+            or generation.get("temperature") != 0 or generation.get("seed") != 314159
+            or generation.get("reasoning_effort") != "none"
+            or generation.get("prompt_format", "bounded-v1") not in {"bounded-v1", "e2b-v1"}):
+        raise ValueError("Unsupported reasoning generation contract")
     return manifest, manifest["policies"][policy_id]
 
 
@@ -132,7 +149,8 @@ def render(question, keys, probabilities):
 
 
 class DecisionPipeline:
-    def __init__(self, transport, mode=None, policy_id=None, mtp="on", target=None, *, reasoning=None):
+    def __init__(self, transport, mode=None, policy_id=None, mtp="on", target=None, *, reasoning=None,
+                 policy_manifest=None, runtime_profile=None, cancelled=None, request_lock=None):
         if mode not in {None, "direct", "experimental-adaptive"}:
             raise ValueError("Unknown decision mode")
         if reasoning is None:
@@ -148,16 +166,53 @@ class DecisionPipeline:
         if mtp not in {"on", "off"}:
             raise ValueError("MTP must be on or off")
         self.mtp = mtp == "on"
-        self.manifest, self.definition = load_policy(policy_id) if policy_id else (None, None)
+        self.manifest, self.definition = load_policy(policy_id, policy_manifest) if policy_id else (None, None)
+        if policy_manifest is not None and not policy_id:
+            raise ValueError("A policy manifest requires a policy id")
+        self.profile = load_profile(runtime_profile) if runtime_profile is not None else None
+        if policy_manifest is not None and self.profile is None:
+            raise ValueError("A local policy requires an explicit runtime profile")
+        if self.profile:
+            expected = self.profile["runtime"]
+            if expected["resident_mtp"] is not self.mtp:
+                raise ValueError("MTP setting conflicts with runtime profile")
+            if self.definition and (self.profile["alias"] != self.definition["alias"]
+                    or expected["target_sha256"] != self.definition["target"]["sha256"]
+                    or (self.mtp and expected["assistant_sha256"] != self.definition["assistant"]["sha256"])):
+                raise ValueError("Runtime profile conflicts with selected policy artifacts")
+            if target and (self.profile["alias"] != target["alias"] or expected["target_sha256"] != target["model"]["sha256"]):
+                raise ValueError("Runtime profile conflicts with selected target")
+        self.cancelled = cancelled
+        # A service sharing one backend should pass its common lock to every request-scoped pipeline.
+        self.request_lock = request_lock if request_lock is not None else threading.Lock()
+
+    def _check_cancelled(self):
+        if self.cancelled and self.cancelled():
+            raise RequestCancelled("Decision request cancelled")
+
+    def _post(self, endpoint, body, seconds):
+        self._check_cancelled()
+        result = self.transport.post(endpoint, body, seconds)
+        self._check_cancelled()
+        return result
 
     def decide(self, body):
-        if self.mode == "direct":
+        self._check_cancelled()
+        while not self.request_lock.acquire(timeout=0.1):
+            self._check_cancelled()
+        try:
+            return self._decide(copy.deepcopy(body))
+        finally:
+            self.request_lock.release()
+
+    def _decide(self, body):
+        if self.mode == "direct" and not self.profile:
             # The unified CLI binds a verified artifact; the low-level API retains legacy aliases.
             if self.target:
-                identity = self.transport.post("/v1/winnow/inspect", body, 30).get("runtime", {})
+                identity = self._post("/v1/winnow/inspect", body, 30).get("runtime", {})
                 if identity.get("target_sha256") != self.target["model"]["sha256"]:
                     raise ValueError("Selected model/quantization does not match the server; restart with the matching winnow serve --model")
-            response = self.transport.post("/v1/systemone", body, 30)
+            response = self._post("/v1/systemone", body, 30)
             if self.target and response.get("model") != self.target["alias"]:
                 raise ValueError("Selected model alias does not match the server response")
             return response
@@ -170,18 +225,26 @@ class DecisionPipeline:
         if not isinstance(qid, str) or not qid or not isinstance(question, dict):
             raise ValueError("Invalid question")
         extension = body.get("winnow", {})
-        if not isinstance(extension, dict) or extension.get("images") or extension.get("temperature", 1) != 1:
-            raise ValueError("Experimental adaptive mode is text-only and requires raw T=1")
+        if not isinstance(extension, dict) or type(extension.get("temperature", 1)) not in (int, float) or extension.get("temperature", 1) != 1:
+            raise ValueError("Reasoning decisions require raw T=1")
+        images, image_hashes = validate_images(body, self.profile)
         keys, kind = keys_for(question), question["type"]
-        definition, policy = self.definition, self.definition["policy"]
-        if body.get("model", definition["alias"]) != definition["alias"]:
+        definition = self.definition
+        alias = definition["alias"] if definition else self.profile["alias"]
+        policy = definition["policy"] if definition else None
+        if body.get("model", alias) != alias:
             raise ValueError("Request model must match the selected policy")
         request = copy.deepcopy(body)
-        request["model"] = definition["alias"]
+        request["model"] = alias
         request["winnow"] = dict(extension, diagnostics=True, temperature=1.0)
-        identity = self.transport.post("/v1/winnow/inspect", request, 30).get("runtime", {})
+        native_seconds = self.profile["native_seconds"] if self.profile else 30
+        if self.profile:
+            request["winnow"]["reuse_prefix"] = False
+        inspected = self._post("/v1/winnow/inspect", request, native_seconds)
+        positions = check_inspection(inspected, self.profile, len(images)) if self.profile else None
+        identity = inspected.get("runtime", {})
         expected_runtime = hashlib.sha256((ROOT / "runtime.lock.json").read_bytes()).hexdigest()
-        if (
+        if not self.profile and (
             not isinstance(identity, dict) or identity.get("runtime_sha256") != expected_runtime
             or identity.get("target_sha256") != definition["target"]["sha256"]
             or (self.mtp and identity.get("assistant_sha256") != definition["assistant"]["sha256"])
@@ -191,13 +254,19 @@ class DecisionPipeline:
             or not isinstance(identity.get("context"), int) or identity["context"] < 512
         ):
             raise ValueError("Backend does not match the pinned experimental policy/profile")
-        measured_profile = all(identity.get(k) == v for k, v in dict(
+        measured_profile = not self.profile and all(identity.get(k) == v for k, v in dict(
             context=8192, chat_context=8192, chat_parallel=1, memory_setting="auto",
             parallel=4, cache_type="q8_0", head="selected", pipeline="optimized",
             batch=definition["profile"]["batch"], ubatch=definition["profile"]["ubatch"]).items())
         # A failed/malformed direct decision remains an error; it is never fabricated.
-        direct = self.transport.post("/v1/systemone", request, 30)
-        logits, raw = native_probabilities(direct, qid, kind, keys, definition["alias"], self.mtp)
+        direct = self._post("/v1/systemone", request, native_seconds)
+        logits, raw = native_probabilities(direct, qid, kind, keys, alias, self.mtp)
+        if self.mode == "direct":
+            direct.setdefault("winnow", {})["adaptive"] = dict(
+                mode="direct", reasoning_mode="off", gate_applied=False, routed=False,
+                completed_blend=False, fallback_reason=None, runtime_profile=self.profile["id"],
+                image_sha256=image_hashes, native_context_positions=positions, measured_profile=False)
+            return direct
         final = softmax(logits, policy["direct_temperature"])
         if policy["gate"] == "normalized_entropy":
             gate_value = -sum(p * math.log(p) for p in raw if p) / math.log(len(raw))
@@ -210,6 +279,8 @@ class DecisionPipeline:
         notes = []
         if not measured_profile:
             notes.append("Custom configuration: frozen policy retained; published calibration/quality/latency results do not validate these settings.")
+        if self.profile:
+            notes.append("Explicit runtime capability contract; image reasoning and this context configuration have no quality validation claim.")
         if self.reasoning == "always":
             notes.append("Always reasoning bypasses the gate; selective-policy quality and latency results do not validate this mode.")
         metadata = {
@@ -229,18 +300,44 @@ class DecisionPipeline:
             "measured_profile": measured_profile,
             "configuration_note": " ".join(notes) or None,
         }
+        if self.profile:
+            metadata.update(runtime_profile=self.profile["id"], image_sha256=image_hashes,
+                            native_context_positions=positions, augmented_context_positions=None,
+                            native_context_limit=identity["context"], chat_context_limit=identity["chat_context"])
         if routed:
             generation = dict(self.manifest["generation"])
             generation.pop("context")
             seconds = generation.pop("request_seconds")
+            prompt_format = generation.pop("prompt_format", "bounded-v1")
+            if self.profile:
+                seconds = self.profile["generation_seconds"]
             prompt = (
                 INSTRUCTION + "\nTask state:\n" + json.dumps(body["state"], separators=(",", ":"))
                 + "\nDecision question:\n" + json.dumps(question, separators=(",", ":"))
             )
-            generation.update(model=definition["alias"], messages=[{"role": "user", "content": prompt}],
+            if prompt_format == "e2b-v1":
+                criteria = question.get("criteria")
+                descriptions = ([criteria.get(key) for key in keys] if isinstance(criteria, dict)
+                                else criteria if isinstance(criteria, list) else [None] * len(keys))
+                prompt = ("Analyze the task state and question. Work through the relevant rules and facts, "
+                          "including intermediate steps when useful. Explain your reasoning as context for "
+                          "a separate decision scorer.\nState:\n" + json.dumps(body["state"], ensure_ascii=False, separators=(",", ":"))
+                          + "\nQuestion:\n" + json.dumps(question.get("instructions"), ensure_ascii=False, separators=(",", ":"))
+                          + "\nOptions:\n" + "\n".join(f"{chr(65+i)}: {json.dumps(v, ensure_ascii=False)}" for i, v in enumerate(descriptions)))
+            if self.profile:
+                # Escape token markers inside user data, as the native state compiler does.
+                prompt = prompt.replace("<", "\\u003c")
+            content = prompt
+            if images:
+                content = ([{"type": "text", "text": "Images (in order):\n"}]
+                           + [{"type": "image_url", "image_url": {"url": url}} for url in images]
+                           + [{"type": "text", "text": prompt}])
+            generation.update(model=alias, messages=[{"role": "user", "content": content}],
                               cache_prompt=False, verbose=True, return_tokens=True, stream=False)
             try:
-                result = self.transport.post("/v1/chat/completions", generation, seconds)
+                result = self._post("/v1/chat/completions", generation, seconds)
+                if not isinstance(result, dict):
+                    raise ValueError("Malformed generation response")
                 usage = result.get("usage", {})
                 if not isinstance(usage, dict):
                     raise ValueError("Malformed generation usage")
@@ -261,7 +358,11 @@ class DecisionPipeline:
                 if not isinstance(verbose, dict):
                     raise ValueError("Malformed generation stop metadata")
                 # Native partial text is never scored; only supported chat's actual EOS is eligible.
-                if choice.get("finish_reason") != "stop" or verbose.get("stop_type") != "eos":
+                if self.profile and (verbose.get("truncated") is not False
+                        or usage["prompt_tokens"] <= 0
+                        or usage["prompt_tokens"] + usage["completion_tokens"] > identity["chat_context"]):
+                    metadata["fallback_reason"] = "generation_context_limit_or_unverified"
+                elif choice.get("finish_reason") != "stop" or verbose.get("stop_type") != "eos":
                     metadata["fallback_reason"] = "generation_not_natural_EOS"
                 elif not isinstance(content, str) or not content.strip():
                     metadata["fallback_reason"] = "generation_empty_or_malformed"
@@ -272,13 +373,18 @@ class DecisionPipeline:
                     else:
                         augmented_request["state"] = {"original_state": body["state"], "model_reasoning": content}
                     try:
-                        augmented = self.transport.post("/v1/systemone", augmented_request, 30)
+                        if self.profile:
+                            checked = self._post("/v1/winnow/inspect", augmented_request, native_seconds)
+                            metadata["augmented_context_positions"] = check_inspection(checked, self.profile, len(images))
+                        augmented = self._post("/v1/systemone", augmented_request, native_seconds)
                         alogits, _ = native_probabilities(augmented, qid, kind, keys, definition["alias"], self.mtp)
                         calibrated = softmax(alogits, policy["augmented_temperature"])
                         metadata["native_input_tokens"] += augmented["usage"]["input_tokens"]
                         final = [(1 - policy["weight"]) * a + policy["weight"] * b
                                  for a, b in zip(final, calibrated)]
                         metadata["completed_blend"] = True
+                    except ContextLimitError:
+                        metadata["fallback_reason"] = "augmented_context_limit"
                     except (OSError, ValueError, KeyError, TypeError, RuntimeError,
                             http.client.HTTPException) as error:
                         metadata["fallback_reason"] = "augmented_failure:" + type(error).__name__

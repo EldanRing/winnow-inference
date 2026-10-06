@@ -183,8 +183,11 @@ class ReasoningModes(unittest.TestCase):
                                            model_dir=Path("/owner/models"), server=Path("/owner/server"))
                     with patch("winnow.platform.system", return_value="Linux"):
                         commands.append(winnow.serve_command(a))
-                    with self.assertRaises(ValueError):
-                        assets.selection(model, mode, mtp, "on")
+                    if model == "12b-q8" or mtp == "off":
+                        with self.assertRaises(ValueError):
+                            assets.selection(model, mode, mtp, "on")
+                    else:
+                        self.assertIn("projector", assets.selection(model, mode, mtp, "on")[1])
                 self.assertEqual(commands[0], commands[1])
                 self.assertEqual(commands[0], commands[2])
                 self.assertEqual(commands[0][commands[0].index("--context") + 1], "16384")

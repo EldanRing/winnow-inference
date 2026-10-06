@@ -10,8 +10,9 @@ the same decision, chat and vision APIs.
 
 This release also contains an **explicitly experimental** adaptive
 decision client. Direct decisions remain the default. The optional Linux/CUDA
-text-only mode uses verified model artifacts and optional matching MTP assistants and frozen model-specific
-policies; it is not an accuracy-preservation guarantee.
+mode uses verified model artifacts, matching optional MTP assistants and frozen
+model-specific policies. [Image reasoning](docs/IMAGE-REASONING.md) uses an explicit
+vision runtime contract; text-policy results do not validate image quality.
 See [the adaptive contract and limits](docs/ADAPTIVE.md).
 
 **E4B adaptive policy update:** the opt-in E4B client now uses the tested

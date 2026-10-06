@@ -15,7 +15,7 @@ RUNTIME_FILES = ["scripts/serve.py", "scripts/profiles.py", "scripts/verify_mode
                  "manifests/release-assets-v1.json", "docs/QUICKSTART.md", "docs/INSTALL.md", "docs/API.md", "docs/VALIDATION.md",
                  "examples/adaptive-decision.json", "examples/decisions.json", "examples/client.py",
                  "third_party/gemma-assistants-LICENSE-APACHE-2.0.txt", "third_party/gemma-assistants-NOTICE.txt",
-                 "scripts/adaptive_policy.py", "scripts/decision_client.py", "scripts/http_client.py",
+                 "scripts/adaptive_policy.py", "scripts/reasoning_contract.py", "scripts/decision_client.py", "scripts/http_client.py",
                  "scripts/install_assistants.py",
                  "manifests/models.json", "manifests/adaptive-v1.json", "runtime.lock.json",
                  "manifests/assistants-v1.json", "manifests/runtime-presets-v1.json",

@@ -24,7 +24,10 @@ def selection(model, reasoning='off', mtp='off', vision='on'):
     if model not in MODELS or mtp not in {'on', 'off'} or vision not in {'on', 'off'}:
         raise ValueError('Unknown model or on/off selection')
     if reasoning != 'off' and vision == 'on':
-        raise ValueError('Adaptive reasoning supports text only; choose --vision off')
+        from reasoning_contract import load_profile
+        if mtp != 'on':
+            raise ValueError('Image reasoning presets require --mtp on and a matching vision runtime profile')
+        load_profile(MODELS[model]['mtp_vision_preset'])
     spec = MODELS[model]
     return spec, ['model'] + (['projector'] if vision == 'on' else []) + (['assistant'] if mtp == 'on' else [])
 

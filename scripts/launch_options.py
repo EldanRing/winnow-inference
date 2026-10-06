@@ -47,7 +47,8 @@ def preset_list():
               'Estimates assume q8 KV, four native branches and one chat slot; no fit guarantee.',
               'Measured historical baselines on RTX 5070 Ti (different modes):']
     lines += [f'  {name}: {value}' for name, value in BASELINES.items()]
-    lines += ['Reasoning is text only; MTP uses one chat slot and auto memory on Linux/CUDA.',
+    lines += ['Image reasoning supports E4B/NVFP4 8K vision+MTP presets; custom profiles require an explicit runtime contract.',
+              'MTP uses one chat slot and auto memory on Linux/CUDA.',
               'Q8 vision + MTP did not fit the measured 16 GB profile; larger/custom configurations are unvalidated.',
               'Existing long model and preset names remain compatibility aliases.']
     return '\n'.join(lines)

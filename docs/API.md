@@ -141,7 +141,8 @@ vision, LoRA and model/assistant substitutions are excluded from this opt-in mod
 The versioned adaptive client supports one question and a text, object, or array
 state. It keeps structured data intact for direct native scoring and uses an
 `original_state`/`model_reasoning` object for augmented native scoring. Images
-remain unsupported in adaptive mode. Ordinary native direct requests also support
+use an [explicit vision runtime contract](IMAGE-REASONING.md) in adaptive mode.
+Ordinary native direct requests also support
 multiple questions.
 See [the adaptive contract and limits](ADAPTIVE.md).
 Use merged weights. The tested launcher runs a single loaded
@@ -180,7 +181,8 @@ result = client.decide(request)
 For selective routing, set `reasoning="selective"`; for direct scoring use
 `DecisionPipeline(transport, reasoning="off")` without a policy. The existing
 positional `DecisionPipeline(transport, "experimental-adaptive", policy_id)`
-call remains selective. Direct responses remain unchanged. Reasoning responses
+call remains selective. Legacy direct responses remain unchanged; direct calls
+with an explicit runtime contract add validation metadata. Reasoning responses
 keep `mode="experimental-adaptive"` for compatibility and add `reasoning_mode`
 and `gate_applied` to `winnow.adaptive`; always reports `gate_applied=false`
 while retaining the policy's raw gate value and threshold. `mtp` reports the

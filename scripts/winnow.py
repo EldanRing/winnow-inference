@@ -20,10 +20,12 @@ def serve_command(a):
     args = [sys.executable, str(ROOT / 'scripts/serve.py'), '--model-dir', str(a.model_dir),
             '--model', str(a.model_dir / spec['model']['file']), '--alias', spec['alias'],
             '--target', a.model, '--context', str(a.context)]
-    if reasoning != 'off' or (a.mtp == 'on' and a.vision == 'off'):
-        args += ['--experimental-adaptive', spec['policy'], '--text-only', '--mtp', a.mtp]
-    elif a.mtp == 'on':
+    if a.vision == 'on' and a.mtp == 'on':
+        if reasoning != 'off' and a.context != 8192:
+            raise ValueError('Image reasoning presets pin 8K; custom contexts require an explicit operator runtime contract')
         args += ['--preset', spec['mtp_vision_preset']]
+    elif reasoning != 'off' or (a.mtp == 'on' and a.vision == 'off'):
+        args += ['--experimental-adaptive', spec['policy'], '--text-only', '--mtp', a.mtp]
     elif a.vision == 'off':
         args += ['--text-only']
     if a.mtp == 'on':
@@ -80,6 +82,10 @@ def main():
             command = [sys.executable, str(ROOT / 'scripts/decision_client.py'), '--model', spec['alias'], '--target', a.model]
             if a.reasoning != 'off':
                 command += ['--reasoning', a.reasoning, '--policy', spec['policy'], '--mtp', a.mtp]
+                if a.vision == 'on':
+                    if a.context != 8192:
+                        raise ValueError('Use decision_client.py with an explicit runtime profile for custom image reasoning contexts')
+                    command += ['--runtime-profile', spec['mtp_vision_preset']]
             subprocess.run(command + extra, check=True)
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         p.exit(1, 'Winnow: ' + str(error) + '\n')

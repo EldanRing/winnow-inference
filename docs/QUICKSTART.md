@@ -5,7 +5,7 @@ Run `python3 scripts/winnow.py presets` to see defaults and memory guidance.
 The old model names remain accepted. Set context with `--context 4k`, `16k` or
 `65536`. Choose `--reasoning off|selective|always`; `on` remains an alias for
 `selective`. Vision and MTP have independent on/off flags. Reasoning adds a short
-model-generated analysis before rescoring a text decision with the model's
+model-generated analysis before rescoring a decision with the model's
 frozen temperatures and blend. MTP uses the matching assistant to draft ordinary chat tokens. Native direct decisions
 generate no tokens, so MTP does not itself add decision reasoning.
 
@@ -37,20 +37,23 @@ each `decide` call. Native `/v1/systemone` requests remain direct.
 | Model | Direct, MTP off | Direct, MTP on | Reasoning, MTP off | Reasoning, MTP on |
 |---|---|---|---|---|
 | 12B Q8 | Text or vision | Text; vision needs more memory* | Text | Text |
-| 12B NVFP4 | Text or vision | Text or vision | Text | Text |
-| E4B Q8 | Text or vision | Text or vision | Text | Text |
+| 12B NVFP4 | Text or vision | Text or vision | Text | Text or vision (8K profile) |
+| E4B Q8 | Text or vision | Text or vision | Text | Text or vision (8K profile) |
 
 Optional reasoning and MTP require Linux/CUDA and a compatible GPU. Direct serving
 also supports Apple Silicon Metal through a source build; optional modes have not
 been validated on Mac. CPU-only, native Windows and multi-GPU serving are outside
-this release. Reasoning accepts one question and a text, object, or array state. Image reasoning is rejected before downloading or loading.
+this release. Reasoning accepts one question and a text, object, or array state.
+Images require a supported vision profile. See [image reasoning](IMAGE-REASONING.md)
+for commands, explicit context contracts, and quality limits.
 *Q8 vision plus MTP exceeded the measured 16 GB profile; larger or custom
 configurations are unvalidated. Memory guidance is not a fit guarantee.
 
 All three presets default to **8K text, reasoning off, MTP off**. Context, native
 branches, batch, microbatch and cache can be overridden. MTP requires one chat
 slot and auto memory; reasoning requires one question with a text, object, or array state. Presets
-supply defaults, not numeric lockouts. The legacy direct platform profiles remain
+supply defaults. Image reasoning pins its runtime settings; custom image/context
+configurations require an explicit operator contract. The legacy direct platform profiles remain
 available through `scripts/serve.py`.
 
 | Preset | Default modes/context | Estimated GPU memory |
@@ -102,7 +105,9 @@ For example, append `--context 16k` to a serve command; add `--batch 1024
 | Adaptive decisions without MTP | `python3 scripts/winnow.py download --model e4b --reasoning selective` | `python3 scripts/winnow.py serve --model e4b --reasoning selective` |
 | Adaptive decisions with MTP | `python3 scripts/winnow.py download --model e4b --reasoning selective --mtp on` | `python3 scripts/winnow.py serve --model e4b --reasoning selective --mtp on` |
 
-For vision, add `--vision on` to download and serve, using a supported matrix cell.
+For vision, add `--vision on` to download, serve and reasoning `decide` commands,
+using a supported matrix cell. Image reasoning uses the 8K vision+MTP profile;
+changing context requires a [custom runtime contract](IMAGE-REASONING.md).
 The projector is downloaded only for vision, and the assistant only for MTP.
 Targets/projectors live under `models/gguf/`; assistants under `models/assistants/`.
 Use `--model-dir PATH` on download and serve to store them elsewhere.
