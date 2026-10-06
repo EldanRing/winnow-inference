@@ -274,6 +274,8 @@ class HTTPImageTransport(unittest.TestCase):
         class Connection:
             sock = None
             def __init__(self, *args, **kwargs): pass
+            def connect(self): pass
+            def send(self, data): pass
             def request(self, method, path, payload, headers): calls.append((path, headers.copy(), json.loads(payload)))
             def getresponse(self): return self
             status = 200
@@ -295,6 +297,8 @@ class HTTPImageTransport(unittest.TestCase):
             started, closed, cancelled = threading.Event(), threading.Event(), threading.Event()
             class Connection:
                 def __init__(self, *args, **kwargs): self.sock = self
+                def connect(self): pass
+                def send(self, data): pass
                 def request(self, *args): started.set()
                 def getresponse(self):
                     closed.wait(2)

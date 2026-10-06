@@ -15,6 +15,10 @@ class RequestCancelled(Exception):
     """The caller went away. Never turn cancellation into a fallback decision."""
 
 
+class BackendUnavailable(RuntimeError):
+    """An aborted I/O worker is still stopping; do not start another backend call."""
+
+
 class ContextLimitError(ValueError):
     pass
 

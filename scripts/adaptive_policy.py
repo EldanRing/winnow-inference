@@ -215,12 +215,20 @@ class DecisionPipeline:
 
     def decide(self, body):
         self._check_cancelled()
+        check_available = getattr(self.transport, "check_available", lambda: None)
+        check_available()
         while not self.request_lock.acquire(timeout=0.1):
             self._check_cancelled()
+            check_available()
         try:
             return self._decide(copy.deepcopy(body))
         finally:
-            self.request_lock.release()
+            release = getattr(self.transport, "release_when_idle", None)
+            if release:
+                release(self.request_lock)
+            else:
+                # Synchronous/custom transports must have stopped all I/O before returning.
+                self.request_lock.release()
 
     def _decide(self, body):
         if self.mode == "direct" and not self.profile:

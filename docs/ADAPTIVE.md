@@ -44,8 +44,9 @@ the selected context, EOS respected, one slot, matching official MTP4 and q8_0 K
 A 100-word instruction is a soft instruction, not an output bound. The default
 75-second hard client wall deadline closes the HTTP connection. Explicit runtime
 contracts pin their own context/cache settings and bounded phase deadlines.
-Requests serialize within each client
-transport; there is no process-wide SIGALRM. Native calls serialize with chat in
+HTTP requests serialize by backend origin within the client process. Cancelled
+workers retain backend ownership until they exit, even when the caller has
+already returned; there is no process-wide SIGALRM. Native calls serialize with chat in
 the resident bridge, which refuses context eviction to preserve speculative state.
 
 After a successful direct decision, missing/empty/malformed/non-EOS generation,

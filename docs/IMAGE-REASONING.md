@@ -86,10 +86,19 @@ contracts; published text measurements do not validate these configurations.
 Service adapters should create a request-scoped transport and forward that
 request's authorization to every backend call. `HTTPTransport` accepts explicit
 `headers` and a `cancelled` callback, and closes the active connection on a wall
-deadline or cancellation. Pass the same callback to `DecisionPipeline`, plus one
+deadline or cancellation. It checks cancellation before/after connect and before
+HTTP writes, with automatic reconnection disabled. If connection setup or another
+I/O operation has not stopped, the caller returns but that backend origin remains
+unavailable until the worker exits. The pipeline retains its shared request lock
+during cleanup; a new request cannot overlap the abandoned worker.
+Pass the same callback to `DecisionPipeline`, plus one
 shared `request_lock` for pipelines using the same backend. Do not hold that
 non-reentrant lock outside `decide`. Custom transports implement
 `post(endpoint, body, seconds)` with a hard wall deadline and raise
 `RequestCancelled` from `reasoning_contract` when the caller disconnects.
+Custom transports must stop all I/O before returning. An asynchronous wrapper
+around `HTTPTransport` must also forward `check_available()` and
+`release_when_idle(lock)` so the pipeline can retain ownership during cleanup.
+`BackendUnavailable` reports an aborted worker that is still stopping.
 Cancellation propagates without fallback. Keep service authentication and
 network exposure under the service's existing access controls.
