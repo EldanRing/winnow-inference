@@ -182,12 +182,14 @@ class E2BRelease(unittest.TestCase):
     def test_private_payload_never_attempts_network_and_exact_local_reuse_works(self):
         for kind in ("model", "projector", "assistant"):
             artifact = assets.MODELS["e2b-q8"][kind]
-            if kind != "assistant":
-                self.assertEqual(artifact["revision"], "7439a194a1a948262115b02fb380daf4ecc77369")
-            self.assertNotEqual(artifact["availability"], "published")
+            self.assertEqual(artifact["revision"], 'f0f9931c4d44e97091d14c0b8dba118eef32ff1b')
+            self.assertIn(artifact["availability"], {"private_verified", "published"})
         with tempfile.TemporaryDirectory() as td, patch.object(assets, "fetch") as fetch:
-            with self.assertRaisesRegex(ValueError, "not published"):
-                assets.acquire("e2b", Path(td), vision="off")
+            private_registry = copy.deepcopy(assets.MODELS)
+            private_registry["e2b-q8"]["model"]["availability"] = "private_verified"
+            with patch.object(assets, "MODELS", private_registry):
+                with self.assertRaisesRegex(ValueError, "not published"):
+                    assets.acquire("e2b", Path(td), vision="off")
             fetch.assert_not_called()
             payload = b"pinned fixture"
             cache = Path(td)/"cache"

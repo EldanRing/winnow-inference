@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "Exact matching MTP assistants; E2B currently requires a verified local BF16 conversion.",
+  "status": "Exact matching MTP assistants with pinned upstream and distribution provenance.",
   "license": "Apache-2.0",
   "license_source": "https://ai.google.dev/gemma/apache_2",
   "assets": {
@@ -78,7 +78,11 @@
       "compatible_targets": [
         "Winnow-E2B-Q8_0.gguf"
       ],
-      "availability": "local_conversion_only"
+      "availability": "private_verified",
+      "distribution_repository": "EldanRing/Winnow-E2B",
+      "distribution_revision": "f0f9931c4d44e97091d14c0b8dba118eef32ff1b",
+      "distribution_path": "gguf/Gemma-4-E2B-IT-Assistant-BF16.gguf",
+      "url": "https://huggingface.co/EldanRing/Winnow-E2B/resolve/f0f9931c4d44e97091d14c0b8dba118eef32ff1b/gguf/Gemma-4-E2B-IT-Assistant-BF16.gguf"
     }
   }
 }

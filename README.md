@@ -19,7 +19,7 @@ See [the adaptive contract and limits](docs/ADAPTIVE.md).
 profiles, optional MTP4 and image-aware decisions. Native chat thinking has a
 separate control. Verified local E2B assets are required while the model repository remains
 private. [E2B setup, evidence and limits](docs/E2B.md) · [Upgrade instructions](docs/RELEASE.md).
-The existing 12B/E4B policies and defaults are preserved.
+The existing 12B/E4B policies are preserved; target K/V cache now defaults to F16.
 
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the
 GPU. Winnow-12B is a fine-tune of Gemma 4 12B; the same loaded model serves typed

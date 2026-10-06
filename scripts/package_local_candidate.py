@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare a private Linux/CUDA runtime candidate, with dependency and file receipts."""
+"""Prepare a Linux/CUDA runtime archive with dependency and file receipts."""
 
 import argparse
 import hashlib
@@ -75,8 +75,8 @@ def package(binary, output):
         "Use `bin/winnow presets` for context and memory guidance. E2B has explicit 8K/64K profiles.\n"
         "Ordinary chat thinking uses `--native-chat-reasoning on|off` independently.\n\n"
         "Model weights are separate. This archive requires compatible existing Linux/CUDA\n"
-        "libraries listed in candidate-manifest.json. E2B payloads are private; use verified\n"
-        "local assets as described in [the E2B guide](docs/E2B.md). Source setup.py is a separate\n"
+        "libraries listed in release-manifest.json. Model downloads and verified local reuse\n"
+        "are described in [the E2B guide](docs/E2B.md). Source setup.py is a separate\n"
         "source-build workflow.\n"
     )
     shutil.copy2(binary, output / "bin/winnow-server")
@@ -93,7 +93,7 @@ def package(binary, output):
         path = output / "bin" / name
         path.write_text(text)
         path.chmod(0o755)
-    receipt = {"status": "Private local review candidate; publication held",
+    receipt = {"status": "Prepared release artifact",
                "platform": "Linux x86_64/CUDA, tested RTX5070Ti SM120; not a portable/Mac claim",
                "binary_sha256": sha(binary), "runtime_lock_sha256": runtime_hash,
                "dependencies": dependencies,
@@ -101,7 +101,7 @@ def package(binary, output):
                "dependency_mode": "Requires the recorded runtime libraries already installed on the target host. Libraries/weights/build tools are not silently bundled or installed.",
                "files": {str(path.relative_to(output)): {"bytes": path.stat().st_size, "sha256": sha(path)}
                          for path in sorted(output.rglob("*")) if path.is_file()}}
-    (output / "candidate-manifest.json").write_text(json.dumps(receipt, indent=2) + "\n")
+    (output / "release-manifest.json").write_text(json.dumps(receipt, indent=2) + "\n")
     return receipt
 
 

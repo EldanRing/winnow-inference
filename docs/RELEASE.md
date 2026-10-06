@@ -7,7 +7,8 @@ and evidence limits](E2B.md). Model/projector payloads are verified in the priva
 
 The new runtime lock requires a matching rebuilt server. Older adaptive clients
 reject its changed identity; upgrade the client, manifests and binary together.
-12B/E4B model files, policy definitions and default settings are preserved.
+12B/E4B model files and policy definitions are preserved. Target K/V cache
+defaults change to F16 as described below.
 
 Choose `--reasoning off`, `selective`, or `always` in the CLI and Python client.
 Off remains the default; existing `on` commands retain selective routing.
@@ -20,18 +21,19 @@ The E4B study's aggregate evidence and selection/calibration provenance are now
 linked from [its results](REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost).
 That earlier client update preserved policy constants, model files and the server.
 
-## Local release package (2026-10-06)
+## Release v2026.10.06
 
 The E2B default selective policy is `e2b-raw99-blend50-v3`; the previous numbered
 policy remains available. The verified inference source is
-`ee6bd37d34ae35d2e69ebb0c4b0957a10c727357`. This local documentation and evidence
+`ee6bd37d34ae35d2e69ebb0c4b0957a10c727357`. The documentation and evidence
 update records the completed 3,277-case frozen comparison in [E2B](E2B.md).
 Numerical policy settings and native code are unchanged. The runtime reuses the
 sealed E2B-compatible server with SHA256
 `d531df29615f2ed906c038d27ffb54d965d6f9c94e47c7ff574839a1047200c3`
 and its dependency receipt. No server rebuild is needed for this update.
-Source/runtime archive hashes and the review diff are supplied beside the local
-package. Extract into a separate directory and reuse verified assets.
+The release assets are `winnow-source-v2026.10.06.tar.gz`,
+`winnow-linux-x86_64-cuda-v2026.10.06.tar.gz`, and `SHA256SUMS`.
+Archive hashes and the review diff are supplied beside the release package. Extract into a separate directory and reuse verified assets.
 
 ## Target cache default update
 

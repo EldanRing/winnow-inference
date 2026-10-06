@@ -4,7 +4,7 @@ E2B supports native decisions, ordinary chat and image-aware adaptive decisions
 on Linux/CUDA. It uses its own Q8 target, F16 projector and optional BF16 MTP
 assistant. Exact files are pinned in the [asset manifest](../manifests/release-assets-v1.json).
 The model and projector are verified in private repository revision
-`7439a194a1a948262115b02fb380daf4ecc77369`. Access requires authorization; the public
+`f0f9931c4d44e97091d14c0b8dba118eef32ff1b`. Access requires authorization; the public
 downloader uses verified local copies for private assets.
 
 ## Start and choose a mode
@@ -22,7 +22,9 @@ python3 scripts/winnow.py decide --model e2b --vision on --mtp on --context 64k 
 
 Source users must build the matching server first; see [installation](INSTALL.md).
 Use `bin/winnow` instead of `python3 scripts/winnow.py` in a matching runtime archive.
-The assistant is a separately verified local conversion, not a bundled download.
+The exact converted assistant is included in the model repository at the same
+pinned revision; it does not require a local conversion. Until publication, use
+its verified local file with `--asset-dir`.
 Its pinned upstream and conversion hashes are in [assistant provenance](../manifests/assistants-v1.json).
 
 | Decision mode | Behavior |

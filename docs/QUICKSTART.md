@@ -179,7 +179,7 @@ Use the filename and verification command shown for that version. Extract into
 a new directory and run its `bin/winnow` commands. See [upgrade instructions](RELEASE.md#upgrading)
 for reusing existing models, launch settings, and source builds.
 The archive requires CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries, with exact
-dependencies listed in `candidate-manifest.json`; they must already be installed.
+dependencies listed in `release-manifest.json`; they must already be installed.
 This is not a portable Mac binary
 or a system dependency installer. Model weights are separate.
 
