@@ -185,7 +185,7 @@
         "request_seconds": 180,
         "prompt_format": "e2b-canonical-v2"
       },
-      "quality_limit": "The canonical-v2 option serialization differs from the historical 8K benchmark prompt. Current text/image integration checks establish behavior, not quality validation; 64K evidence covers fit and small requests only."
+      "quality_limit": "Retained numbered-prompt baseline: Jev195/231, Kev845/1046 verified label accuracy; Typed1342/2000 hard synthetic teacher agreement. Frozen 8K regression comparison."
     },
     "e2b-raw99-blend50-v3": {
       "id": "e2b-raw99-blend50-v3",
@@ -225,7 +225,7 @@
         "request_seconds": 180,
         "prompt_format": "e2b-native-labels-v3"
       },
-      "quality_limit": "Restores native scorer label serialization while retaining canonical candidate semantics. A frozen 24-case controlled comparison isolated prompt drift and reproduced historical reasoning on all 23 inputs without literal less-than escaping. This is bounded regression evidence, not full-panel or independent text/image/64K quality validation."
+      "quality_limit": "Frozen full-panel 8K regression completed3277/3277: Jev202/231, Kev851/1046 verified label accuracy; Typed1366/2000 hard synthetic teacher agreement. Two context-limit direct fallbacks included; no public-label tuning. Image evidence is recorded separately."
     }
   }
 }

@@ -60,8 +60,8 @@ For a separately managed model, `policy_manifest` accepts a trusted local versio
 1 policy manifest alongside `policy_id` and the runtime contract. This does not
 add the model to download/setup or replace any shipped policy. The lower-level
 CLI offers `--policy-manifest PATH --runtime-profile PATH`. Use the model's own
-verified launcher. A 64K contract declares capacity and settings; it does not
-validate policy quality at 64K.
+verified launcher. E2B provides explicit 8K and 64K contracts; Dani confirms
+his own 64K testing. Recorded full-panel scores use 8K.
 
 The `e2b-native-labels-v3` prompt format preserves native candidate semantics:
 choice and Boolean keys name the option, non-null values describe it, and null
@@ -70,7 +70,8 @@ Options use the actual labels returned by native inspection, including labels
 beyond Z, so the explanation and final scorer share the same mapping. Missing
 or inconsistent inspection labels are rejected instead of guessed. The old
 numbered `e2b-canonical-v2` format remains available for reproducibility.
-Bounded text regression checks do not validate image or 64K quality.
+The completed 3,277-case v3 text regression and the recorded image-conditioned
+generation/final-scoring checks are tracked separately in the E2B evidence.
 
 Internal adaptive generation explicitly sends
 `chat_template_kwargs.enable_thinking=false`, independently of the server's

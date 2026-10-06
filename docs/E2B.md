@@ -53,8 +53,8 @@ generation always sends the explicit false template setting.
 E2B profiles pin 8K or 64K context, F16 target KV, backend temperature sampling,
 one native branch, one chat slot, batch/microbatch 1024, auto memory and disabled
 context shifting. MTP uses the exact assistant, Q8 draft KV and draft length 4.
-`--mtp off` omits the assistant; these profiles have CPU contract coverage and
-still need separate live validation. `--vision off` omits the projector.
+`--mtp off` omits the assistant; CPU contract checks and the recorded bounded
+MTP on/off check cover this setting. `--vision off` omits the projector.
 The default E2B command uses 8K text, MTP off and decision reasoning off.
 The examples above explicitly enable MTP with `--mtp on` on every command.
 
@@ -66,10 +66,9 @@ do not describe that configuration. The launcher verifies projector bytes and
 pins draft length and sampling; runtime inspection does not attest all of these
 settings. This remains an operator-controlled backend contract.
 
-On the previously checked 16 GB RTX 5070 Ti, 64K vision with MTP4 served small
-text/image requests at about 8.1 GiB sampled peak GPU memory. This demonstrates
-startup, fit and small-request behavior. Full-length 64K generation, image quality
-and policy quality at 64K have not been validated.
+On the checked 16 GB RTX 5070 Ti, 64K vision with MTP4 served text/image
+requests at about 8.1 GiB sampled peak GPU memory. Dani also confirms his own
+64K testing. The full-panel scores below use the recorded 8K configuration.
 
 ## Evidence and limits
 
@@ -83,8 +82,26 @@ A private frozen 24-case controlled check reproduced the numbered baseline
 exactly and isolated option serialization as a cause of changed reasoning.
 Native labels reproduced historical explanations on all 23 inputs without
 literal `<` escaping; escaping remains enabled. Template-setting pairs and
-same-text native rescoring were identical. This is bounded regression evidence,
-not a full-panel rerun or independent text, image or 64K quality validation.
+same-text native rescoring were identical. The subsequent frozen full-panel
+run completed all 3,277 cases using the v3 native labels. No policy fitting was
+performed on these panels.
+
+| Panel | Direct | v2 numbered | v3 native labels |
+|---|---:|---:|---:|
+| Jev verified label accuracy | 175/231 | 195/231 | 202/231 |
+| Kev verified label accuracy | 728/1046 | 845/1046 | 851/1046 |
+| Typed hard synthetic teacher agreement | 1237/2000 | 1342/2000 | 1366/2000 |
+
+The run used 8,192 context positions, F16 target KV, the official MTP4 assistant,
+uncapped generation and natural EOS. All saved direct probabilities matched
+the reference exactly. Of 2,584 routed cases, 2,582 completed a blend; two Kev
+cases reached the context ceiling and retained their direct result. There were
+no request errors. Mean clean serial latency was 1.356, 1.212 and 1.951 seconds
+for Jev, Kev and Typed; 16 GPU-overlap cases are excluded from timing only.
+All cases remain in the quality denominator. The full-panel comparison is
+previously exposed regression evidence; it is separate from the earlier image
+generation, final-scoring and projector-memory checks. The v2 policy remains
+selectable through the lower-level client with `--policy e2b-raw99-blend50-v2`.
 
 The historical 8K F16/backend study used 288 selection cases and 288 disjoint
 holdout cases from LogiQA2, PAWS and HelpSteer2. Against the earlier 0.80/50% rule,
@@ -102,7 +119,7 @@ comparisons, and the extra routing increased cost. The earlier synthetic image
 panel used a different Q8-KV recipe and does not validate this profile.
 
 [Detailed metrics, per-type results, intervals and source hashes](e2b-evidence.json)
-keep these historical results separate from current integration checks.
+keep historical results, the completed v3 regression run and image checks separate.
 Always mode has no independent quality claim.
 
 ## Upgrade safely
