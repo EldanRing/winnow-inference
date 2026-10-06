@@ -10,7 +10,7 @@ frozen temperatures and blend. MTP uses the matching assistant to draft ordinary
 generate no tokens, so MTP does not itself add decision reasoning.
 
 12B/E4B model and assistant assets are published in the existing Winnow repositories.
-E2B payloads are private and require verified local reuse; see [the E2B guide](E2B.md).
+E2B uses pinned target, projector and assistant downloads; see [the E2B guide](E2B.md).
 Exact sizes and SHA256 are checked; no other weights are substituted. Nothing in
 setup publishes files or uses a paid service.
 
@@ -177,7 +177,9 @@ Download a Linux/CUDA runtime archive and its checksum file from the
 [versioned releases](https://github.com/EldanRing/winnow-inference/releases).
 Use the filename and verification command shown for that version. Extract into
 a new directory and run its `bin/winnow` commands. See [upgrade instructions](RELEASE.md#upgrading)
-for reusing existing models, launch settings, and source builds.
+for exact download/extract commands, offline reuse of existing models, the F16
+cache change, saved launch settings, source builds and rollback. There is no
+automatic updater; the new runtime includes its matching client/manifests/binary.
 The archive requires CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries, with exact
 dependencies listed in `release-manifest.json`; they must already be installed.
 This is not a portable Mac binary

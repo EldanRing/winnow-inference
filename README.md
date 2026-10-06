@@ -17,8 +17,8 @@ See [the adaptive contract and limits](docs/ADAPTIVE.md).
 
 **Winnow-E2B:** experimental Linux/CUDA support includes 8K/64K F16-KV
 profiles, optional MTP4 and image-aware decisions. Native chat thinking has a
-separate control. Verified local E2B assets are required while the model repository remains
-private. [E2B setup, evidence and limits](docs/E2B.md) · [Upgrade instructions](docs/RELEASE.md).
+separate control. The E2B target, projector and matching assistant are pinned downloads from
+[EldanRing/Winnow-E2B](https://huggingface.co/EldanRing/Winnow-E2B). [E2B setup, evidence and limits](docs/E2B.md) · [Upgrade instructions](docs/RELEASE.md).
 The existing 12B/E4B policies are preserved; target K/V cache now defaults to F16.
 
 **64K context and vision on a 16 GB RTX 5070 Ti**, with Q8 weights fully on the

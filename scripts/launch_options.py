@@ -53,7 +53,7 @@ def preset_list():
               'Measured historical baselines on RTX 5070 Ti (different modes):']
     lines += [f'  {name}: {value}' for name, value in BASELINES.items()]
     lines += ['Image reasoning supports E4B/NVFP4 8K vision+MTP and experimental E2B 8K/64K profiles.',
-              'E2B assets are private; use exact verified local files. Other E2B capacities require a custom contract.',
+              'E2B uses pinned model-repository downloads or verified local files. Other capacities require a custom contract.',
               'MTP uses one chat slot and auto memory on Linux/CUDA.',
               'Q8 vision + MTP did not fit the measured 16 GB profile; larger/custom configurations are unvalidated.',
               'Existing long model and preset names remain compatibility aliases.']

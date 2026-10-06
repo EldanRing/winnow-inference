@@ -3,17 +3,16 @@
 E2B supports native decisions, ordinary chat and image-aware adaptive decisions
 on Linux/CUDA. It uses its own Q8 target, F16 projector and optional BF16 MTP
 assistant. Exact files are pinned in the [asset manifest](../manifests/release-assets-v1.json).
-The model and projector are verified in private repository revision
-`f0f9931c4d44e97091d14c0b8dba118eef32ff1b`. Access requires authorization; the public
-downloader uses verified local copies for private assets.
+The target, projector and assistant are pinned to model repository revision
+`f0f9931c4d44e97091d14c0b8dba118eef32ff1b`. The downloader verifies their sizes
+and SHA256 hashes. Existing matching local assets can be reused with `--asset-dir`.
 
 ## Start and choose a mode
 
-Place the manifest-named files in a local asset directory, then run:
+Download the manifest-pinned files, then run:
 
 ```sh
-python3 scripts/winnow.py download --model e2b --vision on --mtp on \
-  --asset-dir /path/to/verified-assets --offline
+python3 scripts/winnow.py download --model e2b --vision on --mtp on
 python3 scripts/winnow.py serve --model e2b --vision on --mtp on --context 64k
 # In another terminal, matching the server's vision, MTP and context:
 python3 scripts/winnow.py decide --model e2b --vision on --mtp on --context 64k \
@@ -23,8 +22,7 @@ python3 scripts/winnow.py decide --model e2b --vision on --mtp on --context 64k 
 Source users must build the matching server first; see [installation](INSTALL.md).
 Use `bin/winnow` instead of `python3 scripts/winnow.py` in a matching runtime archive.
 The exact converted assistant is included in the model repository at the same
-pinned revision; it does not require a local conversion. Until publication, use
-its verified local file with `--asset-dir`.
+pinned revision; it does not require a local conversion.
 Its pinned upstream and conversion hashes are in [assistant provenance](../manifests/assistants-v1.json).
 
 | Decision mode | Behavior |

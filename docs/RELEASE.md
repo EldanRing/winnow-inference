@@ -3,7 +3,7 @@
 E2B adds exact artifact bindings, 8K/64K F16-KV runtime profiles, optional MTP4
 and text/image decisions. Its native compatibility patch admits width 1536
 while retaining target/assistant width and vocabulary checks. See [E2B setup
-and evidence limits](E2B.md). Model/projector payloads are verified in the private repository.
+and evidence limits](E2B.md). The target, projector and matching assistant are pinned downloads from the model repository.
 
 The new runtime lock requires a matching rebuilt server. Older adaptive clients
 reject its changed identity; upgrade the client, manifests and binary together.
@@ -47,48 +47,86 @@ server binary are unchanged. See [cache precision](PRESETS-AND-ASSETS.md#cache-p
 
 ## Upgrading
 
-Keep your current installation and launch command until the new version works.
-Use the exact published tag/archive and checksum listed on its
-[release page](https://github.com/EldanRing/winnow-inference/releases).
+There is no automatic updater. The easiest Linux/CUDA upgrade is the new runtime
+archive: it contains the matching client, manifests and native binary, so no build
+is needed. Keep the previous install and launch command for rollback. The new
+runtime requires compatible CUDA 13, NCCL 2 and OpenSSL 3 libraries already installed;
+their exact dependency receipt is in `release-manifest.json`.
 
-For a Git source install, create a separate checkout so local edits and settings
-stay in place:
+### Linux/CUDA runtime: download, verify, extract
+
+Run these commands in a fresh directory after this version appears on the release
+page. `mkdir` intentionally fails if the directory already exists; do not extract
+over an existing installation.
 
 ```sh
-WINNOW_RELEASE_TAG='replace-with-published-tag'
+mkdir winnow-upgrade-v2026.10.06
+cd winnow-upgrade-v2026.10.06
+curl -fLO https://github.com/EldanRing/winnow-inference/releases/download/v2026.10.06/winnow-linux-x86_64-cuda-v2026.10.06.tar.gz
+curl -fLO https://github.com/EldanRing/winnow-inference/releases/download/v2026.10.06/SHA256SUMS
+sha256sum --check --ignore-missing SHA256SUMS
+tar -xzf winnow-linux-x86_64-cuda-v2026.10.06.tar.gz
+cd winnow-linux-x86_64-cuda-v2026.10.06
+```
+
+Use an absolute path to your existing model directory. An optional offline check
+verifies those files without downloading or replacing them. This example is for
+E4B text with MTP and decision reasoning off; use your own model and mode flags:
+
+```sh
+WINNOW_OLD_MODELS='/absolute/path/to/existing/models'
+bin/winnow download --model e4b --model-dir "$WINNOW_OLD_MODELS" \
+  --vision off --mtp off --offline
+bin/winnow serve --model e4b --model-dir "$WINNOW_OLD_MODELS" \
+  --context 8k --vision off --mtp off --reasoning off --cache f16 --port 8091
+```
+
+Before starting, stop only your own old server on that port. Launch never downloads
+models. Keep the model, context, vision, MTP, port, GPU, authentication and other
+explicit options from your saved command; replace its executable with the new
+`bin/winnow`, remove an old `--server` override, and supply the existing model path.
+Use the new directory's client too: replace `python3 scripts/winnow.py decide`
+with `bin/winnow decide` and retain its request, URL and mode options. Existing
+`--reasoning on` and `--mode experimental-adaptive` still mean selective;
+`--mode direct` still means direct. Server/client vision, MTP and context settings
+must match. Ordinary chat thinking remains a separate option.
+
+**Cache change:** target K/V now defaults to F16 for every model. To retain the
+previous Q8 cache, explicitly pass `--cache q8_0` to both `serve` and `decide`.
+This changes no weight files. F16 can use more memory, so keep an explicit Q8
+override when preserving the previous memory configuration. Decision reasoning,
+MTP and ordinary chat thinking still default to off; changing executables does
+not enable them. Existing custom settings are retained through your saved launch
+options and authentication files/environment; no configuration file is migrated
+or rewritten. Automatic llama.cpp configuration files remain ignored by the
+managed launcher, as in the prior release.
+
+### Source installs
+
+Source users need the new client/manifests **and a rebuilt server** because the
+runtime lock changed. Keep local edits by creating a separate checkout:
+
+```sh
 git fetch origin --tags
-git worktree add --detach ../winnow-updated "$WINNOW_RELEASE_TAG"
-```
-
-An extracted source archive can instead be unpacked into a new directory.
-From the new source directory, rebuild the server and reuse your existing verified
-model directory. For example:
-
-```sh
+git worktree add --detach ../winnow-v2026.10.06 v2026.10.06
+cd ../winnow-v2026.10.06
 python3 scripts/build.py
-python3 scripts/winnow.py serve --model e4b --reasoning selective \
-  --model-dir /absolute/path/to/existing/models
+python3 scripts/winnow.py serve --model e4b \
+  --model-dir /absolute/path/to/existing/models --cache f16
 ```
 
-Retain your own model, MTP, context, numerical, port and authentication settings
-in that command. Follow [source setup](QUICKSTART.md#source-setup) for build
-prerequisites. Reusing the earlier 12B/E4B binary is not compatible with this
-runtime lock. The previous E2B private runtime has the same lock, but distributing
-it still requires its exact build and dependency receipt plus binary checks.
+Alternatively extract `winnow-source-v2026.10.06.tar.gz` into a new directory and
+build there. Retain your own launch options in the final command. Do not reuse
+the earlier public 12B/E4B binary or overlay old scripts/manifests onto the new
+package. Apple Silicon users use a source build; the Linux runtime is not a Mac
+binary. Source build prerequisites are in [the quickstart](QUICKSTART.md#source-setup).
 
-For a downloaded runtime, verify the archive checksum and extract into a new
-directory. Run the new `bin/winnow` and reuse the old model directory with
-`--model-dir /absolute/path/to/existing/models`; the new archive supplies its
-server binary. Do not overlay old scripts or manifests onto the new package.
-No model download is needed when those files match the new manifest.
+### Rollback
 
-No configuration-file migration is required. Existing `--reasoning on` and
-`--mode experimental-adaptive` remain selective; `--mode direct` remains direct.
-Keep API-key files/environment variables and your explicit launch options.
-Routing is chosen by the new client on each call; the native decision endpoint
-remains direct. Stop only your own running server before restarting with the
-new command. To return to the prior version, run its saved command from the
-old directory. Neither installation nor model files need to be deleted.
+Stop your new server, then restart the saved command from the old install with its
+old client and original port/settings. The old directory, model files and custom
+configuration remain in place. No models need to be deleted, copied or downloaded
+again. No user service is edited automatically.
 
 ## Earlier E4B policy update (2026.10.05)
 

@@ -78,7 +78,7 @@
       "compatible_targets": [
         "Winnow-E2B-Q8_0.gguf"
       ],
-      "availability": "private_verified",
+      "availability": "published",
       "distribution_repository": "EldanRing/Winnow-E2B",
       "distribution_revision": "f0f9931c4d44e97091d14c0b8dba118eef32ff1b",
       "distribution_path": "gguf/Gemma-4-E2B-IT-Assistant-BF16.gguf",
