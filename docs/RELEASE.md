@@ -20,9 +20,9 @@ The E4B study's aggregate evidence and selection/calibration provenance are now
 linked from [its results](REASONING-RESULTS.md#e4b-policy-update-measured-quality-and-cost).
 That earlier client update preserved policy constants, model files and the server.
 
-## Local v3 package (2026-10-06)
+## Local release package (2026-10-06)
 
-The E2B default selective policy is `e2b-raw99-blend50-v3`; the numbered v2
+The E2B default selective policy is `e2b-raw99-blend50-v3`; the previous numbered
 policy remains available. The verified inference source is
 `ee6bd37d34ae35d2e69ebb0c4b0957a10c727357`. This local documentation and evidence
 update records the completed 3,277-case frozen comparison in [E2B](E2B.md).

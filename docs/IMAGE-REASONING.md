@@ -70,7 +70,7 @@ Options use the actual labels returned by native inspection, including labels
 beyond Z, so the explanation and final scorer share the same mapping. Missing
 or inconsistent inspection labels are rejected instead of guessed. The old
 numbered `e2b-canonical-v2` format remains available for reproducibility.
-The completed 3,277-case v3 text regression and the recorded image-conditioned
+The completed 3,277-case text regression and the recorded image-conditioned
 generation/final-scoring checks are tracked separately in the E2B evidence.
 
 Internal adaptive generation explicitly sends

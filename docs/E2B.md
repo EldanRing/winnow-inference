@@ -83,10 +83,10 @@ exactly and isolated option serialization as a cause of changed reasoning.
 Native labels reproduced historical explanations on all 23 inputs without
 literal `<` escaping; escaping remains enabled. Template-setting pairs and
 same-text native rescoring were identical. The subsequent frozen full-panel
-run completed all 3,277 cases using the v3 native labels. No policy fitting was
+run completed all 3,277 cases using native scorer labels. No policy fitting was
 performed on these panels.
 
-| Panel | Direct | v2 numbered | v3 native labels |
+| Panel | Direct | Previous numbered | Native labels |
 |---|---:|---:|---:|
 | Jev verified label accuracy | 175/231 | 195/231 | 202/231 |
 | Kev verified label accuracy | 728/1046 | 845/1046 | 851/1046 |
@@ -100,7 +100,7 @@ no request errors. Mean clean serial latency was 1.356, 1.212 and 1.951 seconds
 for Jev, Kev and Typed; 16 GPU-overlap cases are excluded from timing only.
 All cases remain in the quality denominator. The full-panel comparison is
 previously exposed regression evidence; it is separate from the earlier image
-generation, final-scoring and projector-memory checks. The v2 policy remains
+generation, final-scoring and projector-memory checks. The previous numbered policy remains
 selectable through the lower-level client with `--policy e2b-raw99-blend50-v2`.
 
 The historical 8K F16/backend study used 288 selection cases and 288 disjoint
@@ -119,7 +119,7 @@ comparisons, and the extra routing increased cost. The earlier synthetic image
 panel used a different Q8-KV recipe and does not validate this profile.
 
 [Detailed metrics, per-type results, intervals and source hashes](e2b-evidence.json)
-keep historical results, the completed v3 regression run and image checks separate.
+keep historical results, the completed regression run and image checks separate.
 Always mode has no independent quality claim.
 
 ## Upgrade safely

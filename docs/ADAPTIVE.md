@@ -25,10 +25,13 @@ numerical settings, accepted overrides and artifact verification.
 | `e4b-calibrated75-g95-v1` (E4B default when opted in) | max probability <0.95 | 1.2041180007310734 /3.4209273427377678 | 25/75 direct/reasoned |
 | `e4b-calibrated50-v1` (legacy) | max probability <0.8 | 1.2041180007310734 /3.4209273427377678 | 50/50 |
 | `q8-fixed50-v1` | max probability <0.8 | 1 /1 | 50/50 |
-| `e2b-raw99-blend50-v2` (experimental) | max probability <0.99 | 1 /1 | 50/50 |
+| `e2b-raw99-blend50-v3` (E2B default when opted in) | max probability <0.99 | 1 /1 | 50/50 |
+| `e2b-raw99-blend50-v2` (previous numbered prompt) | max probability <0.99 | 1 /1 | 50/50 |
 
-E2B requires an explicit runtime profile and uses a distinct canonical-v2 option
-serialization. Historical E2B measurements do not validate that prompt.
+E2B requires an explicit runtime profile. Its default reasoning prompt uses
+the native scorer labels; the previous numbered serialization remains available
+through its policy identifier. The completed frozen comparison is recorded in
+the E2B evidence.
 See [E2B settings and evidence](E2B.md).
 
 Adaptive inputs must have **one named question and a text, object, or array state**.
