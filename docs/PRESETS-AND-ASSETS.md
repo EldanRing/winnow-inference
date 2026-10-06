@@ -56,8 +56,10 @@ need an [explicit runtime contract](IMAGE-REASONING.md). Q8 vision plus MTP
 exceeded the measured 16 GB profile; custom/larger
 configurations are unvalidated. E2B adds experimental 8K/64K text/vision profiles
 with F16 target KV by default, backend temperature sampling and MTP4 or explicit MTP off. Its named
-profiles pin numerical settings except the explicit target-cache selection, and its assets currently require verified local
-reuse. See [E2B setup and limits](E2B.md). No silent MTP disable or context reduction occurs.
+profiles pin numerical settings except the explicit target-cache selection. Its target,
+projector and assistant use manifest-pinned public downloads with SHA256 verification;
+matching local assets can also be reused. See [E2B setup and limits](E2B.md).
+No silent MTP disable or context reduction occurs.
 
 Memory estimates are advisory, not admission guarantees. Context, images, cache,
 batches and concurrency change usage. Published measurements remain specific to

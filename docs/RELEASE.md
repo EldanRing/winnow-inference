@@ -71,9 +71,20 @@ curl -fsSL https://raw.githubusercontent.com/EldanRing/winnow-inference/v2026.10
 
 The bootstrap obtains the updater from the official release and verifies its
 SHA256 before running it. It creates the actual `bin/winnow` command inside that
-installation. Thereafter, use `bin/winnow update`. New source installs can start
-with `python3 scripts/winnow.py update`; new runtime installs already have
-`bin/winnow update`.
+installation. Thereafter, use `bin/winnow update`.
+
+For a new source checkout or freshly unpacked source archive, complete the
+[initial setup and build](../README.md#2-choose-a-preset-and-set-up) first:
+
+```sh
+python3 scripts/winnow.py setup --model q8
+python3 scripts/winnow.py update
+```
+
+Choose another model with `--model nv4`, `e4b` or `e2b`. The first `update` enables
+`bin/winnow update` for later releases. If the source archive is already current,
+`update` reports `already_current` and does not perform the initial build. New
+runtime installs already provide `bin/winnow update`.
 
 Model files and user configuration outside managed code remain in place. The
 updater stores active code and one automatic recovery version under `.winnow/`;
