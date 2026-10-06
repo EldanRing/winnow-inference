@@ -32,8 +32,8 @@ sealed E2B-compatible server with SHA256
 `d531df29615f2ed906c038d27ffb54d965d6f9c94e47c7ff574839a1047200c3`
 and its dependency receipt. No server rebuild is needed for this update.
 The release assets are `winnow-source-v2026.10.06.tar.gz`,
-`winnow-linux-x86_64-cuda-v2026.10.06.tar.gz`, and `SHA256SUMS`.
-Archive hashes and the review diff are supplied beside the release package. Extract into a separate directory and reuse verified assets.
+`winnow-linux-x86_64-cuda-v2026.10.06.tar.gz`, `winnow-update.py`, and `SHA256SUMS`.
+Archive hashes and the review diff are supplied beside the release package. For a first install, extract once; later releases use `bin/winnow update` with existing assets.
 
 ## Target cache default update
 
@@ -45,88 +45,60 @@ weight precision is unchanged. Existing historical Q8-cache measurements and
 reproduction commands retain their recorded settings. Native code and the sealed
 server binary are unchanged. See [cache precision](PRESETS-AND-ASSETS.md#cache-precision).
 
-## Upgrading
+## Updating
 
-There is no automatic updater. The easiest Linux/CUDA upgrade is the new runtime
-archive: it contains the matching client, manifests and native binary, so no build
-is needed. Keep the previous install and launch command for rollback. The new
-runtime requires compatible CUDA 13, NCCL 2 and OpenSSL 3 libraries already installed;
-their exact dependency receipt is in `release-manifest.json`.
-
-### Linux/CUDA runtime: download, verify, extract
-
-Run these commands in a fresh directory after this version appears on the release
-page. `mkdir` intentionally fails if the directory already exists; do not extract
-over an existing installation.
+From the installation directory, run:
 
 ```sh
-mkdir winnow-upgrade-v2026.10.06
-cd winnow-upgrade-v2026.10.06
-curl -fLO https://github.com/EldanRing/winnow-inference/releases/download/v2026.10.06/winnow-linux-x86_64-cuda-v2026.10.06.tar.gz
-curl -fLO https://github.com/EldanRing/winnow-inference/releases/download/v2026.10.06/SHA256SUMS
-sha256sum --check --ignore-missing SHA256SUMS
-tar -xzf winnow-linux-x86_64-cuda-v2026.10.06.tar.gz
-cd winnow-linux-x86_64-cuda-v2026.10.06
+bin/winnow update
 ```
 
-Use an absolute path to your existing model directory. An optional offline check
-verifies those files without downloading or replacing them. This example is for
-E4B text with MTP and decision reasoning off; use your own model and mode flags:
+It checks the latest official release, downloads and verifies only the matching
+code/runtime asset, and switches the client, manifests and native server together.
+No repeated Git pulls, cloning, model downloads or manually managed install
+folders are needed. If already current, it makes no code download. Keep using
+your existing launch command, model paths and explicit settings. Running services
+are not restarted; the new version applies on your next start.
+
+### Existing installations: one-time bootstrap
+
+For installations older than v2026.10.06, run this once after the release is
+published, replacing the path with your current Winnow installation:
 
 ```sh
-WINNOW_OLD_MODELS='/absolute/path/to/existing/models'
-bin/winnow download --model e4b --model-dir "$WINNOW_OLD_MODELS" \
-  --vision off --mtp off --offline
-bin/winnow serve --model e4b --model-dir "$WINNOW_OLD_MODELS" \
-  --context 8k --vision off --mtp off --reasoning off --cache f16 --port 8091
+curl -fsSL https://raw.githubusercontent.com/EldanRing/winnow-inference/v2026.10.06/scripts/bootstrap_update.py | python3 - /absolute/path/to/winnow
 ```
 
-Before starting, stop only your own old server on that port. Launch never downloads
-models. Keep the model, context, vision, MTP, port, GPU, authentication and other
-explicit options from your saved command; replace its executable with the new
-`bin/winnow`, remove an old `--server` override, and supply the existing model path.
-Use the new directory's client too: replace `python3 scripts/winnow.py decide`
-with `bin/winnow decide` and retain its request, URL and mode options. Existing
-`--reasoning on` and `--mode experimental-adaptive` still mean selective;
-`--mode direct` still means direct. Server/client vision, MTP and context settings
-must match. Ordinary chat thinking remains a separate option.
+The bootstrap obtains the updater from the official release and verifies its
+SHA256 before running it. It creates the actual `bin/winnow` command inside that
+installation. Thereafter, use `bin/winnow update`. New source installs can start
+with `python3 scripts/winnow.py update`; new runtime installs already have
+`bin/winnow update`.
 
-**Cache change:** target K/V now defaults to F16 for every model. To retain the
-previous Q8 cache, explicitly pass `--cache q8_0` to both `serve` and `decide`.
-This changes no weight files. F16 can use more memory, so keep an explicit Q8
-override when preserving the previous memory configuration. Decision reasoning,
-MTP and ordinary chat thinking still default to off; changing executables does
-not enable them. Existing custom settings are retained through your saved launch
-options and authentication files/environment; no configuration file is migrated
-or rewritten. Automatic llama.cpp configuration files remain ignored by the
-managed launcher, as in the prior release.
+Model files and user configuration outside managed code remain in place. The
+updater stores active code and one automatic recovery version under `.winnow/`;
+users do not manage those directories. Interrupted or invalid downloads leave
+the current version selected. Rerun the same command after an interruption.
+Local modifications to source/package files are refused rather than overwritten;
+commit/stash source edits or keep that customized install outside automatic updates.
 
-### Source installs
+### Platforms and settings
 
-Source users need the new client/manifests **and a rebuilt server** because the
-runtime lock changed. Keep local edits by creating a separate checkout:
+Linux x86-64 runtime installs use a matching CUDA archive after runtime-library
+and GPU compatibility checks. Source installs build the new source automatically
+with their existing prerequisites; cached pinned llama.cpp sources are reused.
+Existing CMake backend/compiler/architecture settings are retained. macOS uses a
+source build, never the Linux/CUDA binary. To choose a host-specific source build
+explicitly, run `bin/winnow update --source`.
 
-```sh
-git fetch origin --tags
-git worktree add --detach ../winnow-v2026.10.06 v2026.10.06
-cd ../winnow-v2026.10.06
-python3 scripts/build.py
-python3 scripts/winnow.py serve --model e4b \
-  --model-dir /absolute/path/to/existing/models --cache f16
-```
+**F16 target K/V is the new default.** Existing weight files are unchanged. Keep
+`--cache q8_0` explicitly on both `serve` and `decide` to retain Q8 cache. Context,
+vision, MTP, reasoning, ports, GPU and authentication settings remain your saved
+launch options; no configuration file is rewritten or service automatically edited.
+Reasoning and MTP still default to off. Server/client settings must match.
 
-Alternatively extract `winnow-source-v2026.10.06.tar.gz` into a new directory and
-build there. Retain your own launch options in the final command. Do not reuse
-the earlier public 12B/E4B binary or overlay old scripts/manifests onto the new
-package. Apple Silicon users use a source build; the Linux runtime is not a Mac
-binary. Source build prerequisites are in [the quickstart](QUICKSTART.md#source-setup).
-
-### Rollback
-
-Stop your new server, then restart the saved command from the old install with its
-old client and original port/settings. The old directory, model files and custom
-configuration remain in place. No models need to be deleted, copied or downloaded
-again. No user service is edited automatically.
+If a release causes a problem, the optional `bin/winnow rollback` selects the
+automatic recovery version. No folders or backups need to be managed manually.
 
 ## Earlier E4B policy update (2026.10.05)
 

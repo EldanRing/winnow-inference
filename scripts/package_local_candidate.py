@@ -16,7 +16,8 @@ RUNTIME_FILES = ["scripts/serve.py", "scripts/profiles.py", "scripts/verify_mode
                  "examples/adaptive-decision.json", "examples/decisions.json", "examples/client.py",
                  "third_party/gemma-assistants-LICENSE-APACHE-2.0.txt", "third_party/gemma-assistants-NOTICE.txt",
                  "scripts/adaptive_policy.py", "scripts/reasoning_contract.py", "scripts/decision_client.py", "scripts/http_client.py",
-                 "scripts/install_assistants.py",
+                 "scripts/install_assistants.py", "scripts/update.py", "scripts/bootstrap_update.py",
+                 "manifests/update-v1.json",
                  "manifests/models.json", "manifests/adaptive-v1.json", "runtime.lock.json",
                  "manifests/assistants-v1.json", "manifests/runtime-presets-v1.json",
                  "LICENSE", "third_party/llama.cpp-LICENSE",
@@ -73,6 +74,8 @@ def package(binary, output):
         "with `on` retained as an alias for selective. Routing happens in the client.\n"
         "`--mtp on|off` and `--vision on|off` explicitly. Defaults are off, context 8K.\n"
         "Use `bin/winnow presets` for context and memory guidance. E2B has explicit 8K/64K profiles.\n"
+        "Update with `bin/winnow update`; models and user settings remain at their existing paths.\n"
+        "The updater switches matching client/manifests/server together and keeps one automatic recovery version.\n"
         "Ordinary chat thinking uses `--native-chat-reasoning on|off` independently.\n\n"
         "Model weights are separate. This archive requires compatible existing Linux/CUDA\n"
         "libraries listed in release-manifest.json. Model downloads and verified local reuse\n"
@@ -94,6 +97,9 @@ def package(binary, output):
         path.write_text(text)
         path.chmod(0o755)
     receipt = {"status": "Prepared release artifact",
+               "release_version": json.loads((ROOT / 'manifests/update-v1.json').read_text())['release_version'],
+               "package_kind": "runtime", "platform_system": "Linux", "platform_machine": "x86_64",
+               "cuda_architectures": [120],
                "platform": "Linux x86_64/CUDA, tested RTX5070Ti SM120; not a portable/Mac claim",
                "binary_sha256": sha(binary), "runtime_lock_sha256": runtime_hash,
                "dependencies": dependencies,

@@ -17,3 +17,5 @@ __pycache__/
 .release-work/
 private-release/
 dist/
+
+.winnow/

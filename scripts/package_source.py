@@ -21,6 +21,7 @@ PUBLIC_ROOT_FILES = {
     "README.md",
     "ruff.toml",
     "runtime.lock.json",
+    "release-manifest.json",
 }
 PUBLIC_DIRECTORIES = {
     ".github",
@@ -81,7 +82,8 @@ def package(root, output, init_git=False):
     files = {}
     with tarfile.open(fileobj=io.BytesIO(data), mode="r:") as archive:
         members = [member for member in archive
-                   if not member.isdir() and member.name not in PRIVATE_REVIEW_FILES]
+                   if not member.isdir() and member.name not in PRIVATE_REVIEW_FILES
+                   and member.name != 'release-manifest.json']
         for member in members:
             if not member.isfile() or not allowed(member.name):
                 raise ValueError(f"Not approved for the public source package: {member.name}")
@@ -93,6 +95,14 @@ def package(root, output, init_git=False):
             path.write_bytes(payload)
             path.chmod(0o755 if member.mode & 0o111 else 0o644)
             files[member.name] = hashlib.sha256(payload).hexdigest()
+    manifest = {"package_kind": "source", "source_commit": revision,
+                "release_version": (json.loads((root / 'manifests/update-v1.json').read_text())['release_version']
+                                    if (root / 'manifests/update-v1.json').exists() else 'unversioned'),
+                "files": {name: {"sha256": digest, "bytes": (output/name).stat().st_size}
+                          for name, digest in files.items()}}
+    manifest_path = output/'release-manifest.json'
+    manifest_path.write_text(json.dumps(manifest, indent=2)+'\n')
+    files['release-manifest.json'] = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     if init_git:
         subprocess.run(["git", "init", "-b", "main", str(output)], check=True, capture_output=True)
         subprocess.run(["git", "-C", str(output), "add", "."], check=True)

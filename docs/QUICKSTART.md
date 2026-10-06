@@ -176,10 +176,9 @@ The same asset options work with `scripts/setup.py`.
 Download a Linux/CUDA runtime archive and its checksum file from the
 [versioned releases](https://github.com/EldanRing/winnow-inference/releases).
 Use the filename and verification command shown for that version. Extract into
-a new directory and run its `bin/winnow` commands. See [upgrade instructions](RELEASE.md#upgrading)
-for exact download/extract commands, offline reuse of existing models, the F16
-cache change, saved launch settings, source builds and rollback. There is no
-automatic updater; the new runtime includes its matching client/manifests/binary.
+a new directory and run its `bin/winnow` commands. For later releases, run `bin/winnow update`; it updates the matching client,
+manifests and native binary together while retaining existing models and settings.
+See [the one-time bootstrap and update details](RELEASE.md#updating) for older installs.
 The archive requires CUDA 13, NCCL 2 and OpenSSL 3 runtime libraries, with exact
 dependencies listed in `release-manifest.json`; they must already be installed.
 This is not a portable Mac binary

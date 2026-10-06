@@ -139,4 +139,4 @@ preserved, but the new binary still requires a bounded compatibility check.
 
 Extract into a new directory and reuse verified models with `--model-dir`.
 Preserve your previous directory, launch command, ports and authentication for
-rollback. No service configuration is migrated automatically. See [upgrades](RELEASE.md#upgrading).
+rollback. No service configuration is migrated automatically. See [upgrades](RELEASE.md#updating).

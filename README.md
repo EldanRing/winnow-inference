@@ -1,5 +1,15 @@
 # Winnow inference
 
+## Update
+
+```sh
+bin/winnow update
+```
+
+Update the matching client, manifests and native server together. Your model files
+and launch settings stay in place; no repeated cloning or manual install copies.
+[One-time bootstrap for older installs and platform details](docs/RELEASE.md#updating).
+
 A native llama.cpp server for local typed decisions and regular chat, sharing one
 loaded model. `/v1/systemone` evaluates `noul`, `choice`, and `score` questions
 against a shared state. `/v1/chat/completions` retains llama-server's chat, vision,

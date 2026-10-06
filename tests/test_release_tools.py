@@ -78,7 +78,7 @@ class ReleaseTools(unittest.TestCase):
             (root / "private-release/data.json").write_text("private fixture")
             output = Path(temporary) / "public"
             receipt = package(root, output, init_git=True)
-            self.assertEqual(set(receipt["files"]), {"README.md", ".gitignore"})
+            self.assertEqual(set(receipt["files"]), {"README.md", ".gitignore", "release-manifest.json"})
             count = subprocess.check_output(["git", "rev-list", "--count", "HEAD"], cwd=output)
             self.assertEqual(count.strip(), b"1")
             self.assertFalse((output / "private-release").exists())

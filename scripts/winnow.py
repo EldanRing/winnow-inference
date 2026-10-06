@@ -46,7 +46,7 @@ def serve_command(a):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('action', choices=['download', 'serve', 'decide', 'presets', 'setup'])
+    p.add_argument('action', choices=['download', 'serve', 'decide', 'presets', 'setup', 'update', 'rollback'])
     p.add_argument('--model', '--preset', choices=[*MODEL_ALIASES, *MODELS], default='q8', help='Short model preset; explicit mode/context flags override defaults')
     p.add_argument('--context', type=context_size, default=DEFAULT_CONTEXT, help='Tokens, e.g. 4k, 16k or 65536 (default: 8k)')
     p.add_argument('--cache', choices=['f16', 'q8_0'], default='f16', help='Target K/V cache (default: f16); draft cache flags stay q8_0')
@@ -59,6 +59,10 @@ def main():
     p.add_argument('--offline', action='store_true', help='Require local assets; never contact a download server')
     p.add_argument('--server', type=Path)
     a, extra = p.parse_known_args()
+    if a.action in {'update', 'rollback'}:
+        from update import main as update_main
+        update_main([a.action, *sys.argv[2:]])
+        return
     a.reasoning = normalize_reasoning(a.reasoning)
     try:
         if a.action == 'presets':
