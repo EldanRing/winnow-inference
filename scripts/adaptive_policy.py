@@ -46,7 +46,8 @@ def load_policy(policy_id, policy_manifest=None):
     if (generation.get("max_tokens") != -1 or generation.get("ignore_eos") is not False
             or generation.get("temperature") != 0 or generation.get("seed") != 314159
             or generation.get("reasoning_effort") != "none"
-            or generation.get("prompt_format", "bounded-v1") not in {"bounded-v1", "e2b-canonical-v2"}):
+            or generation.get("prompt_format", "bounded-v1") not in {
+                "bounded-v1", "e2b-canonical-v2", "e2b-native-labels-v3"}):
         raise ValueError("Unsupported reasoning generation contract")
     manifest["generation"] = generation
     return manifest, manifest["policies"][policy_id]
@@ -91,6 +92,21 @@ def rendered_options(question, keys):
         description = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
         options.append(description if question["type"] == "score" else key + ": " + description)
     return options
+
+
+def native_option_lines(descriptions, identity):
+    """Use the inspected scorer's labels; never guess from an option index."""
+    labels, token_ids = identity.get("labels"), identity.get("label_token_ids")
+    if (not isinstance(labels, list) or not isinstance(token_ids, list)
+            or len(labels) != len(token_ids) or not len(descriptions) <= len(labels) <= 64
+            or any(not isinstance(label, str) or not label or len(label) > 2
+                   or any(c not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" for c in label) for label in labels)
+            or len(set(labels)) != len(labels)
+            or any(type(token) is not int or token < 0 for token in token_ids)
+            or len(set(token_ids)) != len(token_ids)):
+        raise ValueError("Missing or invalid native candidate label mapping")
+    return "\n".join(label + ": " + json.dumps(value, ensure_ascii=False)
+                     for label, value in zip(labels, descriptions))
 
 
 def softmax(logits, temperature):
@@ -342,14 +358,18 @@ class DecisionPipeline:
                 INSTRUCTION + "\nTask state:\n" + json.dumps(body["state"], separators=(",", ":"))
                 + "\nDecision question:\n" + json.dumps(question, separators=(",", ":"))
             )
-            if prompt_format == "e2b-canonical-v2":
+            if prompt_format in {"e2b-canonical-v2", "e2b-native-labels-v3"}:
                 descriptions = rendered_options(question, keys)
+                options = ("\nOptions:\n" + native_option_lines(descriptions, identity)
+                           if prompt_format == "e2b-native-labels-v3" else
+                           "\nOptions (in candidate order):\n" + "\n".join(
+                               f"{i+1}. {json.dumps(value, ensure_ascii=False)}"
+                               for i, value in enumerate(descriptions)))
                 prompt = ("Analyze the task state and question. Work through the relevant rules and facts, "
                           "including intermediate steps when useful. Explain your reasoning as context for "
                           "a separate decision scorer.\nState:\n" + json.dumps(body["state"], ensure_ascii=False, separators=(",", ":"))
                           + "\nQuestion:\n" + json.dumps(question.get("instructions"), ensure_ascii=False, separators=(",", ":"))
-                          + "\nOptions (in candidate order):\n" + "\n".join(
-                              f"{i+1}. {json.dumps(value, ensure_ascii=False)}" for i, value in enumerate(descriptions)))
+                          + options)
             if self.profile:
                 # Escape token markers inside user data, as the native state compiler does.
                 prompt = prompt.replace("<", "\\u003c")

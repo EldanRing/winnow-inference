@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "policy_set_version": "adaptive-20261006-e2b-v3",
+  "policy_set_version": "adaptive-20261006-e2b-v4",
   "default_mode": "direct",
   "generation": {
     "max_tokens": -1,
@@ -186,6 +186,46 @@
         "prompt_format": "e2b-canonical-v2"
       },
       "quality_limit": "The canonical-v2 option serialization differs from the historical 8K benchmark prompt. Current text/image integration checks establish behavior, not quality validation; 64K evidence covers fit and small requests only."
+    },
+    "e2b-raw99-blend50-v3": {
+      "id": "e2b-raw99-blend50-v3",
+      "model_slug": "e2b-q8",
+      "alias": "Winnow-E2B",
+      "experimental": true,
+      "target": {
+        "sha256": "cb37414b46b5c4ac54ea9a44f71bb6147991c34e6be414a8cdd359cc10f0dfb1",
+        "bytes": 4954594336
+      },
+      "assistant": {
+        "sha256": "0772dcc50761a47a2da87151d3105ad2b82994d9dd1dae3ad3c5c0cd26086b16",
+        "bytes": 170194016,
+        "repository": "google/gemma-4-E2B-it-assistant",
+        "revision": "2d874ef7d29f9a30599a1e4b3c1cbc9595f005df"
+      },
+      "policy": {
+        "direct_temperature": 1.0,
+        "augmented_temperature": 1.0,
+        "weight": 0.5,
+        "gate": "raw_maxP",
+        "threshold": 0.99
+      },
+      "profile": {
+        "batch": 1024,
+        "ubatch": 1024
+      },
+      "scope": "One-question text or image decisions with an explicit E2B runtime profile.",
+      "runtime_contract_required": true,
+      "generation": {
+        "max_tokens": -1,
+        "ignore_eos": false,
+        "context": 8192,
+        "temperature": 0,
+        "seed": 314159,
+        "reasoning_effort": "none",
+        "request_seconds": 180,
+        "prompt_format": "e2b-native-labels-v3"
+      },
+      "quality_limit": "Restores native scorer label serialization while retaining canonical candidate semantics. A frozen 24-case controlled comparison isolated prompt drift and reproduced historical reasoning on all 23 inputs without literal less-than escaping. This is bounded regression evidence, not full-panel or independent text/image/64K quality validation."
     }
   }
 }

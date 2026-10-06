@@ -63,11 +63,14 @@ CLI offers `--policy-manifest PATH --runtime-profile PATH`. Use the model's own
 verified launcher. A 64K contract declares capacity and settings; it does not
 validate policy quality at 64K.
 
-The `e2b-canonical-v2` prompt format preserves native candidate semantics:
+The `e2b-native-labels-v3` prompt format preserves native candidate semantics:
 choice and Boolean keys name the option, non-null values describe it, and null
 score values use their numeric index. Options retain native candidate order.
-This format has distinct prompt serialization from historical E2B experiments;
-it does not inherit their quality measurements.
+Options use the actual labels returned by native inspection, including labels
+beyond Z, so the explanation and final scorer share the same mapping. Missing
+or inconsistent inspection labels are rejected instead of guessed. The old
+numbered `e2b-canonical-v2` format remains available for reproducibility.
+Bounded text regression checks do not validate image or 64K quality.
 
 Internal adaptive generation explicitly sends
 `chat_template_kwargs.enable_thinking=false`, independently of the server's

@@ -82,7 +82,7 @@
     },
     "e2b-q8": {
       "alias": "Winnow-E2B",
-      "policy": "e2b-raw99-blend50-v2",
+      "policy": "e2b-raw99-blend50-v3",
       "mtp_vision_preset": "e2b-q8-vision8k-mtp",
       "model": {
         "file": "gguf/Winnow-E2B-Q8_0.gguf",

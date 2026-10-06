@@ -73,10 +73,18 @@ and policy quality at 64K have not been validated.
 
 ## Evidence and limits
 
-The current `e2b-raw99-blend50-v2` policy uses canonical option names,
-descriptions, null fallbacks and native order. Its option serialization differs
-from the original benchmark prompt. Historical measurements below therefore
-do not validate this integrated prompt; a new quality comparison remains open.
+The current `e2b-raw99-blend50-v3` policy preserves canonical option names,
+descriptions, null fallbacks and native order, and labels them using the scorer's
+actual inspected letter labels. The previous numbered `e2b-raw99-blend50-v2`
+remains available for reproducibility. Gate, blend, calibration, safe state
+augmentation and explicit thinking-off are unchanged.
+
+A private frozen 24-case controlled check reproduced the numbered baseline
+exactly and isolated option serialization as a cause of changed reasoning.
+Native labels reproduced historical explanations on all 23 inputs without
+literal `<` escaping; escaping remains enabled. Template-setting pairs and
+same-text native rescoring were identical. This is bounded regression evidence,
+not a full-panel rerun or independent text, image or 64K quality validation.
 
 The historical 8K F16/backend study used 288 selection cases and 288 disjoint
 holdout cases from LogiQA2, PAWS and HelpSteer2. Against the earlier 0.80/50% rule,

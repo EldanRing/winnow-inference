@@ -21,12 +21,14 @@ from adaptive_policy import DecisionPipeline, keys_for, load_policy, softmax
 from reasoning_contract import load_profile
 from test_adaptive_pipeline import FakeTransport, body, generation, native
 
-POLICY = "e2b-raw99-blend50-v2"
+POLICY = "e2b-raw99-blend50-v3"
 IMAGES = ["data:image/png;base64,Zmlyc3Q=", "data:image/png;base64,c2Vjb25k"]
 
 
 def inspection(profile, images=False):
-    return dict(runtime=copy.deepcopy(profile["runtime"]), prefix_tokens=120,
+    runtime = copy.deepcopy(profile["runtime"])
+    runtime.update(labels=["A", "B", "C"], label_token_ids=[101, 102, 103])
+    return dict(runtime=runtime, prefix_tokens=120,
                 suffix_tokens=[30], image_tokens=42 if images else 0)
 
 
@@ -116,7 +118,7 @@ class E2BRelease(unittest.TestCase):
     def test_generation_override_does_not_change_released_recipes(self):
         base = json.loads((ROOT / "manifests/adaptive-v1.json").read_text())
         e2b, _ = load_policy(POLICY)
-        self.assertEqual(e2b["generation"]["prompt_format"], "e2b-canonical-v2")
+        self.assertEqual(e2b["generation"]["prompt_format"], "e2b-native-labels-v3")
         for identifier in ("q8-fixed50-v1", "nvfp4-entropy-v1", "e4b-calibrated50-v1", "e4b-calibrated75-g95-v1"):
             manifest, _ = load_policy(identifier)
             self.assertEqual(manifest["generation"], base["generation"])

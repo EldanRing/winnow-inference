@@ -35,7 +35,9 @@ def profile(policy=POLICY):
 
 
 def inspection(p=None, prefix=100, suffix=20, images=True):
-    return dict(runtime=copy.deepcopy((p or profile())["runtime"]), prefix_tokens=prefix,
+    runtime = copy.deepcopy((p or profile())["runtime"])
+    runtime.update(labels=["A", "B", "C"], label_token_ids=[101, 102, 103])
+    return dict(runtime=runtime, prefix_tokens=prefix,
                 suffix_tokens=[suffix], image_tokens=42 if images else 0)
 
 
